@@ -1,0 +1,85 @@
+name: Create Issues from TASKS
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - TASKS.md
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  create-issues:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Create GitHub issues from TASKS.md
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = 'TASKS.md';
+
+            if (!fs.existsSync(path)) {
+              core.setFailed('TASKS.md không tồn tại.');
+              return;
+            }
+
+            const content = fs.readFileSync(path, 'utf8');
+            const lines = content.split(/\r?\n/);
+
+            let section = 'Backlog';
+            const tasks = [];
+
+            for (const line of lines) {
+              const heading = line.match(/^###\s+(.+)$/);
+              if (heading) {
+                section = heading[1].trim();
+                continue;
+              }
+
+              const task = line.match(/^- \[ \]\s+(.+)$/);
+              if (task) {
+                tasks.push({
+                  title: task[1].trim(),
+                  section,
+                });
+              }
+            }
+
+            if (!tasks.length) {
+              core.info('Không tìm thấy task dạng checkbox chưa hoàn thành trong TASKS.md.');
+              return;
+            }
+
+            const { data: existingIssues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              per_page: 100,
+            });
+
+            const existingTitles = new Set(existingIssues.map((issue) => issue.title));
+
+            for (const task of tasks) {
+              const title = `[Backlog] ${task.title}`;
+
+              if (existingTitles.has(title)) {
+                core.info(`Đã tồn tại issue: ${title}`);
+                continue;
+              }
+
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title,
+                body: `Được tạo tự động từ TASKS.md\n\n- Nhóm: ${task.section}\n- Nguồn: \`TASKS.md\``,
+                labels: ['backlog', 'auto-generated'],
+              });
+
+              core.info(`Đã tạo issue: ${title}`);
+            }
