@@ -59,6 +59,7 @@ function run() {
     'auth': 'd93f0b',
     'security': 'b60205',
     'room': 'fbca04',
+    'crud': '0052cc',
     'customer': '1f883d',
     'service': 'bfd4f2',
     'booking': 'e99695',
