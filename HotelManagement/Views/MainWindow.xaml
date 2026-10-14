@@ -1,0 +1,71 @@
+<Window x:Class="HotelManagement.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:HotelManagement.ViewModels"
+        xmlns:views="clr-namespace:HotelManagement.Views"
+        Title="Quản Lý Khách Sạn"
+        Width="1280" Height="720"
+        MinWidth="1024" MinHeight="600"
+        WindowStartupLocation="CenterScreen">
+    <Window.Resources>
+        <DataTemplate DataType="{x:Type vm:RoomMapViewModel}">
+            <views:RoomMapView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:BookingViewModel}">
+            <views:BookingView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:RoomViewModel}">
+            <views:RoomView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:CustomerViewModel}">
+            <views:CustomerView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:ServiceViewModel}">
+            <views:ServiceView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:InvoiceViewModel}">
+            <views:InvoiceView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:ReportViewModel}">
+            <views:ReportView />
+        </DataTemplate>
+    </Window.Resources>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="220" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="56" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Sidebar menu -->
+        <StackPanel Grid.Row="0" Grid.RowSpan="2" Grid.Column="0"
+                    Background="{StaticResource SidebarBackground}">
+            <TextBlock Text="KHÁCH SẠN IT008"
+                       Foreground="{StaticResource SidebarText}"
+                       FontSize="16" FontWeight="Bold"
+                       Margin="16,16,16,12" />
+            <Button Content="Sơ đồ phòng" Command="{Binding ShowRoomMapCommand}" Style="{StaticResource SidebarButtonStyle}" />
+            <Button Content="Đặt phòng" Command="{Binding ShowBookingCommand}" Style="{StaticResource SidebarButtonStyle}" />
+            <Button Content="Phòng" Command="{Binding ShowRoomsCommand}" Style="{StaticResource SidebarButtonStyle}" />
+            <Button Content="Khách hàng" Command="{Binding ShowCustomersCommand}" Style="{StaticResource SidebarButtonStyle}" />
+            <Button Content="Dịch vụ" Command="{Binding ShowServicesCommand}" Style="{StaticResource SidebarButtonStyle}" />
+            <Button Content="Hóa đơn" Command="{Binding ShowInvoicesCommand}" Style="{StaticResource SidebarButtonStyle}" />
+            <Button Content="Báo cáo" Command="{Binding ShowReportsCommand}" Style="{StaticResource SidebarButtonStyle}" />
+        </StackPanel>
+
+        <!-- Header (tên nhân viên + đăng xuất thật thuộc TASK-03) -->
+        <DockPanel Grid.Row="0" Grid.Column="1" Background="{StaticResource HeaderBackground}">
+            <TextBlock Text="Hệ thống Quản Lý Khách Sạn" Style="{StaticResource HeaderTitleStyle}" />
+            <Button Content="Đăng xuất" Command="{Binding LogoutCommand}"
+                    DockPanel.Dock="Right" Margin="0,0,16,0" Padding="16,6"
+                    VerticalAlignment="Center" />
+        </DockPanel>
+
+        <!-- Vùng hiển thị View động -->
+        <ContentControl Grid.Row="1" Grid.Column="1"
+                        Content="{Binding CurrentView}" Margin="16" />
+    </Grid>
+</Window>
