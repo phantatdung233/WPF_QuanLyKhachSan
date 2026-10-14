@@ -48,7 +48,7 @@ Phát triển ứng dụng WPF Quản lý Khách sạn chuẩn kiến trúc MVVM
 
 - **Architectural Pattern**: MVVM with `CommunityToolkit.Mvvm` (`ObservableObject`, `[ObservableProperty]`, `[RelayCommand]`). View navigation is managed via `CurrentView` property in `MainViewModel` hosting Views inside a central `ContentControl`. Input forms use `Window.ShowDialog()`.
 - **Database & Persistence**: Microsoft SQL Server (SSMS / SQL Server Express). Database schema and seed data are maintained in `Database/HotelDB.sql` with 8 core tables: `Users`, `RoomTypes`, `Rooms`, `Customers`, `Bookings`, `Services`, `BookingServices`, `Invoices`.
-- **Data Access Layer**: Pure ADO.NET (`SqlConnection`, `SqlCommand`, `SqlDataReader`, `SqlDataAdapter`) via reusable `DataProvider.cs` and Data Access Objects (`UserDAO`, `RoomDAO`, `CustomerDAO`, `BookingDAO`, `ServiceDAO`, `InvoiceDAO`).
+- **Data Access Layer**: Pure ADO.NET (`SqlConnection`, `SqlCommand`, `SqlDataReader`, `SqlDataAdapter` từ thư viện `Microsoft.Data.SqlClient`) via reusable `DataProvider.cs` and Data Access Objects (`UserDAO`, `RoomDAO`, `CustomerDAO`, `BookingDAO`, `ServiceDAO`, `InvoiceDAO`).
 - **Domain Status Representations**:
   - `RoomStatus`: `Trống` (Available), `Đang ở` (Occupied), `Đã đặt` (Reserved), `Bảo trì` (Maintenance).
   - `BookingStatus`: `Đã đặt` (Reserved), `Đang ở` (Occupied), `Hoàn thành` (Completed), `Đã hủy` (Cancelled).

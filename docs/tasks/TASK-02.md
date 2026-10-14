@@ -23,7 +23,8 @@
   7. `BookingServices`: `Id` (PK), `BookingId` (FK), `ServiceId` (FK), `Quantity`, `UnitPrice`.
   8. `Invoices`: `InvoiceId` (PK), `BookingId` (FK), `RoomCharge`, `ServiceCharge`, `TotalAmount`, `PaymentMethod`, `PaymentDate`, `Status`.
 - Cài đặt sẵn khối lệnh nạp dữ liệu mẫu ban đầu (`INSERT INTO`) trong script để phục vụ demo.
-- Viết lớp `DataProvider.cs` trong thư mục `DAO/` bằng ADO.NET thuần (`Microsoft.Data.SqlClient` hoặc `System.Data.SqlClient`).
+- Cài package `Microsoft.Data.SqlClient` (bản stable mới nhất, hiện tại 7.1.1) qua NuGet: đây là driver ADO.NET chính thức của Microsoft, thay cho `System.Data.SqlClient` đã ngừng phát triển tính năng mới.
+- Viết lớp `DataProvider.cs` trong thư mục `DAO/` bằng ADO.NET thuần trên namespace `Microsoft.Data.SqlClient` (`using Microsoft.Data.SqlClient;`).
 - Viết các class Models cơ bản (`User.cs`, `RoomType.cs`, `Room.cs`) có constructor nhận tham số `DataRow` để map dữ liệu nhanh chóng.
 
 ---

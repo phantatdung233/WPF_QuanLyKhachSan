@@ -42,7 +42,7 @@ Check-in → Thêm dịch vụ → Check-out / Hóa đơn → Báo cáo doanh th
 | UI | .NET 10 WPF, XAML thuần (không dùng thư viện biểu đồ ngoài) |
 | Kiến trúc | MVVM với `CommunityToolkit.Mvvm` (`ObservableObject`, `[ObservableProperty]`, `[RelayCommand]`) |
 | Cơ sở dữ liệu | SQL Server / SQL Server Express, script `Database/HotelDB.sql` (8 bảng) |
-| Truy cập dữ liệu | ADO.NET thuần qua `DataProvider.cs` + các lớp DAO, tham số hóa chống SQL Injection |
+| Truy cập dữ liệu | ADO.NET thuần qua `DataProvider.cs` + các lớp DAO, thư viện `Microsoft.Data.SqlClient`, tham số hóa chống SQL Injection |
 
 ## Yêu cầu môi trường
 

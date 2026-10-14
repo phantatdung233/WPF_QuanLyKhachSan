@@ -63,7 +63,7 @@ Tài liệu Task Backlog đóng vai trò **Single Source of Truth** cho đồ á
   - [ ] Tạo file script Database/HotelDB.sql gồm lệnh CREATE DATABASE, CREATE TABLE cho 8 bảng: Users, RoomTypes, Rooms, Customers, Bookings, Services, BookingServices, Invoices.
   - [ ] Nạp sẵn dữ liệu mẫu (INSERT INTO) trong script: 2 Users (Admin, Staff), 4 loại phòng, 12 phòng, 5 khách hàng, 5 dịch vụ.
   - [ ] Chạy file script thành công trên SSMS (SQL Server Management Studio / SQL Server Express).
-  - [ ] Viết lớp DataProvider.cs (ADO.NET) kết nối chuỗi .\SQLEXPRESS với 3 phương thức: ExecuteQuery, ExecuteNonQuery, ExecuteScalar có truyền tham số chống SQL Injection.
+  - [ ] Cài package `Microsoft.Data.SqlClient` qua NuGet; viết lớp DataProvider.cs (ADO.NET) kết nối chuỗi .\SQLEXPRESS với 3 phương thức: ExecuteQuery, ExecuteNonQuery, ExecuteScalar có truyền tham số chống SQL Injection.
   - [ ] Viết các class Models cơ bản (User, RoomType, Room) có constructor nhận DataRow.
 
 ---
