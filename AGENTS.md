@@ -1,6 +1,6 @@
 # Project Agent Guidelines
 
-Hotel Management System (WPF .NET 8 MVVM) - IT008.
+Hotel Management System (WPF .NET 10 MVVM) - IT008.
 
 ## Agent skills
 

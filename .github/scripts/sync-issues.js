@@ -260,7 +260,7 @@ function run() {
           '',
           '## Tham khảo',
           '',
-          '- SPEC tổng: #77 — Hotel Management System (WPF .NET 8 MVVM, SQL Server + ADO.NET)',
+          '- SPEC tổng: #77 — Hotel Management System (WPF .NET 10 MVVM, SQL Server + ADO.NET)',
           '- Backlog chuẩn: [`TASKS.md`](https://github.com/phantatdung233/WPF_QuanLyKhachSan/blob/main/TASKS.md)',
           `- Tài liệu gốc: [\`docs/tasks/${task.id}.md\`](https://github.com/phantatdung233/WPF_QuanLyKhachSan/blob/main/docs/tasks/${task.id}.md)`,
           '- Glossary thuật ngữ: [`GLOSSARY.md`](https://github.com/phantatdung233/WPF_QuanLyKhachSan/blob/main/GLOSSARY.md)',

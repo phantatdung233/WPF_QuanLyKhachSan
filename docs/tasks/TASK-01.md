@@ -1,4 +1,4 @@
-# [TASK-01] Khởi tạo Solution WPF .NET 8 & Kiến trúc MVVM Toolkit
+# [TASK-01] Khởi tạo Solution WPF .NET 10 & Kiến trúc MVVM Toolkit
 
 **Part of Spec**: [#77](https://github.com/phantatdung233/WPF_QuanLyKhachSan/issues/77)  
 **Mã Task**: `TASK-01`  
@@ -12,7 +12,7 @@
 ---
 
 ## 1. Bối cảnh & Mục tiêu kỹ thuật (Architecture & Scope)
-- Khởi tạo Solution .NET 8 WPF mang tên `HotelManagement`.
+- Khởi tạo Solution .NET 10 WPF mang tên `HotelManagement`.
 - Cài đặt package duy nhất: `CommunityToolkit.Mvvm` (phiên bản 8.x) qua NuGet.
 - Tổ chức cấu trúc thư mục rõ ràng theo mô hình MVVM sinh viên:
   - `Models/`: Chứa các lớp thực thể (`User.cs`, `Room.cs`, `Customer.cs`...).
@@ -37,7 +37,7 @@
 
 ## 3. Tiêu chí nghiệm thu & Ca biên (Acceptance Criteria & Edge Cases)
 ### Checklist Definition of Done:
-- [ ] Solution tạo bằng .NET 8 WPF, chạy thành công không có lỗi/cảnh báo.
+- [ ] Solution tạo bằng .NET 10 WPF, chạy thành công không có lỗi/cảnh báo.
 - [ ] Cài đặt package CommunityToolkit.Mvvm (8.x).
 - [ ] Tổ chức cấu trúc thư mục chuẩn: Models/, Views/, ViewModels/, DAO/, Resources/.
 - [ ] ViewModelBase kế thừa ObservableObject từ MVVM Toolkit hỗ trợ [ObservableProperty] và [RelayCommand].

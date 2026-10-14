@@ -1,4 +1,4 @@
-# IT008 — Scrum Task Backlog: Quản Lý Khách Sạn (WPF, .NET 8)
+# IT008 — Scrum Task Backlog: Quản Lý Khách Sạn (WPF, .NET 10)
 
 Tài liệu Task Backlog đóng vai trò **Single Source of Truth** cho đồ án IT008. Toàn bộ danh sách 12 Task dưới đây được tinh gọn theo chuẩn đồ án thực hành của sinh viên năm 2, kết nối SQL Server (SSMS), ADO.NET thuần DataProvider, MVVM Toolkit không dùng DI phức tạp và 2 tính năng nâng cao ăn điểm tối đa.
 
@@ -13,7 +13,7 @@ Tài liệu Task Backlog đóng vai trò **Single Source of Truth** cho đồ á
 
 ### 1.2. Phân công 3 thành viên (Mỗi thành viên 4 Tasks trọng tâm)
 - **Member A (Trưởng nhóm: Khung nền tảng, CSDL & Quản lý Phòng)**:
-  - Khởi tạo Solution WPF .NET 8, CommunityToolkit.Mvvm (TASK-01)
+  - Khởi tạo Solution WPF .NET 10, CommunityToolkit.Mvvm (TASK-01)
   - Thiết kế Database SQL Server 8 bảng & DataProvider.cs ADO.NET (TASK-02)
   - Màn hình Đăng nhập & Phân quyền Admin / Nhân viên (TASK-03)
   - Module Quản lý Phòng & Loại phòng (TASK-04)
@@ -38,14 +38,14 @@ Tài liệu Task Backlog đóng vai trò **Single Source of Truth** cho đồ á
 
 ## 2. Chi Tiết Danh Sách Tasks
 
-### [TASK-01] Khởi tạo Solution WPF .NET 8 & Kiến trúc MVVM Toolkit
+### [TASK-01] Khởi tạo Solution WPF .NET 10 & Kiến trúc MVVM Toolkit
 - **Assignee**: Member A
 - **Priority**: High
 - **Labels**: `core`, `architecture`, `m1`
 - **Branch**: `feature/core-mvvm-setup`
 - **Milestone**: Mốc 1: Khung Ứng Dụng, CSDL & Danh Mục Cơ Bản (Tuần 1-3)
 - **Definition of Done**:
-  - [ ] Solution tạo bằng .NET 8 WPF, chạy thành công không có lỗi/cảnh báo.
+  - [ ] Solution tạo bằng .NET 10 WPF, chạy thành công không có lỗi/cảnh báo.
   - [ ] Cài đặt package CommunityToolkit.Mvvm (8.x).
   - [ ] Tổ chức cấu trúc thư mục chuẩn: Models/, Views/, ViewModels/, DAO/, Resources/.
   - [ ] ViewModelBase kế thừa ObservableObject từ MVVM Toolkit hỗ trợ [ObservableProperty] và [RelayCommand].

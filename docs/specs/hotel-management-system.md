@@ -1,4 +1,4 @@
-# Specification: Hotel Management System (WPF .NET 8 MVVM)
+# Specification: Hotel Management System (WPF .NET 10 MVVM)
 
 **Issue Tracker Reference**: [Issue #77](https://github.com/phantatdung233/WPF_QuanLyKhachSan/issues/77)  
 **Status**: `ready-for-agent`
@@ -7,7 +7,7 @@
 
 ## Problem Statement
 
-Quản lý khách sạn truyền thống bằng sổ sách hoặc bảng tính Excel dễ dẫn đến sai sót: trùng lịch phòng (overbooking), thất thoát chi phí dịch vụ phát sinh khi khách lưu trú, tính sai hóa đơn khi trả phòng, và khó nắm bắt tổng quan tình trạng phòng theo thời gian thực. Đồ án IT008 (Lập trình trực quan) cần một ứng dụng desktop trực quan, tin cậy xây dựng trên nền tảng .NET 8 WPF MVVM, đáp ứng đầy đủ chu trình vận hành khách sạn khép kín và phù hợp với năng lực triển khai thực tế của nhóm sinh viên năm 2.
+Quản lý khách sạn truyền thống bằng sổ sách hoặc bảng tính Excel dễ dẫn đến sai sót: trùng lịch phòng (overbooking), thất thoát chi phí dịch vụ phát sinh khi khách lưu trú, tính sai hóa đơn khi trả phòng, và khó nắm bắt tổng quan tình trạng phòng theo thời gian thực. Đồ án IT008 (Lập trình trực quan) cần một ứng dụng desktop trực quan, tin cậy xây dựng trên nền tảng .NET 10 WPF MVVM, đáp ứng đầy đủ chu trình vận hành khách sạn khép kín và phù hợp với năng lực triển khai thực tế của nhóm sinh viên năm 2.
 
 ## Solution
 
