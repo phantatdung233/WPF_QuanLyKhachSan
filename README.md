@@ -46,7 +46,10 @@ Check-in → Thêm dịch vụ → Check-out / Hóa đơn → Báo cáo doanh th
 
 ## Yêu cầu môi trường
 
-- Visual Studio 2022 (workload .NET Desktop Development, .NET 10 SDK)
+- Visual Studio 2026 (workload .NET Desktop Development, kèm .NET 10 SDK).
+  Không dùng Visual Studio 2022 cho project này: VS2022 không hỗ trợ target
+  `net10.0` (chỉ build được qua `dotnet` CLI với .NET 10 SDK rời, mất designer
+  và project-system đầy đủ).
 - SQL Server Express (hoặc LocalDB) + SQL Server Management Studio (SSMS)
 
 ## Cài đặt và chạy
@@ -58,7 +61,8 @@ Check-in → Thêm dịch vụ → Check-out / Hóa đơn → Báo cáo doanh th
    5 khách hàng, 5 dịch vụ).
 3. Kiểm tra chuỗi kết nối trong `DataProvider.cs` khớp tên SQL Server trên máy
    (ví dụ `.\SQLEXPRESS`).
-4. Mở solution trong Visual Studio, nhấn F5.
+4. Mở solution trong Visual Studio 2026, nhấn F5. Nếu chỉ có .NET 10 SDK rời,
+   build/chạy bằng lệnh `dotnet build` / `dotnet run --project HotelManagement`.
 
 Để reset dữ liệu trước buổi demo, chỉ cần chạy lại `HotelDB.sql` trong SSMS.
 
