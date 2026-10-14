@@ -3,7 +3,7 @@
 **Part of Spec**: [#77](https://github.com/phantatdung233/WPF_QuanLyKhachSan/issues/77)  
 **Mã Task**: `TASK-08`  
 **GitHub Issue**: [#80](https://github.com/phantatdung233/WPF_QuanLyKhachSan/issues/80)  
-**Thành viên đảm nhiệm**: **Member B (@phantatdung)**  
+**Thành viên đảm nhiệm**: **Member B (@xuanduong29)**  
 **Mức độ ưu tiên**: `High`  
 **Nhánh làm việc**: `feature/checkin-checkout-services`  
 **Milestone**: Mốc 2: Nghiệp Vụ Cốt Lõi, Sơ Đồ Phòng & Hóa Đơn (Tuần 3-5)  

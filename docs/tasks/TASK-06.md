@@ -3,7 +3,7 @@
 **Part of Spec**: [#77](https://github.com/phantatdung233/WPF_QuanLyKhachSan/issues/77)  
 **Mã Task**: `TASK-06`  
 **GitHub Issue**: [#79](https://github.com/phantatdung233/WPF_QuanLyKhachSan/issues/79)  
-**Thành viên đảm nhiệm**: **Member B (@phantatdung)**  
+**Thành viên đảm nhiệm**: **Member B (@xuanduong29)**  
 **Mức độ ưu tiên**: `Medium`  
 **Nhánh làm việc**: `feature/service-management`  
 **Milestone**: Mốc 1: Khung Ứng Dụng, CSDL & Danh Mục Cơ Bản (Tuần 1-3)  

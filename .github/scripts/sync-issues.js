@@ -229,28 +229,28 @@ function run() {
           sections = rawLines.slice(startIdx, endIdx === -1 ? undefined : endIdx).join('\n').replace(/\n+$/, '');
         }
         const labelsStr = task.labels.map(l => `\`${l}\``).join(', ');
-        const prioBadge = /high/i.test(task.priority) ? '🔴 High' : (/medium/i.test(task.priority) ? '🟡 Medium' : task.priority);
+        const priority = task.priority;
         // Find canonical issue number from docs metadata "**GitHub Issue**: [#NN]"
         const issueLine = getMeta('GitHub Issue');
         const issueNumMatch = issueLine.match(/#(\d+)/);
         const issueNum = issueNumMatch ? issueNumMatch[1] : '';
         return [
-          `> 📌 Part of SPEC #77 · 📄 \`docs/tasks/${task.id}.md\` · 🗂️ \`TASKS.md\` là Single Source of Truth`,
+          `> Part of SPEC #77 · Docs: \`docs/tasks/${task.id}.md\` · \`TASKS.md\` là Single Source of Truth`,
           '',
           `# ${task.title}`,
           '',
-          '## 🎯 Thông tin Task',
+          '## Thông tin Task',
           '',
           '| Trường | Giá trị |',
           '|---|---|',
-          `| 🆔 Mã Task | \`${task.id}\` |`,
-          issueNum ? `| 🔗 GitHub Issue | #${issueNum} |` : `| 🔗 GitHub Issue | — |`,
-          `| 👤 Thành viên | ${member} |`,
-          `| ⚡ Ưu tiên | ${prioBadge} |`,
-          `| 🌿 Branch | ${branch} |`,
-          `| 🏁 Milestone | ${task.milestone} |`,
-          `| ⛔ Blocked by | ${blocked} |`,
-          `| 🏷️ Labels | ${labelsStr} |`,
+          `| Mã Task | \`${task.id}\` |`,
+          issueNum ? `| GitHub Issue | #${issueNum} |` : `| GitHub Issue | — |`,
+          `| Thành viên | ${member} |`,
+          `| Ưu tiên | ${priority} |`,
+          `| Branch | ${branch} |`,
+          `| Milestone | ${task.milestone} |`,
+          `| Blocked by | ${blocked} |`,
+          `| Labels | ${labelsStr} |`,
           '',
           '---',
           '',
@@ -258,14 +258,14 @@ function run() {
           '',
           '---',
           '',
-          '## 🔗 Tham khảo',
+          '## Tham khảo',
           '',
-          '- 📜 SPEC tổng: #77 — Hotel Management System (WPF .NET 8 MVVM, SQL Server + ADO.NET)',
-          '- 🗂️ Backlog chuẩn: [`TASKS.md`](https://github.com/phantatdung233/WPF_QuanLyKhachSan/blob/main/TASKS.md)',
-          `- 📄 Tài liệu gốc: [\`docs/tasks/${task.id}.md\`](https://github.com/phantatdung233/WPF_QuanLyKhachSan/blob/main/docs/tasks/${task.id}.md)`,
-          '- 📖 Glossary thuật ngữ: [`GLOSSARY.md`](https://github.com/phantatdung233/WPF_QuanLyKhachSan/blob/main/GLOSSARY.md)',
+          '- SPEC tổng: #77 — Hotel Management System (WPF .NET 8 MVVM, SQL Server + ADO.NET)',
+          '- Backlog chuẩn: [`TASKS.md`](https://github.com/phantatdung233/WPF_QuanLyKhachSan/blob/main/TASKS.md)',
+          `- Tài liệu gốc: [\`docs/tasks/${task.id}.md\`](https://github.com/phantatdung233/WPF_QuanLyKhachSan/blob/main/docs/tasks/${task.id}.md)`,
+          '- Glossary thuật ngữ: [`GLOSSARY.md`](https://github.com/phantatdung233/WPF_QuanLyKhachSan/blob/main/GLOSSARY.md)',
           '',
-          `*🔄 Đồng bộ từ \`${task.id}.md\` — mọi chỉnh sửa thực hiện trong \`docs/tasks/${task.id}.md\` rồi chạy workflow sync để cập nhật Issue${issueNum ? ` #${issueNum}` : ''}.*`,
+          `*Đồng bộ từ \`${task.id}.md\` — mọi chỉnh sửa thực hiện trong \`docs/tasks/${task.id}.md\` rồi chạy workflow sync để cập nhật Issue${issueNum ? ` #${issueNum}` : ''}.*`,
           ''
         ].join('\n');
       } catch (e) {
