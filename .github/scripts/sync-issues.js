@@ -25,9 +25,9 @@ function run() {
   // 1. TẠO HOẶC KIỂM TRA 3 MILESTONES
   console.log('\n📌 1. Kiểm tra & Khởi tạo Milestones...');
   const milestones = [
-    'Mốc 1: Module Độc Lập (Tuần 1-3)',
-    'Mốc 2: Ghép Luồng E2E & Nâng Cao (Tuần 4-5)',
-    'Mốc 3: Chốt Demo & Feature Freeze (Tuần 6)'
+    'Mốc 1: Khung Ứng Dụng, CSDL & Danh Mục Cơ Bản (Tuần 1-3)',
+    'Mốc 2: Nghiệp Vụ Cốt Lõi, Sơ Đồ Phòng & Hóa Đơn (Tuần 3-5)',
+    'Mốc 3: Báo Cáo Thống Kê & Chốt Demo (Tuần 5-6)'
   ];
 
   let existingMilestones = [];
@@ -73,6 +73,7 @@ function run() {
     'advanced': 'b60205',
     'room-map': 'd93f0b',
     'stats': '6f42c1',
+    'report': '6f42c1',
     'chart': '5319e7',
     'performance': 'd4c5f9',
     'async': '006b75',
@@ -206,17 +207,75 @@ function run() {
     console.warn('Không thể lấy danh sách issues hiện tại:', e.message);
   }
 
-  for (const task of tasks) {
-    // Xác định username assignee nếu được cung cấp
-    let assigneeUsername = '';
-    if (task.assignee.includes('Member A') && memberA) assigneeUsername = memberA;
-    else if (task.assignee.includes('Member B') && memberB) assigneeUsername = memberB;
-    else if (task.assignee.includes('Member C') && memberC) assigneeUsername = memberC;
-
-    // Xây dựng nội dung Body chuẩn với dòng ngắt thực sự (\n) và markdown giữ nguyên
+  // Helper: build detailed issue body from docs/tasks/<TASK-ID>.md (source of truth),
+  // decorated with info table. Falls back to short TASKS.md body if file missing.
+  function buildBody(task) {
+    const detailPath = path.join(process.cwd(), 'docs', 'tasks', `${task.id}.md`);
+    if (fs.existsSync(detailPath)) {
+      try {
+        const raw = fs.readFileSync(detailPath, 'utf8');
+        const rawLines = raw.split(/\r?\n/);
+        const getMeta = (key) => {
+          const ln = rawLines.find(l => l.startsWith(`**${key}**`));
+          return ln ? ln.split(':').slice(1).join(':').trim() : '';
+        };
+        const member = getMeta('Thành viên đảm nhiệm');
+        const branch = getMeta('Nhánh làm việc');
+        const blocked = getMeta('Blocked by');
+        const startIdx = rawLines.findIndex(l => l.startsWith('## 1.'));
+        const endIdx = rawLines.findIndex(l => l.startsWith('*Tài liệu tự động'));
+        let sections = '';
+        if (startIdx !== -1) {
+          sections = rawLines.slice(startIdx, endIdx === -1 ? undefined : endIdx).join('\n').replace(/\n+$/, '');
+        }
+        const labelsStr = task.labels.map(l => `\`${l}\``).join(', ');
+        const prioBadge = /high/i.test(task.priority) ? '🔴 High' : (/medium/i.test(task.priority) ? '🟡 Medium' : task.priority);
+        // Find canonical issue number from docs metadata "**GitHub Issue**: [#NN]"
+        const issueLine = getMeta('GitHub Issue');
+        const issueNumMatch = issueLine.match(/#(\d+)/);
+        const issueNum = issueNumMatch ? issueNumMatch[1] : '';
+        return [
+          `> 📌 Part of SPEC #77 · 📄 \`docs/tasks/${task.id}.md\` · 🗂️ \`TASKS.md\` là Single Source of Truth`,
+          '',
+          `# ${task.title}`,
+          '',
+          '## 🎯 Thông tin Task',
+          '',
+          '| Trường | Giá trị |',
+          '|---|---|',
+          `| 🆔 Mã Task | \`${task.id}\` |`,
+          issueNum ? `| 🔗 GitHub Issue | #${issueNum} |` : `| 🔗 GitHub Issue | — |`,
+          `| 👤 Thành viên | ${member} |`,
+          `| ⚡ Ưu tiên | ${prioBadge} |`,
+          `| 🌿 Branch | ${branch} |`,
+          `| 🏁 Milestone | ${task.milestone} |`,
+          `| ⛔ Blocked by | ${blocked} |`,
+          `| 🏷️ Labels | ${labelsStr} |`,
+          '',
+          '---',
+          '',
+          sections,
+          '',
+          '---',
+          '',
+          '## 🔗 Tham khảo',
+          '',
+          '- 📜 SPEC tổng: #77 — Hotel Management System (WPF .NET 8 MVVM, SQL Server + ADO.NET)',
+          '- 🗂️ Backlog chuẩn: [`TASKS.md`](https://github.com/phantatdung233/WPF_QuanLyKhachSan/blob/main/TASKS.md)',
+          `- 📄 Tài liệu gốc: [\`docs/tasks/${task.id}.md\`](https://github.com/phantatdung233/WPF_QuanLyKhachSan/blob/main/docs/tasks/${task.id}.md)`,
+          '- 📖 Glossary thuật ngữ: [`GLOSSARY.md`](https://github.com/phantatdung233/WPF_QuanLyKhachSan/blob/main/GLOSSARY.md)',
+          '',
+          `*🔄 Đồng bộ từ \`${task.id}.md\` — mọi chỉnh sửa thực hiện trong \`docs/tasks/${task.id}.md\` rồi chạy workflow sync để cập nhật Issue${issueNum ? ` #${issueNum}` : ''}.*`,
+          ''
+        ].join('\n');
+      } catch (e) {
+        console.warn(`     [WARN] Không đọc được docs/tasks/${task.id}.md, dùng body rút gọn:`, e.message);
+      }
+    }
+    // Fallback: short body from TASKS.md
     let body = `### Phân Công Nhiệm Vụ\n`;
     body += `- **Mã Task**: \`${task.id}\`\n`;
-    body += `- **Thành viên đảm nhiệm**: **${task.assignee}**${assigneeUsername ? ` (@${assigneeUsername})` : ''}\n`;
+    body += `- **Thành viên đảm nhiệm**: **${task.assignee}**\n`;
     body += `- **Mức độ ưu tiên**: \`${task.priority}\`\n`;
     body += `- **Nhánh làm việc gợi ý**: \`${task.branch}\`\n`;
     body += `- **Milestone**: ${task.milestone}\n\n`;
@@ -227,6 +286,18 @@ function run() {
       body += `- [ ] Hoàn thành toàn bộ chức năng theo kế hoạch đề ra.\n\n`;
     }
     body += `---\n*Tự động khởi tạo từ \`TASKS.md\` qua GitHub Actions.*`;
+    return body;
+  }
+
+  for (const task of tasks) {
+    // Xác định username assignee nếu được cung cấp
+    let assigneeUsername = '';
+    if (task.assignee.includes('Member A') && memberA) assigneeUsername = memberA;
+    else if (task.assignee.includes('Member B') && memberB) assigneeUsername = memberB;
+    else if (task.assignee.includes('Member C') && memberC) assigneeUsername = memberC;
+
+    // Body chi tiết y chang docs/tasks/*.md (có trang trí bảng thông tin)
+    const body = buildBody(task);
 
     // Tổng hợp labels
     const labels = [...task.labels];
@@ -292,6 +363,20 @@ function run() {
         console.log(`     ✓ Tạo thành công: ${res.stdout.trim()}`);
       } else {
         console.error(`     ❌ Lỗi tạo issue:`, res.stderr);
+      }
+    }
+  }
+
+  // 5. ĐÓNG CÁC TASK CŨ ĐÃ TINH GIẢN (TASK-13 đến TASK-23)
+  console.log('\n🧹 5. Dọn dẹp & đóng các Issues cũ đã tinh giản...');
+  for (const issue of existingIssues) {
+    const match = issue.title.match(/^\[(TASK-\d+)\]/);
+    if (match) {
+      const taskId = match[1];
+      const isStillActive = tasks.some(t => t.id === taskId);
+      if (!isStillActive) {
+        console.log(`  🗑️ Đóng task cũ không còn trong kế hoạch 12 task: #${issue.number} ${issue.title}`);
+        gh(['issue', 'close', String(issue.number), '--comment', 'Đã tinh giản và gộp vào lộ trình 12 task mới cho đồ án IT008.']);
       }
     }
   }

@@ -5,7 +5,7 @@ The domain model for the WPF .NET 8 hotel management system (IT008). Defines can
 ## Roles & Authentication
 
 **User**:
-An account authorized to access the system, possessing a username, hashed password, and role.
+An account authorized to access the system, possessing a username, password, and role.
 _Avoid_: Account, login, employee
 
 **Role**:

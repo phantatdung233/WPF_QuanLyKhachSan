@@ -1,48 +1,56 @@
-# [TASK-05] Module Quản lý Loại phòng (RoomType) CRUD & Binding
+# [TASK-05] Module Quản lý Khách hàng (Customer CRUD & Tìm kiếm)
 
 **Part of Spec**: [#77](https://github.com/phantatdung233/WPF_QuanLyKhachSan/issues/77)  
 **Mã Task**: `TASK-05`  
 **GitHub Issue**: [#78](https://github.com/phantatdung233/WPF_QuanLyKhachSan/issues/78)  
-**Thành viên đảm nhiệm**: **Member A (@phantatdung233)**  
-**Mức độ ưu tiên**: `Medium`  
-**Nhánh làm việc**: `feature/roomtype-management`  
-**Milestone**: Mốc 1: Module Độc Lập (Tuần 1-3)  
-**Blocked by**: #59 (TASK-02), #60 (TASK-03)  
+**Thành viên đảm nhiệm**: **Member B (@phantatdung)**  
+**Mức độ ưu tiên**: `High`  
+**Nhánh làm việc**: `feature/customer-management`  
+**Milestone**: Mốc 1: Khung Ứng Dụng, CSDL & Danh Mục Cơ Bản (Tuần 1-3)  
+**Blocked by**: #59 (TASK-02)  
 
 ---
 
 ## 1. Bối cảnh & Mục tiêu kỹ thuật (Architecture & Scope)
-- Xây dựng `RoomTypeView` và `RoomTypeViewModel`.
-- Bảng DataGrid hiển thị danh sách loại phòng: Tên loại phòng, Đơn giá cơ bản theo ngày, Sức chứa tối đa, Mô tả.
-- Form nhập liệu thêm mới và chỉnh sửa loại phòng.
+- Xây dựng `CustomerDAO.cs` trong thư mục `DAO/` và `Customer.cs` trong `Models/`.
+- Xây dựng `CustomerViewModel.cs` và giao diện `CustomerView.xaml`.
+- Hỗ trợ xem danh sách toàn bộ khách hàng bằng `DataGrid`.
+- Hỗ trợ thêm mới thông tin khách hàng, cập nhật thông tin khách hàng.
+- Thanh tìm kiếm nhanh thời gian thực theo Họ tên hoặc CMND/CCCD/SĐT.
 
 ---
 
 ## 2. Hướng dẫn nghiệp vụ & Luồng xử lý chi tiết (Implementation Details)
-- Thao tác dữ liệu qua `IRoomTypeService` hoặc trực tiếp từ `HotelDbContext`.
-- Sử dụng `ObservableCollection<RoomType>` để tự động cập nhật giao diện khi thêm/sửa/xóa.
-- Ràng buộc kiểm tra trước khi xóa: Nếu có ít nhất một `Room` đang liên kết với loại phòng này, từ chối xóa và hiển thị thông báo cảnh báo.
-- Validate đầu vào: Tên không để trống, không trùng lặp; đơn giá cơ bản > 0; sức chứa >= 1.
+- Thông tin khách hàng gồm: `CustomerId`, `FullName` (Họ và tên), `CitizenId` (CMND/CCCD), `Phone` (Số điện thoại), `Email`.
+- `CustomerView.xaml`:
+  - Ô tìm kiếm (`TextBox`): Khi người dùng gõ từ khóa, ViewModel lọc danh sách qua câu lệnh:
+    `SELECT * FROM Customers WHERE FullName LIKE '%' + @kw + '%' OR CitizenId LIKE '%' + @kw + '%' OR Phone LIKE '%' + @kw + '%'`.
+  - Nút "Thêm khách hàng": Mở `CustomerDialog.xaml`.
+  - Bảng danh sách `DataGrid`: Hiển thị thông tin khách hàng kèm nút "Sửa".
+- Form Dialog Thêm / Sửa khách hàng:
+  - Bắt buộc nhập Họ và tên.
+  - Kiểm tra định dạng CCCD: Phải là chuỗi số có độ dài 9 hoặc 12 ký tự.
+  - Kiểm tra Số điện thoại: Phải bắt đầu bằng số 0 và có 10 ký tự số.
+  - Lưu vào CSDL qua `CustomerDAO.Instance.InsertCustomer(...)` hoặc `UpdateCustomer(...)`.
 
 ---
 
 ## 3. Tiêu chí nghiệm thu & Ca biên (Acceptance Criteria & Edge Cases)
 ### Checklist Definition of Done:
-- [ ] RoomTypeView và RoomTypeViewModel hỗ trợ xem danh sách, thêm mới, sửa, xóa loại phòng.
-- [ ] Validate dữ liệu đầu vào: Tên loại phòng không trùng, đơn giá cơ bản > 0.
-- [ ] Tự động cập nhật bảng danh sách ngay lập tức khi thêm/sửa/xóa qua ObservableCollection.
-- [ ] Ràng buộc kiểm tra không cho xóa loại phòng nếu đã có phòng đang tham chiếu.
+- [ ] CustomerDAO.cs: Viết các hàm lấy danh sách, thêm, sửa, tìm kiếm khách hàng từ bảng Customers.
+- [ ] CustomerView.xaml: DataGrid hiển thị danh sách khách hàng gồm: Mã KH, Họ tên, CMND/CCCD, Số điện thoại, Email.
+- [ ] Thanh tìm kiếm nhanh khách hàng theo Họ tên hoặc CCCD/SĐT cập nhật danh sách ngay khi gõ.
+- [ ] Dialog Thêm/Sửa khách hàng: Validate bắt buộc nhập Họ tên, CCCD (độ dài 9 hoặc 12 số) và Số điện thoại hợp lệ.
 
 ### Ca biên cần xử lý (Edge Cases):
-- Nhập giá tiền âm hoặc ký tự chữ.
-- Trùng tên loại phòng (phân biệt hoa thường hoặc kiểm tra không phân biệt hoa thường).
+- Nhập CCCD hoặc SĐT chứa chữ cái hoặc ký tự đặc biệt -> Hiển thị thông báo nhắc nhở cụ thể.
+- Kiểm tra trùng lặp số CCCD giữa các khách hàng khác nhau.
 
 ---
 
 ## 4. Chiến lược kiểm thử (Testing Strategy)
-- Unit test thêm loại phòng hợp lệ.
-- Test validate đơn giá <= 0 trả về lỗi.
-- Test xóa loại phòng đang có phòng liên kết bị chặn thành công.
+- Thêm mới một khách hàng: Nguyễn Văn An, CCCD: `079201001234`, SĐT: `0901234567`.
+- Gõ vào ô tìm kiếm: `079` -> Kết quả danh sách chỉ hiển thị khách hàng Nguyễn Văn An.
 
 ---
 

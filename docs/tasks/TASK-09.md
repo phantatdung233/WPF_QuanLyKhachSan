@@ -1,44 +1,79 @@
-# [TASK-09] Module Quản lý Dịch vụ (Service) CRUD
+# [TASK-09] Module Sơ đồ phòng trực quan (Room Matrix với XAML DataTrigger)
 
 **Part of Spec**: [#77](https://github.com/phantatdung233/WPF_QuanLyKhachSan/issues/77)  
 **Mã Task**: `TASK-09`  
 **GitHub Issue**: [#81](https://github.com/phantatdung233/WPF_QuanLyKhachSan/issues/81)  
-**Thành viên đảm nhiệm**: **Member B (@xuanduong29)**  
-**Mức độ ưu tiên**: `Medium`  
-**Nhánh làm việc**: `feature/service-management`  
-**Milestone**: Mốc 1: Module Độc Lập (Tuần 1-3)  
-**Blocked by**: #59 (TASK-02), #60 (TASK-03)  
+**Thành viên đảm nhiệm**: **Member C (@ngocthuyen1)**  
+**Mức độ ưu tiên**: `High`  
+**Nhánh làm việc**: `feature/room-matrix-trigger`  
+**Milestone**: Mốc 2: Nghiệp Vụ Cốt Lõi, Sơ Đồ Phòng & Hóa Đơn (Tuần 3-5)  
+**Blocked by**: #61 (TASK-04)  
 
 ---
 
 ## 1. Bối cảnh & Mục tiêu kỹ thuật (Architecture & Scope)
-- Xây dựng `ServiceView` và `ServiceViewModel`.
-- Quản lý danh mục dịch vụ phát sinh của khách sạn: Giặt ủi, Nước khoáng, Ăn sáng buffet, Đưa đón sân bay, Nước ngọt, Spa mini.
-- Các trường: Tên dịch vụ, Đơn giá, Mô tả, Trạng thái hoạt động (`IsActive`).
+- Xây dựng `RoomMapViewModel.cs` và giao diện `RoomMapView.xaml`.
+- **Điểm nhấn nâng cao 1**: Sơ đồ phòng trực quan (Room Matrix / Dashboard) hiển thị toàn bộ phòng khách sạn dưới dạng lưới các ô/thẻ (Cards).
+- Áp dụng kỹ thuật XAML `Style.Triggers` hoặc `DataTrigger` (hoặc `IValueConverter`) để màu nền của mỗi thẻ phòng tự động đổi màu theo trạng thái thời gian thực:
+  - 🟢 **Xanh lá cây (`#48BB78`)**: Phòng trống (Available)
+  - 🔴 **Đỏ (`#F56565`)**: Đang có khách ở (Occupied)
+  - 🟠 **Cam / Vàng (`#ED8936`)**: Đã đặt trước (Reserved)
+  - ⚫ **Xám (`#A0AEC0`)**: Đang dọn dẹp / Bảo trì (Maintenance)
+- Tương tác trực tiếp trên sơ đồ phòng: Click vào thẻ phòng để xem thông tin, click đúp để mở nhanh tác vụ Đặt phòng hoặc Check-in/Check-out.
 
 ---
 
 ## 2. Hướng dẫn nghiệp vụ & Luồng xử lý chi tiết (Implementation Details)
-- Cho phép thêm mới, sửa đổi tên dịch vụ, đơn giá và bật/tắt phục vụ.
-- Validate: Đơn giá >= 0; tên dịch vụ không để trống.
-- Định dạng hiển thị tiền tệ VNĐ trên DataGrid (`#,##0 đ`).
+- `RoomMapView.xaml`:
+  - Thanh chú thích màu sắc (Legend) ở trên cùng:
+    - Ô màu Xanh: Phòng trống
+    - Ô màu Đỏ: Đang ở
+    - Ô màu Cam: Đã đặt
+    - Ô màu Xám: Bảo trì
+  - Danh sách phòng hiển thị qua `ItemsControl`:
+    ```xml
+    <ItemsControl ItemsSource="{Binding Rooms}">
+        <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+                <WrapPanel />
+            </ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+        <ItemsControl.ItemTemplate>
+            <DataTemplate>
+                <Border Style="{StaticResource RoomCardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="{Binding RoomNumber}" FontSize="18" FontWeight="Bold" />
+                        <TextBlock Text="{Binding TypeName}" />
+                        <TextBlock Text="{Binding Status}" FontStyle="Italic" />
+                    </StackPanel>
+                </Border>
+            </DataTemplate>
+        </ItemsControl.ItemTemplate>
+    </ItemsControl>
+    ```
+  - Trong `Style` của thẻ phòng, định nghĩa `DataTrigger` theo `Status` để đổi thuộc tính `Background`.
+  - Tương tác tiện lợi:
+    - Nếu phòng màu Xanh (Trống): Click đúp -> Mở màn hình Đặt phòng với số phòng đã chọn sẵn.
+    - Nếu phòng màu Đỏ (Đang ở): Click đúp -> Mở popup Gọi thêm dịch vụ hoặc Tiến hành Check-out.
 
 ---
 
 ## 3. Tiêu chí nghiệm thu & Ca biên (Acceptance Criteria & Edge Cases)
 ### Checklist Definition of Done:
-- [ ] ServiceView hiển thị danh mục các dịch vụ khách sạn (giặt ủi, nước uống, ăn sáng, đưa đón...).
-- [ ] Hỗ trợ thêm mới, sửa đổi tên dịch vụ, đơn giá và trạng thái còn phục vụ hay không.
-- [ ] Validate đơn giá dịch vụ >= 0.
+- [ ] RoomMapView.xaml: Hiển thị danh sách tất cả các phòng dạng thẻ (Card/Button) xếp theo lưới tự co giãn (WrapPanel hoặc UniformGrid).
+- [ ] Áp dụng Style.Triggers hoặc DataTrigger trong XAML để tự động đổi màu thẻ phòng theo trạng thái: Xanh lá (Trống), Đỏ (Đang ở), Cam (Đã đặt), Xám (Dọn dẹp/Bảo trì).
+- [ ] Thẻ phòng hiển thị rõ: Số phòng, Loại phòng, Trạng thái.
+- [ ] Click vào thẻ phòng: Xem nhanh thông tin chi tiết; click đúp để mở form Đặt phòng hoặc Check-out nhanh.
 
 ### Ca biên cần xử lý (Edge Cases):
-- Nhập giá tiền âm hoặc ký tự không hợp lệ.
+- Co giãn cửa sổ: `WrapPanel` tự động căn chỉnh số lượng thẻ phòng trên mỗi dòng mà không làm tràn ngang gây mất thẩm mỹ.
+- Khi một phòng vừa được Check-in hoặc Check-out thành công ở màn hình khác, quay lại Sơ đồ phòng màu sắc phải được cập nhật ngay lập tức.
 
 ---
 
 ## 4. Chiến lược kiểm thử (Testing Strategy)
-- Test thêm dịch vụ với đơn giá hợp lệ.
-- Test validate chặn đơn giá âm.
+- Mở màn hình Sơ đồ phòng: Thấy toàn bộ danh sách 12 phòng hiển thị đầy đủ các màu xanh, đỏ, cam tương ứng với dữ liệu mẫu trong CSDL.
+- Thực hiện Check-in một phòng trống -> Màu thẻ phòng lập tức chuyển từ Xanh lá sang Đỏ.
 
 ---
 

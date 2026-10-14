@@ -1,48 +1,60 @@
-# [TASK-08] Module Quản lý Khách hàng (Customer) CRUD & Tìm kiếm
+# [TASK-08] Module Check-in, Check-out & Thêm dịch vụ phòng
 
 **Part of Spec**: [#77](https://github.com/phantatdung233/WPF_QuanLyKhachSan/issues/77)  
 **Mã Task**: `TASK-08`  
 **GitHub Issue**: [#80](https://github.com/phantatdung233/WPF_QuanLyKhachSan/issues/80)  
-**Thành viên đảm nhiệm**: **Member B (@xuanduong29)**  
+**Thành viên đảm nhiệm**: **Member B (@phantatdung)**  
 **Mức độ ưu tiên**: `High`  
-**Nhánh làm việc**: `feature/customer-management`  
-**Milestone**: Mốc 1: Module Độc Lập (Tuần 1-3)  
-**Blocked by**: #59 (TASK-02), #60 (TASK-03)  
+**Nhánh làm việc**: `feature/checkin-checkout-services`  
+**Milestone**: Mốc 2: Nghiệp Vụ Cốt Lõi, Sơ Đồ Phòng & Hóa Đơn (Tuần 3-5)  
+**Blocked by**: #62 (TASK-07), #79 (TASK-06)  
 
 ---
 
 ## 1. Bối cảnh & Mục tiêu kỹ thuật (Architecture & Scope)
-- Xây dựng `CustomerView` và `CustomerViewModel`.
-- Quản lý thông tin khách hàng: Họ tên, CMND/CCCD, Số điện thoại, Email, Địa chỉ.
-- Thanh tìm kiếm realtime (lọc ngay khi người dùng gõ phím) theo Họ tên, CCCD hoặc SĐT.
+- Xây dựng các hàm xử lý chuyển đổi trạng thái lưu trú trong `BookingDAO.cs` và `RoomDAO.cs`.
+- Xây dựng `BookingServiceDAO.cs` quản lý các dịch vụ phát sinh trong thời gian lưu trú (bảng `BookingServices`).
+- Thao tác **Check-in**: Khách đến nhận phòng, chuyển trạng thái Booking thành `Đang ở`, chuyển trạng thái Phòng thành `Đang ở`.
+- Thao tác **Gọi dịch vụ phòng**: Lễ tân ghi nhận các dịch vụ khách sạn mà khách trong phòng sử dụng (tên dịch vụ, số lượng, đơn giá tại thời điểm dùng).
+- Thao tác **Check-out**: Khởi tạo quá trình trả phòng, tổng hợp tiền phòng và tiền dịch vụ để chuyển sang màn hình Hóa đơn (Task 10).
 
 ---
 
 ## 2. Hướng dẫn nghiệp vụ & Luồng xử lý chi tiết (Implementation Details)
-- Regex validation:
-  - CMND/CCCD: Chuỗi đúng 9 hoặc 12 chữ số (`^(\d{9}|\d{12})$`).
-  - Số điện thoại: Định dạng số điện thoại Việt Nam hợp lệ (10 chữ số, bắt đầu bằng 0: `^0\d{9}$`).
-  - Email: Định dạng email hợp lệ (nếu có nhập).
-- Hiển thị thông báo lỗi trực tiếp trên giao diện thông qua `INotifyDataErrorInfo` hoặc IDataErrorInfo của ViewModel.
+- Quy trình Check-in:
+  - Chọn một đơn đặt phòng đang ở trạng thái `Đã đặt` (hoặc khách vãng lai nhận phòng ngay).
+  - Bấm nút "Check-in":
+    - Cập nhật `Bookings.Status = N'Đang ở'`.
+    - Cập nhật `Rooms.Status = N'Đang ở'`.
+- Thêm dịch vụ cho phòng lưu trú:
+  - Mở danh sách các phòng đang có khách ở (`Status = 'Đang ở'`).
+  - Chọn phòng cần gọi dịch vụ -> mở popup `AddServiceDialog.xaml`.
+  - Chọn dịch vụ từ ComboBox (lấy từ bảng `Services`).
+  - Nhập số lượng (`Quantity >= 1`). Tự động tính Thành tiền = `Quantity * Price`.
+  - Bấm "Lưu dịch vụ": Lưu dòng dữ liệu vào bảng `BookingServices` (`BookingId`, `ServiceId`, `Quantity`, `UnitPrice`).
+  - Hiển thị danh sách bảng kê các dịch vụ đã sử dụng của phòng đó kèm nút xóa nếu nhập nhầm.
+- Chuẩn bị Check-out:
+  - Khi khách báo trả phòng, bấm nút "Check-out" trên phòng đó -> Chuyển thông tin `BookingId` sang màn hình tạo Hóa đơn thanh toán.
 
 ---
 
 ## 3. Tiêu chí nghiệm thu & Ca biên (Acceptance Criteria & Edge Cases)
 ### Checklist Definition of Done:
-- [ ] CustomerView và CustomerViewModel hỗ trợ CRUD thông tin khách hàng.
-- [ ] Trường dữ liệu: Họ tên, CMND/CCCD, Số điện thoại, Email, Địa chỉ.
-- [ ] Validate định dạng CCCD/CMND (9 hoặc 12 số) và số điện thoại hợp lệ.
-- [ ] Thanh tìm kiếm nhanh khách hàng theo Họ tên hoặc CCCD/SĐT dạng realtime binding.
+- [ ] Nút Check-in: Đổi trạng thái Booking sang Đang ở, đổi trạng thái Phòng sang Đang ở.
+- [ ] Giao diện Thêm dịch vụ phòng: Chọn phòng đang ở, chọn dịch vụ từ ComboBox Services, nhập số lượng, tự động nhân thành tiền và lưu vào bảng BookingServices.
+- [ ] Hiển thị danh sách các dịch vụ mà phòng đó đã gọi kèm nút xóa nếu nhập nhầm.
+- [ ] Nút Check-out: Kích hoạt luồng chuyển tiếp sang màn hình Hóa đơn để tính tiền và thanh toán.
 
 ### Ca biên cần xử lý (Edge Cases):
-- Nhập CCCD có chứa ký tự chữ hoặc không đủ 9/12 số.
-- Nhập trùng số CCCD với khách hàng đã có trong CSDL.
+- Nhập số lượng dịch vụ <= 0 hoặc không phải số nguyên -> Validate chặn và nhắc nhở.
+- Xóa một dòng dịch vụ khỏi phòng: Cập nhật lại tổng tiền dịch vụ ngay lập tức.
+- Không cho phép gọi dịch vụ vào các phòng đang trống hoặc đang bảo trì.
 
 ---
 
 ## 4. Chiến lược kiểm thử (Testing Strategy)
-- Test regex validation cho CCCD 9 số, 12 số và các ca không hợp lệ (8 số, 10 số, chứa chữ).
-- Test tìm kiếm khách hàng trả về danh sách chính xác khi nhập một phần tên hoặc số CCCD.
+- Thực hiện Check-in cho phòng 201: Cả Booking và Room đều đổi sang trạng thái `Đang ở`.
+- Thêm 2 lon nước suối (10,000 đ/lon) và 1 gói giặt ủi (30,000 đ) vào phòng 201: Bảng kê hiển thị tổng cộng 50,000 đ tiền dịch vụ.
 
 ---
 

@@ -6,48 +6,52 @@
 **Thành viên đảm nhiệm**: **Member A (@phantatdung233)**  
 **Mức độ ưu tiên**: `High`  
 **Nhánh làm việc**: `feature/core-mvvm-setup`  
-**Milestone**: Mốc 1: Module Độc Lập (Tuần 1-3)  
-**Blocked by**: None (Có thể bắt đầu ngay)  
+**Milestone**: Mốc 1: Khung Ứng Dụng, CSDL & Danh Mục Cơ Bản (Tuần 1-3)  
+**Blocked by**: None (Bắt đầu ngay)  
 
 ---
 
 ## 1. Bối cảnh & Mục tiêu kỹ thuật (Architecture & Scope)
-- Khởi tạo Solution .NET 8 với project chính `HotelManagement.Wpf` và project kiểm thử `HotelManagement.Tests`.
-- Cài đặt package `CommunityToolkit.Mvvm` (bản 8.x) và `Microsoft.Extensions.DependencyInjection`.
-- Tổ chức cấu trúc thư mục chuẩn:
-  - `Models/`: Chứa các Domain Entities & DTOs.
+- Khởi tạo Solution .NET 8 WPF mang tên `HotelManagement`.
+- Cài đặt package duy nhất: `CommunityToolkit.Mvvm` (phiên bản 8.x) qua NuGet.
+- Tổ chức cấu trúc thư mục rõ ràng theo mô hình MVVM sinh viên:
+  - `Models/`: Chứa các lớp thực thể (`User.cs`, `Room.cs`, `Customer.cs`...).
+  - `DAO/`: Chứa các lớp Data Access Object và `DataProvider.cs` kết nối ADO.NET.
   - `ViewModels/`: Kế thừa `ObservableObject` hoặc `ViewModelBase`.
-  - `Views/`: Chứa các UserControl và Window.
-  - `Services/`: Chứa Interface và Implementation cho các dịch vụ (Navigation, Data, Auth).
-  - `Resources/`: Chứa XAML Resource Dictionaries (Colors, Styles, Templates).
-- Thiết lập Dependency Injection (DI) trong `App.xaml.cs` (sử dụng `IHost` hoặc `IServiceProvider`).
+  - `Views/`: Chứa `MainWindow.xaml`, `LoginWindow.xaml` và các `UserControl` chức năng.
+  - `Resources/`: Chứa `Colors.xaml`, `Styles.xaml` dùng chung cho toàn bộ ứng dụng.
+- Xây dựng `ViewModelBase` kế thừa `ObservableObject` để hỗ trợ sinh tự động thuộc tính `[ObservableProperty]` và lệnh `[RelayCommand]`.
+- Thiết lập cơ chế điều hướng giao diện chính trong `MainViewModel`: Thuộc tính `CurrentView` kiểu `object` bind vào `ContentControl` trong `MainWindow.xaml`.
 
 ---
 
 ## 2. Hướng dẫn nghiệp vụ & Luồng xử lý chi tiết (Implementation Details)
-- ViewModel cơ sở `ViewModelBase` kế thừa `ObservableObject` của MVVM Toolkit để hỗ trợ `[ObservableProperty]` và `[RelayCommand]`.
-- Khởi tạo `App.xaml.cs` với `ConfigureServices`, đăng ký DI cho `MainWindow`, `MainViewModel`, và các dịch vụ cốt lõi.
-- Đảm bảo Solution build thành công với `dotnet build`, không có cảnh báo nghiêm trọng.
+- Cấu hình `MainWindow.xaml`:
+  - Bên trái: Menu Sidebar chứa các nút điều hướng (Sơ đồ phòng, Đặt phòng, Phòng, Khách hàng, Dịch vụ, Hóa đơn, Báo cáo).
+  - Phía trên: Header hiển thị tiêu đề, tên nhân viên đăng nhập và nút Đăng xuất.
+  - Trung tâm: `<ContentControl Content="{Binding CurrentView}" />`.
+- Khi người dùng click nút menu, `RelayCommand` trong `MainViewModel` sẽ khởi tạo ViewModel tương ứng và gán vào `CurrentView`.
+- Cấu hình `DataTemplate` trong `App.xaml` hoặc `MainWindow.Resources` ánh xạ từ ViewModel sang View tương ứng (ví dụ: `<DataTemplate DataType="{x:Type vm:RoomViewModel}"> <views:RoomView /> </DataTemplate>`).
 
 ---
 
 ## 3. Tiêu chí nghiệm thu & Ca biên (Acceptance Criteria & Edge Cases)
 ### Checklist Definition of Done:
-- [ ] Solution tạo bằng .NET 8 WPF, chạy thành công không có warning/error.
-- [ ] Cài đặt package CommunityToolkit.Mvvm.
-- [ ] Tổ chức thư mục chuẩn MVVM: Models/, ViewModels/, Views/, Services/, Resources/.
-- [ ] ViewModel cơ sở kế thừa ObservableObject, hỗ trợ RelayCommand và ObservableCollection.
-- [ ] Đã có Dependency Injection (DI) hoặc ServiceLocator khởi tạo App container cơ bản.
+- [ ] Solution tạo bằng .NET 8 WPF, chạy thành công không có lỗi/cảnh báo.
+- [ ] Cài đặt package CommunityToolkit.Mvvm (8.x).
+- [ ] Tổ chức cấu trúc thư mục chuẩn: Models/, Views/, ViewModels/, DAO/, Resources/.
+- [ ] ViewModelBase kế thừa ObservableObject từ MVVM Toolkit hỗ trợ [ObservableProperty] và [RelayCommand].
+- [ ] MainWindow cấu hình cơ bản gồm Sidebar menu và ContentControl hiển thị View động theo thuộc tính CurrentView trong MainViewModel.
 
 ### Ca biên cần xử lý (Edge Cases):
-- Quản lý vòng đời ViewModel đúng cách trong DI container (Transient vs Singleton) tránh rò rỉ bộ nhớ hoặc giữ trạng thái cũ khi chuyển trang.
-- Đảm bảo project build được đa nền tảng (hoặc thông báo rõ ràng yêu cầu môi trường Windows desktop khi chạy WPF).
+- Đảm bảo khi khởi chạy ứng dụng lần đầu, `CurrentView` có giá trị mặc định (ví dụ trỏ vào `RoomMapViewModel` hoặc hiển thị trang chủ chào mừng).
+- Giao diện MainWindow có kích thước tối thiểu (`MinWidth`, `MinHeight`) để tránh bị vỡ layout khi co kéo cửa sổ.
 
 ---
 
 ## 4. Chiến lược kiểm thử (Testing Strategy)
-- Kiểm tra việc phân giải phụ thuộc (Dependency Injection container resolution) cho `MainViewModel` và `INavigationService`.
-- Kiểm thử `RelayCommand` cơ bản của ViewModel phản hồi đúng khi được kích hoạt.
+- Kiểm tra chạy F5 ứng dụng hiển thị MainWindow với Sidebar và thanh Header.
+- Bấm thử các nút trên Sidebar để xác nhận `ContentControl` chuyển đổi View trơn tru.
 
 ---
 

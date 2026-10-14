@@ -1,54 +1,61 @@
-# [TASK-02] Thiết kế HotelDbContext Code First 8 bảng & SQLite Migration
+# [TASK-02] Thiết kế CSDL SQL Server 8 bảng & Lớp dùng chung DataProvider.cs
 
 **Part of Spec**: [#77](https://github.com/phantatdung233/WPF_QuanLyKhachSan/issues/77)  
 **Mã Task**: `TASK-02`  
 **GitHub Issue**: [#59](https://github.com/phantatdung233/WPF_QuanLyKhachSan/issues/59)  
 **Thành viên đảm nhiệm**: **Member A (@phantatdung233)**  
 **Mức độ ưu tiên**: `High`  
-**Nhánh làm việc**: `feature/database-efcore-setup`  
-**Milestone**: Mốc 1: Module Độc Lập (Tuần 1-3)  
+**Nhánh làm việc**: `feature/database-sqlserver-setup`  
+**Milestone**: Mốc 1: Khung Ứng Dụng, CSDL & Danh Mục Cơ Bản (Tuần 1-3)  
 **Blocked by**: #58 (TASK-01)  
 
 ---
 
 ## 1. Bối cảnh & Mục tiêu kỹ thuật (Architecture & Scope)
-- Cài đặt `Microsoft.EntityFrameworkCore.Sqlite` và `Microsoft.EntityFrameworkCore.Design`.
-- Định nghĩa đầy đủ 8 Entity trong `Models/`:
-  1. `User` (Id, Username, PasswordHash, Role, FullName, CreatedAt)
-  2. `RoomType` (Id, Name, BasePrice, Description, MaxOccupancy)
-  3. `Room` (Id, RoomCode, RoomName, RoomTypeId, Status, Notes)
-  4. `Customer` (Id, FullName, CitizenId, PhoneNumber, Email, Address)
-  5. `Booking` (Id, CustomerId, RoomId, CheckInDate, CheckOutDate, Status, TotalAmount, CreatedAt)
-  6. `Service` (Id, Name, Price, Description, IsActive)
-  7. `BookingService` (Id, BookingId, ServiceId, Quantity, UnitPrice, ConsumedAt)
-  8. `Invoice` (Id, BookingId, RoomCharge, ServiceCharge, TotalAmount, PaymentMethod, PaymentDate, Status)
-- Xây dựng lớp `HotelDbContext` kế thừa `DbContext`.
+- Tạo thư mục `Database/` và file script `Database/HotelDB.sql`.
+- Script tạo cơ sở dữ liệu `HotelManagementDb` trên SQL Server gồm đầy đủ 8 bảng quan hệ:
+  1. `Users`: `UserId` (PK), `Username`, `Password`, `FullName`, `Role` (Admin/Staff).
+  2. `RoomTypes`: `RoomTypeId` (PK), `TypeName`, `PricePerDay`.
+  3. `Rooms`: `RoomId` (PK), `RoomNumber`, `RoomTypeId` (FK), `Status` (Trống, Đang ở, Đã đặt, Bảo trì).
+  4. `Customers`: `CustomerId` (PK), `FullName`, `CitizenId`, `Phone`, `Email`.
+  5. `Bookings`: `BookingId` (PK), `CustomerId` (FK), `RoomId` (FK), `CheckInDate`, `CheckOutDate`, `Status`, `CreatedDate`.
+  6. `Services`: `ServiceId` (PK), `ServiceName`, `Price`.
+  7. `BookingServices`: `Id` (PK), `BookingId` (FK), `ServiceId` (FK), `Quantity`, `UnitPrice`.
+  8. `Invoices`: `InvoiceId` (PK), `BookingId` (FK), `RoomCharge`, `ServiceCharge`, `TotalAmount`, `PaymentMethod`, `PaymentDate`, `Status`.
+- Cài đặt sẵn khối lệnh nạp dữ liệu mẫu ban đầu (`INSERT INTO`) trong script để phục vụ demo.
+- Viết lớp `DataProvider.cs` trong thư mục `DAO/` bằng ADO.NET thuần (`Microsoft.Data.SqlClient` hoặc `System.Data.SqlClient`).
+- Viết các class Models cơ bản (`User.cs`, `RoomType.cs`, `Room.cs`) có constructor nhận tham số `DataRow` để map dữ liệu nhanh chóng.
 
 ---
 
 ## 2. Hướng dẫn nghiệp vụ & Luồng xử lý chi tiết (Implementation Details)
-- Sử dụng Fluent API trong `OnModelCreating` để cấu hình các ràng buộc khóa ngoại (1-N giữa RoomType-Room, Customer-Booking, Room-Booking, Booking-BookingService, Service-BookingService, Booking-Invoice).
-- Sử dụng Enum chuẩn từ GLOSSARY.md: `RoomStatus`, `BookingStatus`, `InvoiceStatus`.
-- Tự động sinh file SQLite `hotel.db` cục bộ khi khởi chạy app (`Database.Migrate()` hoặc `Database.EnsureCreated()`).
+- Cấu hình chuỗi kết nối (Connection String) trong `DataProvider.cs`:
+  `Server=.\\SQLEXPRESS;Database=HotelManagementDb;Trusted_Connection=True;TrustServerCertificate=True;` (hoặc cấu hình dễ thay đổi qua file cấu hình).
+- Lớp `DataProvider` xây dựng theo mô hình Singleton (`DataProvider.Instance`) gồm 3 hàm cốt lõi:
+  - `public DataTable ExecuteQuery(string query, object[] parameter = null)`: Phục vụ các câu lệnh `SELECT`.
+  - `public int ExecuteNonQuery(string query, object[] parameter = null)`: Phục vụ `INSERT`, `UPDATE`, `DELETE`.
+  - `public object ExecuteScalar(string query, object[] parameter = null)`: Phục vụ lấy giá trị đơn lẻ (`COUNT`, `MAX`, `SCOPE_IDENTITY()`).
+- Tách tham số dạng `@param` và gán vào `SqlCommand.Parameters` để ngăn ngừa tấn công SQL Injection.
 
 ---
 
 ## 3. Tiêu chí nghiệm thu & Ca biên (Acceptance Criteria & Edge Cases)
 ### Checklist Definition of Done:
-- [ ] Cài đặt Microsoft.EntityFrameworkCore.Sqlite và Microsoft.EntityFrameworkCore.Design.
-- [ ] Định nghĩa đầy đủ 8 Entity: User, RoomType, Room, Customer, Booking, Service, BookingService, Invoice.
-- [ ] Cấu hình Fluent API / Data Annotations đúng mối quan hệ khóa ngoại (1-N, N-N).
-- [ ] Khởi tạo Initial Migration thành công và kiểm tra sinh file CSDL SQLite cục bộ tự động khi khởi chạy app.
+- [ ] Tạo file script Database/HotelDB.sql gồm lệnh CREATE DATABASE, CREATE TABLE cho 8 bảng: Users, RoomTypes, Rooms, Customers, Bookings, Services, BookingServices, Invoices.
+- [ ] Nạp sẵn dữ liệu mẫu (INSERT INTO) trong script: 2 Users (Admin, Staff), 4 loại phòng, 12 phòng, 5 khách hàng, 5 dịch vụ.
+- [ ] Chạy file script thành công trên SSMS (SQL Server Management Studio / SQL Server Express).
+- [ ] Viết lớp DataProvider.cs (ADO.NET) kết nối chuỗi .\SQLEXPRESS với 3 phương thức: ExecuteQuery, ExecuteNonQuery, ExecuteScalar có truyền tham số chống SQL Injection.
+- [ ] Viết các class Models cơ bản (User, RoomType, Room) có constructor nhận DataRow.
 
 ### Ca biên cần xử lý (Edge Cases):
-- Ràng buộc Unique trên `RoomCode`, `Username`, và `CitizenId`.
-- Định dạng kiểu dữ liệu số thực cho giá tiền (`decimal` với độ chính xác chuẩn).
+- Kiểm tra tên máy chủ SQL Server khác nhau giữa các thành viên (ví dụ máy dùng `.\SQLEXPRESS`, máy dùng `localhost`, máy dùng `(localdb)\mssqllocaldb`) -> để chuỗi kết nối ở vị trí tập trung dễ sửa.
+- Xử lý kiểm tra giá trị `DBNull.Value` khi đọc dữ liệu từ `DataRow` để tránh lỗi ép kiểu (cast exception).
 
 ---
 
 ## 4. Chiến lược kiểm thử (Testing Strategy)
-- Kiểm thử tạo và xóa dữ liệu trên in-memory SQLite context.
-- Kiểm thử ràng buộc khóa ngoại không cho phép thêm Room với RoomTypeId không tồn tại.
+- Mở SSMS, mở file `HotelDB.sql` bấm F5 (Execute) xác nhận tạo đầy đủ 8 bảng và nạp đủ dữ liệu mẫu.
+- Chạy hàm kiểm thử gọi `DataProvider.Instance.ExecuteQuery("SELECT * FROM Users")` trả về đúng 2 dòng dữ liệu.
 
 ---
 

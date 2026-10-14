@@ -1,47 +1,55 @@
-# [TASK-06] Module Quản lý Phòng (Room) CRUD & Liên kết Loại phòng
+# [TASK-06] Module Quản lý Dịch vụ khách sạn (Service CRUD)
 
 **Part of Spec**: [#77](https://github.com/phantatdung233/WPF_QuanLyKhachSan/issues/77)  
 **Mã Task**: `TASK-06`  
 **GitHub Issue**: [#79](https://github.com/phantatdung233/WPF_QuanLyKhachSan/issues/79)  
-**Thành viên đảm nhiệm**: **Member A (@phantatdung233)**  
+**Thành viên đảm nhiệm**: **Member B (@phantatdung)**  
 **Mức độ ưu tiên**: `Medium`  
-**Nhánh làm việc**: `feature/room-management`  
-**Milestone**: Mốc 1: Module Độc Lập (Tuần 1-3)  
-**Blocked by**: #78 (TASK-05)  
+**Nhánh làm việc**: `feature/service-management`  
+**Milestone**: Mốc 1: Khung Ứng Dụng, CSDL & Danh Mục Cơ Bản (Tuần 1-3)  
+**Blocked by**: #59 (TASK-02)  
 
 ---
 
 ## 1. Bối cảnh & Mục tiêu kỹ thuật (Architecture & Scope)
-- Xây dựng `RoomView` và `RoomViewModel`.
-- Danh sách phòng hiển thị: Mã phòng (P101, P102...), Tên phòng, Loại phòng (từ RoomType), Trạng thái (`RoomStatus`), Ghi chú.
-- ComboBox chọn Loại phòng lấy động từ dữ liệu RoomType.
-- Form thêm/sửa thông tin phòng.
+- Xây dựng `ServiceDAO.cs` trong thư mục `DAO/` và `Service.cs` trong `Models/`.
+- Xây dựng `ServiceViewModel.cs` và giao diện `ServiceView.xaml`.
+- Quản lý danh mục các dịch vụ mà khách sạn cung cấp (ví dụ: Giặt ủi, Nước suối Lavie, Ăn sáng buffet, Nước ngọt, Thuê xe máy).
+- Hỗ trợ thêm mới dịch vụ, sửa tên và đơn giá dịch vụ, xóa dịch vụ không còn cung cấp.
 
 ---
 
 ## 2. Hướng dẫn nghiệp vụ & Luồng xử lý chi tiết (Implementation Details)
-- Sử dụng Enum `RoomStatus` (`Available`, `Reserved`, `Occupied`, `Maintenance`, `Cleaning`) từ GLOSSARY.md.
-- Cung cấp bộ lọc tìm kiếm: Lọc theo trạng thái phòng và lọc theo loại phòng.
-- Ràng buộc: Mã phòng là duy nhất (Unique).
+- Thông tin dịch vụ: `ServiceId`, `ServiceName` (Tên dịch vụ), `Price` (Đơn giá VNĐ).
+- `ServiceView.xaml`:
+  - Nút "Thêm dịch vụ mới".
+  - Bảng `DataGrid`: Hiển thị Mã DV, Tên dịch vụ, Đơn giá định dạng tiền tệ VNĐ (`#,##0 đ`), Cột thao tác (Sửa, Xóa).
+- Form Dialog Thêm / Sửa dịch vụ:
+  - Nhập Tên dịch vụ.
+  - Nhập Đơn giá dịch vụ.
+  - Validate: Tên dịch vụ không được để trống; đơn giá phải là số thực >= 0.
+- Xử lý xóa dịch vụ:
+  - Nếu dịch vụ đã từng được sử dụng trong các đơn đặt phòng cũ (có tồn tại trong `BookingServices`): Không cho xóa hoặc hiển thị cảnh báo để tránh vi phạm khóa ngoại SQL Server.
 
 ---
 
 ## 3. Tiêu chí nghiệm thu & Ca biên (Acceptance Criteria & Edge Cases)
 ### Checklist Definition of Done:
-- [ ] RoomView hiển thị danh sách phòng kèm ComboBox chọn RoomType.
-- [ ] Thực hiện CRUD phòng (Mã phòng, Tên phòng, Trạng thái: Trống/Đã đặt/Đang ở/Bảo trì, Ghi chú).
-- [ ] Tìm kiếm và lọc danh sách phòng theo trạng thái hoặc loại phòng.
-- [ ] Kiểm tra trùng mã phòng và lưu thay đổi vào SQLite thành công.
+- [ ] ServiceDAO.cs: Truy vấn lấy danh mục dịch vụ từ bảng Services.
+- [ ] ServiceView.xaml: Hiển thị bảng danh mục dịch vụ (Tên dịch vụ, Đơn giá).
+- [ ] Hỗ trợ thêm mới dịch vụ (ví dụ: Giặt ủi, Nước suối, Ăn sáng, Thuê xe máy).
+- [ ] Chỉnh sửa thông tin và đơn giá dịch vụ (kiểm tra đơn giá phải >= 0).
+- [ ] Xóa dịch vụ khi không còn phục vụ.
 
 ### Ca biên cần xử lý (Edge Cases):
-- Tạo phòng trùng mã phòng đã có trong hệ thống -> báo lỗi rõ ràng.
-- Xóa phòng khi phòng đang có Booking đang lưu trú (Occupied) -> từ chối xóa.
+- Nhập đơn giá là số âm hoặc chữ cái -> Validate ngăn chặn và thông báo lỗi.
+- Đơn giá hiển thị trên giao diện phải có dấu phân cách phần nghìn rõ ràng (ví dụ: `50,000 đ`).
 
 ---
 
 ## 4. Chiến lược kiểm thử (Testing Strategy)
-- Test CRUD phòng và liên kết đúng khóa ngoại với RoomType.
-- Test lọc danh sách phòng theo trạng thái trả về đúng số lượng phòng tương ứng.
+- Thêm mới dịch vụ "Bia Tiger", giá `25,000`. Dữ liệu xuất hiện ngay trên bảng danh mục.
+- Cập nhật giá dịch vụ "Bia Tiger" lên `30,000`: Cơ sở dữ liệu cập nhật chính xác.
 
 ---
 
