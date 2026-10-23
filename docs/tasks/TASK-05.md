@@ -7,6 +7,7 @@
 **Mức độ ưu tiên**: `High`  
 **Nhánh làm việc**: `feature/customer-management`  
 **Milestone**: Mốc 1: Khung Ứng Dụng, CSDL & Danh Mục Cơ Bản (Tuần 1-3)  
+**Labels**: `customer`, `crud`, `m1`  
 **Blocked by**: #59 (TASK-02)  
 
 ---

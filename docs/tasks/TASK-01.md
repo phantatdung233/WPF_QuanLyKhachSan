@@ -7,6 +7,7 @@
 **Mức độ ưu tiên**: `High`  
 **Nhánh làm việc**: `feature/core-mvvm-setup`  
 **Milestone**: Mốc 1: Khung Ứng Dụng, CSDL & Danh Mục Cơ Bản (Tuần 1-3)  
+**Labels**: `core`, `architecture`, `m1`  
 **Blocked by**: None (Bắt đầu ngay)  
 
 ---

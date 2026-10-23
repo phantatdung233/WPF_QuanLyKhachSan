@@ -7,6 +7,7 @@
 **Mức độ ưu tiên**: `High`  
 **Nhánh làm việc**: `feature/booking-conflict-check`  
 **Milestone**: Mốc 2: Nghiệp Vụ Cốt Lõi, Sơ Đồ Phòng & Hóa Đơn (Tuần 3-5)  
+**Labels**: `booking`, `business-logic`, `m2`  
 **Blocked by**: #78 (TASK-05), #61 (TASK-04)  
 
 ---
@@ -29,7 +30,7 @@
 - Thuật toán kiểm tra trùng lịch (Overlap Check):
   - Giả sử đơn đặt mới có khoảng thời gian `[NewCheckIn, NewCheckOut]`.
   - Một phòng bị trùng lịch nếu tồn tại đơn đặt cũ của phòng đó (có `Status` là `Đã đặt` hoặc `Đang ở`) thoả mãn điều kiện:
-    **`NewCheckIn < ExistingCheckOut && ExistingCheckIn < NewCheckOut`**
+    Thuật toán kiểm tra xung đột theo **Overlap Conflict Rule** trong `GLOSSARY.md`
   - Trong SQL Server, câu truy vấn kiểm tra:
     ```sql
     SELECT COUNT(*) FROM Bookings 
@@ -46,14 +47,14 @@
 ### Checklist Definition of Done:
 - [ ] BookingDAO.cs: Thao tác thêm, cập nhật, truy vấn bảng Bookings.
 - [ ] BookingView.xaml: Giao diện tạo phiếu đặt phòng gồm: Chọn Khách hàng (từ ComboBox hoặc tìm kiếm), chọn Phòng, chọn Ngày nhận (CheckInDate) và Ngày trả (CheckOutDate).
-- [ ] Cài đặt thuật toán kiểm tra xung đột thời gian: Hai khoảng thời gian [A, B] và [C, D] trùng nhau khi và chỉ khi A < D và C < B.
+- [ ] Cài đặt thuật toán kiểm tra xung đột thời gian theo **Overlap Conflict Rule** định nghĩa trong `GLOSSARY.md`.
 - [ ] Hiển thị thông báo lỗi rõ ràng nếu phòng đã có người đặt trong khoảng ngày đã chọn.
 - [ ] Nếu hợp lệ, lưu phiếu vào bảng Bookings với trạng thái Đã đặt và cập nhật trạng thái phòng.
 
 ### Ca biên cần xử lý (Edge Cases):
 - Ngày trả phòng nhỏ hơn hoặc bằng ngày nhận phòng (`CheckOutDate <= CheckInDate`): Validate báo lỗi "Ngày trả phòng phải sau ngày nhận phòng ít nhất 1 ngày".
 - Ngày nhận phòng trong quá khứ so với ngày hiện tại: Hiển thị cảnh báo nhắc nhở lễ tân.
-- Hai lượt khách liền kề nhau (Khách 1 trả ngày 15/10 lúc 12h, Khách 2 nhận ngày 15/10 lúc 14h): Thuật toán `A < D && C < B` cho phép đặt hợp lệ nếu tính theo mốc ngày liền kề.
+- Hai lượt khách liền kề nhau (Khách 1 trả ngày 15/10 lúc 12h, Khách 2 nhận ngày 15/10 lúc 14h): Theo **Overlap Conflict Rule** trong `GLOSSARY.md`, đặt phòng vẫn hợp lệ vì tính theo mốc ngày liền kề.
 
 ---
 

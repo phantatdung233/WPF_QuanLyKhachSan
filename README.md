@@ -93,16 +93,16 @@ docs/        Spec, hướng dẫn từng task, tài liệu agent
 
 ## Quy tắc nghiệp vụ
 
-- **Chống trùng lịch:** hai khoảng thời gian `[A, B]` và `[C, D]` trùng nhau
-  khi và chỉ khi `A < D && C < B`. Hệ thống từ chối phiếu đặt trùng phòng.
-- **Tính tiền:** tiền phòng = `Math.Max(1, số ngày) × đơn giá/ngày`;
-  tổng hóa đơn = tiền phòng + tổng tiền dịch vụ phát sinh.
+Định nghĩa chuẩn của từng nghiệp vụ (công thức chống trùng lịch, cách tính tiền
+phòng, trạng thái phòng) nằm **duy nhất** trong [`GLOSSARY.md`](./GLOSSARY.md)
+— xem các mục *Overlap Conflict Rule*, *Room Charge Policy*, *RoomStatus*.
+
 - **Trạng thái phòng:** `Trống` (xanh lá), `Đang ở` (đỏ), `Đã đặt` (cam),
   `Bảo trì` (xám). Xem định nghĩa chuẩn trong `GLOSSARY.md`.
 
 ## Tài liệu
 
-- Backlog, Single Source of Truth: `TASKS.md`
+- Backlog, Single Source of Truth: `docs/tasks/TASK-01.md` … `TASK-12.md`
 - Đặc tả hệ thống: `docs/specs/hotel-management-system.md` (SPEC #77)
 - Hướng dẫn chi tiết từng task: `docs/tasks/TASK-01.md` … `TASK-12.md`
 - Thuật ngữ chuẩn: `GLOSSARY.md`

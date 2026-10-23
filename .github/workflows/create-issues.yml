@@ -19,7 +19,7 @@ on:
     branches:
       - main
     paths:
-      - TASKS.md
+      - docs/tasks/**.md
 
 permissions:
   contents: read

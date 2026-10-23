@@ -14,7 +14,7 @@ Quản lý khách sạn truyền thống bằng sổ sách hoặc bảng tính E
 Phát triển ứng dụng WPF Quản lý Khách sạn chuẩn kiến trúc MVVM (`CommunityToolkit.Mvvm`) kết nối cơ sở dữ liệu Microsoft SQL Server (SSMS & SQL Server Express) qua tầng truy cập dữ liệu ADO.NET thuần (`DataProvider.cs`). Ứng dụng cung cấp:
 - Hệ thống xác thực và phân quyền đơn giản (Admin và Nhân viên) dựa trên bảng `Users`.
 - Quản lý danh mục cơ bản (Loại phòng, Phòng, Khách hàng, Dịch vụ).
-- Thuật toán kiểm tra và ngăn chặn xung đột trùng lịch đặt phòng (`A < D && C < B`).
+- Thuật toán kiểm tra và ngăn chặn xung đột trùng lịch đặt phòng (theo *Overlap Conflict Rule* trong `GLOSSARY.md`).
 - Chu trình lưu trú khép kín: Đặt phòng → Check-in nhận phòng → Gọi dịch vụ phòng → Check-out thanh toán hóa đơn.
 - **Tính năng nâng cao 1**: Sơ đồ phòng trực quan (Room Matrix) tự động đổi màu thẻ phòng theo 4 trạng thái bằng XAML `DataTrigger` (Xanh lá: Trống, Đỏ: Đang ở, Cam: Đã đặt, Xám: Bảo trì).
 - **Tính năng nâng cao 2**: Xuất hóa đơn thanh toán ra file văn bản (.txt) hoặc in ấn khi hoàn tất trả phòng.
@@ -36,7 +36,7 @@ Phát triển ứng dụng WPF Quản lý Khách sạn chuẩn kiến trúc MVVM
 12. As a Hotel Staff member, I want the system to execute an overlap check (`CheckIn < ExistingCheckOut && ExistingCheckIn < CheckOut`), so that double-booking the same room is prevented.
 13. As a Hotel Staff member, I want to execute a Check-in action for a booked guest, so that the booking transitions to Occupied and the room turns Occupied.
 14. As a Hotel Staff member, I want to record extra services used by an occupied room with quantities, so that service costs are linked to the active booking.
-15. As a Hotel Staff member, I want to perform a Check-out action calculating room charges (`Math.Max(1, days) * PricePerDay`) plus service charges, so that a final invoice is generated.
+15. As a Hotel Staff member, I want to perform a Check-out action calculating room charges (per the *Room Charge Policy* in `GLOSSARY.md`) plus service charges, so that a final invoice is generated.
 16. As a Hotel Staff member, I want to mark the invoice as Paid with Cash or Bank Transfer, completing the booking and resetting room status to Available.
 17. As a Hotel Staff member, I want to view an interactive Room Matrix where cards change color based on status (Green for Available, Red for Occupied, Orange for Reserved, Gray for Maintenance).
 18. As a Hotel Staff member, I want to click any room card on the Room Matrix to view details or double-click to initiate booking or check-out.
@@ -51,12 +51,9 @@ Phát triển ứng dụng WPF Quản lý Khách sạn chuẩn kiến trúc MVVM
 - **Charting**: `LiveChartsCore.SkiaSharpView.WPF` 2.0.5, used exclusively by the reporting module (TASK-11) for a revenue-by-day line chart.
 - **Database & Persistence**: Microsoft SQL Server (SSMS / SQL Server Express). Database schema and seed data are maintained in `Database/HotelDB.sql` with 8 core tables: `Users`, `RoomTypes`, `Rooms`, `Customers`, `Bookings`, `Services`, `BookingServices`, `Invoices`.
 - **Data Access Layer**: Pure ADO.NET (`SqlConnection`, `SqlCommand`, `SqlDataReader`, `SqlDataAdapter`) via reusable `DataProvider.cs` and Data Access Objects (`UserDAO`, `RoomDAO`, `CustomerDAO`, `BookingDAO`, `ServiceDAO`, `InvoiceDAO`).
-- **Domain Status Representations**:
-  - `RoomStatus`: `Trống` (Available), `Đang ở` (Occupied), `Đã đặt` (Reserved), `Bảo trì` (Maintenance).
-  - `BookingStatus`: `Đã đặt` (Reserved), `Đang ở` (Occupied), `Hoàn thành` (Completed), `Đã hủy` (Cancelled).
-  - `InvoiceStatus`: `Chưa thanh toán` (Pending), `Đã thanh toán` (Paid).
-- **Booking Overlap Logic**: Two intervals `[A, B]` and `[C, D]` overlap if and only if `A < D && C < B`.
-- **Pricing Policy**: Room charge calculated on a daily basis: `TotalDays = Math.Max(1, (CheckOut.Date - CheckIn.Date).Days); RoomCost = TotalDays * PricePerDay`. Total Invoice = `RoomCost + SUM(Quantity * UnitPrice)`.
+- **Domain Status Representations**: the canonical status sets and their Vietnamese UI values are defined in `GLOSSARY.md` (`RoomStatus`, `BookingStatus`, `InvoiceStatus`). The database stores the Vietnamese strings; code maps them to the glossary terms.
+- **Booking Overlap Logic**: implements the *Overlap Conflict Rule* defined in `GLOSSARY.md`.
+- **Pricing Policy**: implements the *Room Charge Policy* defined in `GLOSSARY.md`; the invoice total adds the sum of service charges to the room cost.
 - **Visual Room Matrix**: Implemented with WPF `ItemsControl` / `WrapPanel` using XAML `DataTrigger` styles for status-driven background colors.
 - **Reporting & Dashboard**: WPF XAML metric KPI cards, `ProgressBar` occupancy meter, and `DataGrid` date-filtered invoice list, plus a LiveCharts2 revenue-by-day line chart.
 
@@ -76,3 +73,24 @@ Phát triển ứng dụng WPF Quản lý Khách sạn chuẩn kiến trúc MVVM
 ## Sub-Issues / Task Graph
 
 The project backlog contains 12 streamlined tasks assigned equally across 3 team members, documented in `docs/tasks/TASK-01.md` through `docs/tasks/TASK-12.md` and tracked on GitHub Issues.
+
+## Delivery Plan
+
+### Milestones (6 weeks)
+
+- **Milestone 1 — Application Skeleton, Database & Basic Catalogues (weeks 1-3)**: MVVM skeleton, SQL Server database with 8 tables, ADO.NET `DataProvider`, login with role-based access, and the base catalogues (Rooms, RoomTypes, Customers, Services).
+- **Milestone 2 — Core Business Logic, Room Matrix & Invoices (weeks 3-5)**: end-to-end business flow (overlap-checked booking, check-in/out, service ordering, invoice + export) and the visual room matrix driven by `DataTrigger`.
+- **Milestone 3 — Reporting & Demo Finalisation (weeks 5-6)**: revenue reporting (KPI cards, progress bar, LiveCharts2 chart), demo script packaging, slide deck, and rehearsal.
+
+### Team Allocation (4 tasks each)
+
+- **Member A (@phantatdung233) — platform and room management**: TASK-01 (solution skeleton), TASK-02 (database + DataProvider), TASK-03 (login and roles), TASK-04 (room and room-type management).
+- **Member B (@xuanduong29) — core business flow**: TASK-05 (customer management), TASK-06 (service management), TASK-07 (booking with overlap check), TASK-08 (check-in/out and room services).
+- **Member C (@ngocthuyen1) — visual, billing, reporting and demo**: TASK-09 (room matrix, advanced feature 1), TASK-10 (invoice, payment and file export, advanced feature 2), TASK-11 (revenue reporting with LiveCharts2), TASK-12 (E2E testing, slide deck and rehearsal script).
+
+### Git Conventions
+
+- Protected branch: `main` (stable build used for submission and demo).
+- Integration branch: `develop`.
+- Feature branches: `feature/<task-name>`, cut from `develop`.
+- Merge into `develop` only after a teammate has run the feature successfully on their own machine.

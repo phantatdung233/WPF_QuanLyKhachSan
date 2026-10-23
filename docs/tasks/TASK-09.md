@@ -7,6 +7,7 @@
 **Mức độ ưu tiên**: `High`  
 **Nhánh làm việc**: `feature/room-matrix-trigger`  
 **Milestone**: Mốc 2: Nghiệp Vụ Cốt Lõi, Sơ Đồ Phòng & Hóa Đơn (Tuần 3-5)  
+**Labels**: `advanced`, `ui`, `room-map`, `m2`  
 **Blocked by**: #61 (TASK-04)  
 
 ---

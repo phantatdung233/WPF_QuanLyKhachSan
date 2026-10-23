@@ -104,96 +104,64 @@ function run() {
   console.log('  ✓ Đã cập nhật xong bộ nhãn màu chuẩn.');
 
   // 3. PARSE TASKS.MD
-  console.log('\n📖 3. Phân tích cú pháp TASKS.md...');
-  const tasksPath = path.join(process.cwd(), 'TASKS.md');
-  if (!fs.existsSync(tasksPath)) {
-    console.error('Không tìm thấy file TASKS.md!');
+  console.log('\n📖 3. Phân tích cú pháp docs/tasks/*.md...');
+  const tasksDir = path.join(process.cwd(), 'docs', 'tasks');
+  if (!fs.existsSync(tasksDir)) {
+    console.error('Không tìm thấy thư mục docs/tasks/!');
     process.exit(1);
   }
 
-  const content = fs.readFileSync(tasksPath, 'utf8');
-  const lines = content.split(/\r?\n/);
+  const taskFiles = fs.readdirSync(tasksDir)
+    .filter(f => /^TASK-\d+\.md$/.test(f))
+    .sort();
+
+  if (taskFiles.length === 0) {
+    console.error('Không tìm thấy file docs/tasks/TASK-*.md nào!');
+    process.exit(1);
+  }
+
   const tasks = [];
-  let currentTask = null;
-  let collectingDoD = false;
 
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
+  for (const fileName of taskFiles) {
+    const content = fs.readFileSync(path.join(tasksDir, fileName), 'utf8');
+    const lines = content.split(/\r?\n/);
 
-    const headerMatch = line.match(/^###\s+\[(TASK-\d+)\]\s+(.+)$/);
-    if (headerMatch) {
-      if (currentTask) {
-        tasks.push(currentTask);
-      }
-      currentTask = {
-        id: headerMatch[1].trim(),
-        title: `[${headerMatch[1].trim()}] ${headerMatch[2].trim()}`,
-        assignee: '',
-        priority: 'Medium',
-        labels: [],
-        branch: '',
-        milestone: '',
-        dod: []
-      };
-      collectingDoD = false;
+    // Tiêu đề task: "# [TASK-01] Khởi tạo Solution..."
+    const headerLine = lines.find(l => /^#\s+\[TASK-\d+\]/.test(l));
+    if (!headerLine) {
+      console.warn(`     [WARN] Bỏ qua ${fileName}: không có heading "# [TASK-xx]".`);
       continue;
     }
+    const headerMatch = headerLine.match(/^#\s+\[(TASK-\d+)\]\s+(.+)$/);
 
-    if (!currentTask) continue;
+    // Metadata dạng "**Key**: value" ở phần đầu file.
+    const getMeta = (key) => {
+      const ln = lines.find(l => l.startsWith(`**${key}**`));
+      return ln ? ln.split(':').slice(1).join(':').trim() : '';
+    };
 
-    const assigneeMatch = line.match(/^-\s+\*\*Assignee\*\*:\s*(.+)$/i);
-    if (assigneeMatch) {
-      currentTask.assignee = assigneeMatch[1].trim();
-      continue;
-    }
+    // Bỏ markdown (backtick, **, ngoặc kép) để lấy giá trị thuần.
+    const sanitize = (v) => (v || '').replace(/[`*"']/g, '').trim();
 
-    const priorityMatch = line.match(/^-\s+\*\*Priority\*\*:\s*(.+)$/i);
-    if (priorityMatch) {
-      currentTask.priority = priorityMatch[1].trim();
-      continue;
-    }
+    // Hỗ trợ cả định dạng cũ "**Labels**: `a`, `b`"
+    const labels = (getMeta('Labels') || '')
+      .split(',')
+      .map(l => l.replace(/[`*\s]/g, ''))
+      .filter(Boolean);
 
-    const labelsMatch = line.match(/^-\s+\*\*Labels\*\*:\s*(.+)$/i);
-    if (labelsMatch) {
-      currentTask.labels = labelsMatch[1]
-        .split(',')
-        .map(l => l.replace(/[`\s]/g, ''))
-        .filter(Boolean);
-      continue;
-    }
-
-    const branchMatch = line.match(/^-\s+\*\*Branch\*\*:\s*`?([^`\r\n]+)`?/i);
-    if (branchMatch) {
-      currentTask.branch = branchMatch[1].trim();
-      continue;
-    }
-
-    const milestoneMatch = line.match(/^-\s+\*\*Milestone\*\*:\s*(.+)$/i);
-    if (milestoneMatch) {
-      currentTask.milestone = milestoneMatch[1].trim();
-      continue;
-    }
-
-    if (line.match(/^-\s+\*\*Definition of Done\*\*:/i)) {
-      collectingDoD = true;
-      continue;
-    }
-
-    if (collectingDoD) {
-      const trimmed = line.trim();
-      if (trimmed.startsWith('- [ ]') || trimmed.startsWith('- [x]')) {
-        currentTask.dod.push(trimmed);
-      } else if (line.startsWith('---') || line.startsWith('###') || line.startsWith('## ')) {
-        collectingDoD = false;
-      }
-    }
+    tasks.push({
+      id: headerMatch[1].trim(),
+      title: `[${headerMatch[1].trim()}] ${headerMatch[2].trim()}`,
+      assignee: getMeta('Thành viên đảm nhiệm').replace(/\*\*/g, '').trim(),
+      priority: sanitize(getMeta('Mức độ ưu tiên')) || 'Medium',
+      labels,
+      branch: sanitize(getMeta('Nhánh làm việc')),
+      milestone: getMeta('Milestone'),
+      dod: []
+    });
   }
 
-  if (currentTask) {
-    tasks.push(currentTask);
-  }
-
-  console.log(`  ✓ Đã trích xuất thành công ${tasks.length} tasks từ TASKS.md.`);
+  console.log(`  ✓ Đã trích xuất thành công ${tasks.length} tasks từ docs/tasks/.`);
 
   // 4. LẤY DANH SÁCH ISSUES HIỆN CÓ ĐỂ TẠO MỚI HOẶC SỬA LỖI (REPAIR/UPDATE)
   console.log('\n🔄 4. Đồng bộ GitHub Issues (Tạo mới & Sửa lỗi hiển thị)...');
@@ -208,7 +176,7 @@ function run() {
   }
 
   // Helper: build detailed issue body from docs/tasks/<TASK-ID>.md (source of truth),
-  // decorated with info table. Falls back to short TASKS.md body if file missing.
+  // decorated with info table. Falls back to a short body if the task file is unreadable.
   function buildBody(task) {
     const detailPath = path.join(process.cwd(), 'docs', 'tasks', `${task.id}.md`);
     if (fs.existsSync(detailPath)) {
@@ -235,7 +203,7 @@ function run() {
         const issueNumMatch = issueLine.match(/#(\d+)/);
         const issueNum = issueNumMatch ? issueNumMatch[1] : '';
         return [
-          `> Part of SPEC #77 · Docs: \`docs/tasks/${task.id}.md\` · \`TASKS.md\` là Single Source of Truth`,
+          `> Part of SPEC #77 · Docs: \`docs/tasks/${task.id}.md\` · Spec: \`docs/specs/hotel-management-system.md\``,
           '',
           `# ${task.title}`,
           '',
@@ -261,7 +229,7 @@ function run() {
           '## Tham khảo',
           '',
           '- SPEC tổng: #77 — Hotel Management System (WPF .NET 10 MVVM, SQL Server + ADO.NET)',
-          '- Backlog chuẩn: [`TASKS.md`](https://github.com/phantatdung233/WPF_QuanLyKhachSan/blob/main/TASKS.md)',
+          '- Spec tổng: [`docs/specs/hotel-management-system.md`](https://github.com/phantatdung233/WPF_QuanLyKhachSan/blob/main/docs/specs/hotel-management-system.md)',
           `- Tài liệu gốc: [\`docs/tasks/${task.id}.md\`](https://github.com/phantatdung233/WPF_QuanLyKhachSan/blob/main/docs/tasks/${task.id}.md)`,
           '- Glossary thuật ngữ: [`GLOSSARY.md`](https://github.com/phantatdung233/WPF_QuanLyKhachSan/blob/main/GLOSSARY.md)',
           '',
@@ -272,7 +240,7 @@ function run() {
         console.warn(`     [WARN] Không đọc được docs/tasks/${task.id}.md, dùng body rút gọn:`, e.message);
       }
     }
-    // Fallback: short body from TASKS.md
+    // Fallback: body rút gọn dựng từ metadata của docs/tasks/<TASK-ID>.md
     let body = `### Phân Công Nhiệm Vụ\n`;
     body += `- **Mã Task**: \`${task.id}\`\n`;
     body += `- **Thành viên đảm nhiệm**: **${task.assignee}**\n`;
@@ -285,7 +253,7 @@ function run() {
     } else {
       body += `- [ ] Hoàn thành toàn bộ chức năng theo kế hoạch đề ra.\n\n`;
     }
-    body += `---\n*Tự động khởi tạo từ \`TASKS.md\` qua GitHub Actions.*`;
+    body += `---\n*Tự động khởi tạo từ \`docs/tasks/${task.id}.md\` qua GitHub Actions.*`;
     return body;
   }
 

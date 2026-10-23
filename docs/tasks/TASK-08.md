@@ -7,6 +7,7 @@
 **Mức độ ưu tiên**: `High`  
 **Nhánh làm việc**: `feature/checkin-checkout-services`  
 **Milestone**: Mốc 2: Nghiệp Vụ Cốt Lõi, Sơ Đồ Phòng & Hóa Đơn (Tuần 3-5)  
+**Labels**: `booking`, `service`, `workflow`, `m2`  
 **Blocked by**: #62 (TASK-07), #79 (TASK-06)  
 
 ---

@@ -7,6 +7,7 @@
 **Mức độ ưu tiên**: `Medium`  
 **Nhánh làm việc**: `feature/service-management`  
 **Milestone**: Mốc 1: Khung Ứng Dụng, CSDL & Danh Mục Cơ Bản (Tuần 1-3)  
+**Labels**: `service`, `crud`, `m1`  
 **Blocked by**: #59 (TASK-02)  
 
 ---

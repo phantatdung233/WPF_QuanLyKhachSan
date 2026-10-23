@@ -7,6 +7,7 @@
 **Mức độ ưu tiên**: `High`  
 **Nhánh làm việc**: `feature/invoice-export`  
 **Milestone**: Mốc 2: Nghiệp Vụ Cốt Lõi, Sơ Đồ Phòng & Hóa Đơn (Tuần 3-5)  
+**Labels**: `advanced`, `invoice`, `billing`, `m2`  
 **Blocked by**: #80 (TASK-08)  
 
 ---
@@ -15,7 +16,7 @@
 - Xây dựng `InvoiceDAO.cs` trong thư mục `DAO/` và `Invoice.cs` trong `Models/`.
 - Xây dựng `InvoiceViewModel.cs` và giao diện `InvoiceView.xaml`.
 - Tính toán tổng viện phí lưu trú:
-  - Tiền phòng = `Math.Max(1, (CheckOutDate.Date - CheckInDate.Date).Days) * PricePerDay`.
+  - Tiền phòng tính theo **Room Charge Policy** trong `GLOSSARY.md`.
   - Tiền dịch vụ = Tổng tiền tất cả các dịch vụ đã sử dụng trong `BookingServices`.
   - Tổng cộng = Tiền phòng + Tiền dịch vụ.
 - Ghi nhận phương thức thanh toán: Tiền mặt hoặc Chuyển khoản ngân hàng.
@@ -60,12 +61,12 @@
 ## 3. Tiêu chí nghiệm thu & Ca biên (Acceptance Criteria & Edge Cases)
 ### Checklist Definition of Done:
 - [ ] InvoiceDAO.cs: Thao tác với bảng Invoices.
-- [ ] InvoiceView.xaml: Hiển thị chi tiết hóa đơn thanh toán gồm: Tiền phòng (Math.Max(1, số ngày) × Đơn giá) + Tiền dịch vụ (tổng tiền các dịch vụ từ BookingServices).
+- [ ] InvoiceView.xaml: Hiển thị chi tiết hóa đơn thanh toán gồm: Tiền phòng (theo **Room Charge Policy** trong `GLOSSARY.md`) + Tiền dịch vụ (tổng tiền các dịch vụ từ BookingServices).
 - [ ] Chọn phương thức thanh toán (Tiền mặt / Chuyển khoản), bấm nút Thanh toán cập nhật trạng thái hóa đơn sang Đã thanh toán, cập nhật Booking sang Hoàn thành và Phòng về trạng thái Trống.
 - [ ] Tính năng nâng cao: Nút Xuất hóa đơn ghi toàn bộ chi tiết hóa đơn ra file văn bản .txt hoặc mở cửa sổ In hóa đơn định dạng chuẩn đẹp.
 
 ### Ca biên cần xử lý (Edge Cases):
-- Khách nhận và trả phòng trong cùng một ngày: Áp dụng công thức `Math.Max(1, 0) = 1 ngày`, tính tiền tròn 1 ngày ở tối thiểu.
+- Khách nhận và trả phòng trong cùng một ngày: **Room Charge Policy** trong `GLOSSARY.md` quy định tính tối thiểu 1 ngày ở.
 - Khách không sử dụng dịch vụ nào: Tiền dịch vụ hiển thị `0 đ`, tổng tiền bằng đúng tiền phòng.
 
 ---

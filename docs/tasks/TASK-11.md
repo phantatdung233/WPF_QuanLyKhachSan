@@ -7,6 +7,7 @@
 **Mức độ ưu tiên**: `Medium`  
 **Nhánh làm việc**: `feature/revenue-stats-report`  
 **Milestone**: Mốc 3: Báo Cáo Thống Kê & Chốt Demo (Tuần 5-6)  
+**Labels**: `stats`, `report`, `ui`, `m3`  
 **Blocked by**: #63 (TASK-10)  
 
 ---

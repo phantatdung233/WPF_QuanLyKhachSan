@@ -7,6 +7,7 @@
 **Mức độ ưu tiên**: `High`  
 **Nhánh làm việc**: `feature/database-sqlserver-setup`  
 **Milestone**: Mốc 1: Khung Ứng Dụng, CSDL & Danh Mục Cơ Bản (Tuần 1-3)  
+**Labels**: `database`, `core`, `m1`  
 **Blocked by**: #58 (TASK-01)  
 
 ---

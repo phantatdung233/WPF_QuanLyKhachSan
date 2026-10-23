@@ -7,6 +7,7 @@
 **Mức độ ưu tiên**: `High`  
 **Nhánh làm việc**: `feature/demo-rehearsal-slides`  
 **Milestone**: Mốc 3: Báo Cáo Thống Kê & Chốt Demo (Tuần 5-6)  
+**Labels**: `docs`, `presentation`, `demo`, `qa`, `m3`  
 **Blocked by**: #81 (TASK-09), #63 (TASK-10), #64 (TASK-11)  
 
 ---
