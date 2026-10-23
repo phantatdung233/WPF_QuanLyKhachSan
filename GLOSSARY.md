@@ -14,7 +14,7 @@ _Avoid_: Access level, group, type
 
 **Administrator**:
 A Role granting full access, including room-category management and revenue reporting.
-_Avoid_: Admin (in prose), manager, superuser
+_Avoid_: Admin (except in the UI), manager, superuser
 
 **Staff**:
 A Role limited to reception duties, with administrative and revenue features hidden.
@@ -38,7 +38,7 @@ _Avoid_: Trạng thái phòng, condition
 
 **Customer**:
 A guest registered in the system identified by their Citizen ID (CCCD/CMND), full name, and phone number.
-_Avoid_: Client, guest (as entity name), buyer
+_Avoid_: Client, buyer; "guest" is fine as plain English, not as the entity name
 
 **Service**:
 An amenity or add-on offered by the hotel (such as laundry, food, minibar items, or airport transit) with a fixed unit price.
@@ -60,24 +60,24 @@ _Avoid_: Order detail, service usage, dịch vụ phát sinh
 
 **Check-in**:
 The operational transition when a guest receives access to the room, changing Booking status to `Occupied` and Room status to `Occupied`.
-_Avoid_: Nhận phòng
+_Avoid_: Nhận phòng (except as the Vietnamese UI label)
 
 **Check-out**:
 The operational transition when a guest departs, triggering invoice settlement, changing Booking status to `Completed`, and releasing Room to `Available`.
-_Avoid_: Trả phòng
+_Avoid_: Trả phòng (except as the Vietnamese UI label)
 
 ## Billing & Finance
 
 **Invoice**:
 The financial statement generated upon check-out detailing room charges and all associated service charges.
-_Avoid_: Bill, receipt, hóa đơn
+_Avoid_: Bill, receipt; hóa đơn is fine as the Vietnamese UI label
 
 **InvoiceStatus**:
 The payment state of an Invoice: `Pending` (unpaid) and `Paid` (settled via cash or bank transfer).
-_Avoid_: Thanh toán
+_Avoid_: Thanh toán (except as the Vietnamese UI label)
 
 **Settlement Invariant**:
-A `Paid` Invoice implies its Booking is `Completed` and its Room is back to `Available`; a Booking is never `Completed` while its Invoice is `Pending`. All three transition together.
+A `Paid` Invoice implies its Booking is `Completed` and its Room is back to `Available`.
 _Avoid_: Marking an invoice paid without completing the booking
 
 **Room Charge Policy**:

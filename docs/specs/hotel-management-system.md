@@ -47,7 +47,7 @@ Phát triển ứng dụng WPF Quản lý Khách sạn chuẩn kiến trúc MVVM
 ## Implementation Decisions
 
 - **Architectural Pattern**: MVVM with `CommunityToolkit.Mvvm` 8.4.2 (`ObservableObject`, `[ObservableProperty]`, `[RelayCommand]`). View navigation is managed via `CurrentView` property in `MainViewModel` hosting Views inside a central `ContentControl`. Input forms use `Window.ShowDialog()`.
-- **UI Framework**: `WPF-UI` 4.3.0 on `net10.0-windows`, providing the Fluent shell (`NavigationView` for the main sidebar, `FluentWindow` for windows) and base styles. Third-party UI packages are permitted; the project is not restricted to framework-pure XAML.
+- **UI Framework**: `WPF-UI` 4.3.0 on `net10.0-windows`, providing the Fluent shell (`NavigationView` for the main sidebar, `FluentWindow` for windows) and base styles.
 - **Charting**: `LiveChartsCore.SkiaSharpView.WPF` 2.0.5, used exclusively by the reporting module (TASK-11) for a revenue-by-day line chart.
 - **Database & Persistence**: Microsoft SQL Server (SSMS / SQL Server Express). Database schema and seed data are maintained in `Database/HotelDB.sql` with 8 core tables: `Users`, `RoomTypes`, `Rooms`, `Customers`, `Bookings`, `Services`, `BookingServices`, `Invoices`.
 - **Data Access Layer**: Pure ADO.NET (`SqlConnection`, `SqlCommand`, `SqlDataReader`, `SqlDataAdapter`) via reusable `DataProvider.cs` and Data Access Objects (`UserDAO`, `RoomDAO`, `CustomerDAO`, `BookingDAO`, `ServiceDAO`, `InvoiceDAO`).

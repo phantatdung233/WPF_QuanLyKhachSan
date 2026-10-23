@@ -103,7 +103,7 @@ function run() {
   }
   console.log('  ✓ Đã cập nhật xong bộ nhãn màu chuẩn.');
 
-  // 3. PARSE TASKS.MD
+  // 3. PARSE docs/tasks/*.md
   console.log('\n📖 3. Phân tích cú pháp docs/tasks/*.md...');
   const tasksDir = path.join(process.cwd(), 'docs', 'tasks');
   if (!fs.existsSync(tasksDir)) {
@@ -143,7 +143,7 @@ function run() {
     // Bỏ markdown (backtick, **, ngoặc kép) để lấy giá trị thuần.
     const sanitize = (v) => (v || '').replace(/[`*"']/g, '').trim();
 
-    // Hỗ trợ cả định dạng cũ "**Labels**: `a`, `b`"
+    // Định dạng metadata: "**Labels**: `a`, `b`"
     const labels = (getMeta('Labels') || '')
       .split(',')
       .map(l => l.replace(/[`*\s]/g, ''))

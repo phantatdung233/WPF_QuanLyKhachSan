@@ -43,6 +43,7 @@
 - [ ] Tổ chức cấu trúc thư mục chuẩn: Models/, Views/, ViewModels/, DAO/, Resources/.
 - [ ] ViewModelBase kế thừa ObservableObject từ MVVM Toolkit hỗ trợ [ObservableProperty] và [RelayCommand].
 - [ ] MainWindow cấu hình cơ bản gồm Sidebar menu và ContentControl hiển thị View động theo thuộc tính CurrentView trong MainViewModel.
+- [ ] `MainWindow` dùng `FluentWindow` và sidebar dùng `NavigationView` của WPF-UI, kế thừa theme Fluent trong `App.xaml`.
 
 ### Ca biên cần xử lý (Edge Cases):
 - Đảm bảo khi khởi chạy ứng dụng lần đầu, `CurrentView` có giá trị mặc định (ví dụ trỏ vào `RoomMapViewModel` hoặc hiển thị trang chủ chào mừng).

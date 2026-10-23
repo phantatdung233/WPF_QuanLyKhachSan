@@ -18,7 +18,7 @@
 - Áp dụng kỹ thuật XAML `Style.Triggers` hoặc `DataTrigger` (hoặc `IValueConverter`) để màu nền của mỗi thẻ phòng tự động đổi màu theo trạng thái thời gian thực:
   - 🟢 **Xanh lá cây (`#48BB78`)**: Phòng trống (Available)
   - 🔴 **Đỏ (`#F56565`)**: Đang có khách ở (Occupied)
-  - 🟠 **Cam / Vàng (`#ED8936`)**: Đã đặt trước (Reserved)
+  - 🟠 **Cam (`#ED8936`)**: Đã đặt trước (Reserved)
   - ⚫ **Xám (`#A0AEC0`)**: Bảo trì (Maintenance)
 - Tương tác trực tiếp trên sơ đồ phòng: Click vào thẻ phòng để xem thông tin, click đúp để mở nhanh tác vụ Đặt phòng hoặc Check-in/Check-out.
 

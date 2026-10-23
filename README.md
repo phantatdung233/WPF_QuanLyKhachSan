@@ -1,11 +1,12 @@
 # Hotel Management System — Quản Lý Khách Sạn
 
 [![.NET 10](https://img.shields.io/badge/.NET-10.0-512BD4)](https://dotnet.microsoft.com)
-[![WPF](https://img.shields.io/badge/UI-WPF-0078D4)](https://learn.microsoft.com/dotnet/desktop/wpf)
-[![SQL Server](https://img.shields.io/badge/DB-SQL%20Server-CC2927)](https://www.microsoft.com/sql-server)
 [![MVVM Toolkit](https://img.shields.io/badge/MVVM-CommunityToolkit-68217A)](https://learn.microsoft.com/dotnet/communitytoolkit/mvvm)
 [![WPF-UI](https://img.shields.io/badge/UI%20Shell-WPF--UI-5B5BD6)](https://wpfui.lepo.co)
 [![LiveCharts2](https://img.shields.io/badge/Charts-LiveCharts2-2EA043)](https://livecharts.dev)
+
+[![WPF](https://img.shields.io/badge/Platform-WPF-0078D4)](https://learn.microsoft.com/dotnet/desktop/wpf)
+[![SQL Server](https://img.shields.io/badge/DB-SQL%20Server-CC2927)](https://www.microsoft.com/sql-server)
 
 Đồ án môn IT008 (Lập trình trực quan): ứng dụng desktop quản lý khách sạn —
 quản lý danh mục phòng/khách hàng/dịch vụ, đặt phòng chống trùng lịch,
@@ -51,7 +52,7 @@ Check-in → Thêm dịch vụ → Check-out / Hóa đơn → Báo cáo doanh th
 
 - Visual Studio 2026 (workload .NET Desktop Development, .NET 10 SDK)
   - Không dùng Visual Studio 2022: VS 2022 không hỗ trợ target `net10.0`.
-  - SDK được ghim qua `global.json` (`10.0.100`, `rollForward: latestFeature`).
+  - SDK sẽ được ghim qua `global.json` (`10.0.100`, `rollForward: latestFeature`) khi tạo solution ở TASK-01.
 - SQL Server Express (hoặc LocalDB) + SQL Server Management Studio (SSMS)
 
 ## Cài đặt và chạy
