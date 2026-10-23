@@ -1,4 +1,4 @@
-# [TASK-11] Module Báo cáo & Thống kê doanh thu thuần XAML
+# [TASK-11] Module Báo cáo & Thống kê doanh thu trực quan (LiveCharts2)
 
 **Part of Spec**: [#77](https://github.com/phantatdung233/WPF_QuanLyKhachSan/issues/77)  
 **Mã Task**: `TASK-11`  
@@ -14,8 +14,8 @@
 ## 1. Bối cảnh & Mục tiêu kỹ thuật (Architecture & Scope)
 - Xây dựng `ReportViewModel.cs` và giao diện `ReportView.xaml`.
 - Thống kê doanh thu và hoạt động kinh doanh của khách sạn theo khoảng thời gian tùy chọn (Từ ngày - Đến ngày).
-- Không sử dụng thư viện biểu đồ bên ngoài (như LiveCharts2 / SkiaSharp) để loại bỏ 100% rủi ro lỗi package hoặc lỗi font native.
-- Sử dụng các thành phần giao diện WPF XAML thuần:
+- Sử dụng `LiveChartsCore.SkiaSharpView.WPF` 2.0.5 để vẽ biểu đồ đường doanh thu theo ngày (`CartesianChart` + `LineSeries`).
+- Sử dụng các thành phần giao diện WPF XAML cho phần số liệu:
   - 3 Thẻ chỉ số KPI nổi bật (Cards KPI): Tổng doanh thu (VNĐ), Tổng số lượt thuê phòng, Tổng tiền dịch vụ phát sinh.
   - Thanh `ProgressBar` trực quan hiển thị tỷ lệ công suất phòng (Số phòng đang có khách / Tổng số phòng).
   - Bảng `DataGrid` chi tiết danh sách các hóa đơn đã thanh toán trong khoảng thời gian lọc.
@@ -37,6 +37,10 @@
     - `ProgressBar`: Value = 75, Height = 20, Foreground màu xanh lá cây hoặc cam.
   - Bảng chi tiết `DataGrid`:
     - Cột: Mã HĐ, Tên khách hàng, Số phòng, Ngày thanh toán, Tiền phòng, Tiền dịch vụ, Tổng tiền.
+  - Biểu đồ đường doanh thu (`LiveCharts2`):
+    - `CartesianChart` với một `LineSeries` theo ngày (trục X = ngày thanh toán, trục Y = tổng doanh thu trong ngày).
+    - Dữ liệu lấy từ chính danh sách hóa đơn đã lọc, nhóm theo `PaymentDate`.
+    - `ReportViewModel` giữ danh sách `ISeries` dạng `ObservableCollection` và cập nhật lại mỗi khi bấm "Xem báo cáo".
 - Câu truy vấn SQL tổng hợp:
   ```sql
   SELECT * FROM Invoices 
@@ -53,7 +57,7 @@
 - [ ] Thiết kế 3 thẻ KPI số liệu nổi bật: Tổng doanh thu (VNĐ), Tổng số lượt khách thuê, Tổng tiền dịch vụ phát sinh.
 - [ ] Thanh ProgressBar trực quan hiển thị tỷ lệ công suất phòng (Số phòng đang có khách / Tổng số phòng).
 - [ ] Bảng DataGrid chi tiết danh sách các hóa đơn đã thanh toán trong khoảng thời gian lọc.
-- [ ] Không sử dụng thư viện ngoài, đảm bảo 100% build mượt mà, không giật lag.
+- [ ] Biểu đồ đường (LiveCharts2 `CartesianChart` + `LineSeries`) trực quan hóa doanh thu theo từng ngày trong khoảng thời gian lọc.
 
 ### Ca biên cần xử lý (Edge Cases):
 - Khoảng thời gian lọc không có hóa đơn nào: Các thẻ KPI hiển thị `0 đ`, bảng DataGrid trống thân thiện, không bị crash lỗi null.

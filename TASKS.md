@@ -1,4 +1,4 @@
-# IT008 — Scrum Task Backlog: Quản Lý Khách Sạn (WPF, .NET 8)
+# IT008 — Scrum Task Backlog: Quản Lý Khách Sạn (WPF, .NET 10)
 
 Tài liệu Task Backlog đóng vai trò **Single Source of Truth** cho đồ án IT008. Toàn bộ danh sách 12 Task dưới đây được tinh gọn theo chuẩn đồ án thực hành của sinh viên năm 2, kết nối SQL Server (SSMS), ADO.NET thuần DataProvider, MVVM Toolkit không dùng DI phức tạp và 2 tính năng nâng cao ăn điểm tối đa.
 
@@ -13,7 +13,7 @@ Tài liệu Task Backlog đóng vai trò **Single Source of Truth** cho đồ á
 
 ### 1.2. Phân công 3 thành viên (Mỗi thành viên 4 Tasks trọng tâm)
 - **Member A (Trưởng nhóm: Khung nền tảng, CSDL & Quản lý Phòng)**:
-  - Khởi tạo Solution WPF .NET 8, CommunityToolkit.Mvvm (TASK-01)
+  - Khởi tạo Solution WPF .NET 10, CommunityToolkit.Mvvm + WPF-UI (TASK-01)
   - Thiết kế Database SQL Server 8 bảng & DataProvider.cs ADO.NET (TASK-02)
   - Màn hình Đăng nhập & Phân quyền Admin / Nhân viên (TASK-03)
   - Module Quản lý Phòng & Loại phòng (TASK-04)
@@ -25,7 +25,7 @@ Tài liệu Task Backlog đóng vai trò **Single Source of Truth** cho đồ á
 - **Member C (Giao diện trực quan, Thanh toán, Báo cáo & Demo)**:
   - Module Sơ đồ phòng trực quan DataTrigger [Nâng cao 1] (TASK-09)
   - Module Hóa đơn, Thanh toán & Xuất file in ấn [Nâng cao 2] (TASK-10)
-  - Module Báo cáo & Thống kê doanh thu thuần XAML (TASK-11)
+  - Module Báo cáo & Thống kê doanh thu trực quan (LiveCharts2) (TASK-11)
   - Tổng hợp kiểm thử E2E, Slide thuyết trình & Kịch bản Rehearsal (TASK-12)
 
 ### 1.3. Quy ước Git & Phối hợp
@@ -38,15 +38,15 @@ Tài liệu Task Backlog đóng vai trò **Single Source of Truth** cho đồ á
 
 ## 2. Chi Tiết Danh Sách Tasks
 
-### [TASK-01] Khởi tạo Solution WPF .NET 8 & Kiến trúc MVVM Toolkit
+### [TASK-01] Khởi tạo Solution WPF .NET 10 & Kiến trúc MVVM Toolkit
 - **Assignee**: Member A
 - **Priority**: High
 - **Labels**: `core`, `architecture`, `m1`
 - **Branch**: `feature/core-mvvm-setup`
 - **Milestone**: Mốc 1: Khung Ứng Dụng, CSDL & Danh Mục Cơ Bản (Tuần 1-3)
 - **Definition of Done**:
-  - [ ] Solution tạo bằng .NET 8 WPF, chạy thành công không có lỗi/cảnh báo.
-  - [ ] Cài đặt package CommunityToolkit.Mvvm (8.x).
+  - [ ] Solution tạo bằng .NET 10 WPF (`net10.0-windows`), chạy thành công không có lỗi/cảnh báo.
+  - [ ] Cài đặt 2 package: CommunityToolkit.Mvvm (8.4.2) và WPF-UI (4.3.0).
   - [ ] Tổ chức cấu trúc thư mục chuẩn: Models/, Views/, ViewModels/, DAO/, Resources/.
   - [ ] ViewModelBase kế thừa ObservableObject từ MVVM Toolkit hỗ trợ [ObservableProperty] và [RelayCommand].
   - [ ] MainWindow cấu hình cơ bản gồm Sidebar menu và ContentControl hiển thị View động theo thuộc tính CurrentView trong MainViewModel.
@@ -183,7 +183,7 @@ Tài liệu Task Backlog đóng vai trò **Single Source of Truth** cho đồ á
 
 ---
 
-### [TASK-11] Module Báo cáo & Thống kê doanh thu thuần XAML
+### [TASK-11] Module Báo cáo & Thống kê doanh thu trực quan (LiveCharts2)
 - **Assignee**: Member C
 - **Priority**: Medium
 - **Labels**: `stats`, `report`, `ui`, `m3`
@@ -194,7 +194,7 @@ Tài liệu Task Backlog đóng vai trò **Single Source of Truth** cho đồ á
   - [ ] Thiết kế 3 thẻ KPI số liệu nổi bật: Tổng doanh thu (VNĐ), Tổng số lượt khách thuê, Tổng tiền dịch vụ phát sinh.
   - [ ] Thanh ProgressBar trực quan hiển thị tỷ lệ công suất phòng (Số phòng đang có khách / Tổng số phòng).
   - [ ] Bảng DataGrid chi tiết danh sách các hóa đơn đã thanh toán trong khoảng thời gian lọc.
-  - [ ] Không sử dụng thư viện ngoài, đảm bảo 100% build mượt mà, không giật lag.
+  - [ ] Biểu đồ đường (LiveCharts2 `CartesianChart` + `LineSeries`) trực quan hóa doanh thu theo từng ngày trong khoảng thời gian lọc.
 
 ---
 

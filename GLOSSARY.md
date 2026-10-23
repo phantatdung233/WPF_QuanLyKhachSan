@@ -1,6 +1,6 @@
 # Hotel Management System (Quản Lý Khách Sạn)
 
-The domain model for the WPF .NET 8 hotel management system (IT008). Defines canonical concepts, entity states, and operational rules across all modules.
+The domain model for the WPF .NET 10 hotel management system (IT008). Defines canonical concepts, entity states, and operational rules across all modules.
 
 ## Roles & Authentication
 

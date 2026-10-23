@@ -34,7 +34,7 @@
 - Slide thuyết trình:
   - Slide 1: Tên đề tài, Giảng viên hướng dẫn, Danh sách 3 thành viên và vai trò.
   - Slide 2: Mục tiêu đồ án & Bài toán nghiệp vụ khách sạn.
-  - Slide 3: Kiến trúc kỹ thuật (.NET 8 WPF, CommunityToolkit.Mvvm, ADO.NET SQL Server).
+  - Slide 3: Kiến trúc kỹ thuật (.NET 10 WPF, CommunityToolkit.Mvvm, WPF-UI, LiveCharts2, ADO.NET SQL Server).
   - Slide 4: Sơ đồ thực thể CSDL (ERD 8 bảng).
   - Slide 5: Hai điểm nhấn nổi bật (Sơ đồ phòng DataTrigger & Xuất hóa đơn ra file).
   - Slide 6: Kết luận & Hướng phát triển tương lai.

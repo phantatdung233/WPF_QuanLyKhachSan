@@ -1,9 +1,11 @@
 # Hotel Management System — Quản Lý Khách Sạn
 
-[![.NET 8](https://img.shields.io/badge/.NET-8.0-512BD4)](https://dotnet.microsoft.com)
+[![.NET 10](https://img.shields.io/badge/.NET-10.0-512BD4)](https://dotnet.microsoft.com)
 [![WPF](https://img.shields.io/badge/UI-WPF-0078D4)](https://learn.microsoft.com/dotnet/desktop/wpf)
 [![SQL Server](https://img.shields.io/badge/DB-SQL%20Server-CC2927)](https://www.microsoft.com/sql-server)
 [![MVVM Toolkit](https://img.shields.io/badge/MVVM-CommunityToolkit-68217A)](https://learn.microsoft.com/dotnet/communitytoolkit/mvvm)
+[![WPF-UI](https://img.shields.io/badge/UI%20Shell-WPF--UI-5B5BD6)](https://wpfui.lepo.co)
+[![LiveCharts2](https://img.shields.io/badge/Charts-LiveCharts2-2EA043)](https://livecharts.dev)
 
 Đồ án môn IT008 (Lập trình trực quan): ứng dụng desktop quản lý khách sạn —
 quản lý danh mục phòng/khách hàng/dịch vụ, đặt phòng chống trùng lịch,
@@ -39,14 +41,17 @@ Check-in → Thêm dịch vụ → Check-out / Hóa đơn → Báo cáo doanh th
 
 | Lớp | Lựa chọn |
 | --- | -------- |
-| UI | .NET 8 WPF, XAML thuần (không dùng thư viện biểu đồ ngoài) |
-| Kiến trúc | MVVM với `CommunityToolkit.Mvvm` (`ObservableObject`, `[ObservableProperty]`, `[RelayCommand]`) |
+| UI | WPF trên .NET 10 (`net10.0-windows`), giao diện Fluent qua `WPF-UI` 4.3.0 (`NavigationView`) |
+| Kiến trúc | MVVM với `CommunityToolkit.Mvvm` 8.4.2 (`ObservableObject`, `[ObservableProperty]`, `[RelayCommand]`) |
+| Biểu đồ | `LiveChartsCore.SkiaSharpView.WPF` 2.0.5 (báo cáo doanh thu theo ngày) |
 | Cơ sở dữ liệu | SQL Server / SQL Server Express, script `Database/HotelDB.sql` (8 bảng) |
 | Truy cập dữ liệu | ADO.NET thuần qua `DataProvider.cs` + các lớp DAO, tham số hóa chống SQL Injection |
 
 ## Yêu cầu môi trường
 
-- Visual Studio 2022 (workload .NET Desktop Development, .NET 8 SDK)
+- Visual Studio 2026 (workload .NET Desktop Development, .NET 10 SDK)
+  - Không dùng Visual Studio 2022: VS 2022 không hỗ trợ target `net10.0`.
+  - SDK được ghim qua `global.json` (`10.0.100`, `rollForward: latestFeature`).
 - SQL Server Express (hoặc LocalDB) + SQL Server Management Studio (SSMS)
 
 ## Cài đặt và chạy

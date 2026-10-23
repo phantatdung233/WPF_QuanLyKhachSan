@@ -1,4 +1,4 @@
-# Specification: Hotel Management System (WPF .NET 8 MVVM)
+# Specification: Hotel Management System (WPF .NET 10 MVVM)
 
 **Issue Tracker Reference**: [Issue #77](https://github.com/phantatdung233/WPF_QuanLyKhachSan/issues/77)  
 **Status**: `ready-for-agent`
@@ -7,7 +7,7 @@
 
 ## Problem Statement
 
-Quản lý khách sạn truyền thống bằng sổ sách hoặc bảng tính Excel dễ dẫn đến sai sót: trùng lịch phòng (overbooking), thất thoát chi phí dịch vụ phát sinh khi khách lưu trú, tính sai hóa đơn khi trả phòng, và khó nắm bắt tổng quan tình trạng phòng theo thời gian thực. Đồ án IT008 (Lập trình trực quan) cần một ứng dụng desktop trực quan, tin cậy xây dựng trên nền tảng .NET 8 WPF MVVM, đáp ứng đầy đủ chu trình vận hành khách sạn khép kín và phù hợp với năng lực triển khai thực tế của nhóm sinh viên năm 2.
+Quản lý khách sạn truyền thống bằng sổ sách hoặc bảng tính Excel dễ dẫn đến sai sót: trùng lịch phòng (overbooking), thất thoát chi phí dịch vụ phát sinh khi khách lưu trú, tính sai hóa đơn khi trả phòng, và khó nắm bắt tổng quan tình trạng phòng theo thời gian thực. Đồ án IT008 (Lập trình trực quan) cần một ứng dụng desktop trực quan, tin cậy xây dựng trên nền tảng .NET 10 WPF MVVM, đáp ứng đầy đủ chu trình vận hành khách sạn khép kín và phù hợp với năng lực triển khai thực tế của nhóm sinh viên năm 2.
 
 ## Solution
 
@@ -18,7 +18,7 @@ Phát triển ứng dụng WPF Quản lý Khách sạn chuẩn kiến trúc MVVM
 - Chu trình lưu trú khép kín: Đặt phòng → Check-in nhận phòng → Gọi dịch vụ phòng → Check-out thanh toán hóa đơn.
 - **Tính năng nâng cao 1**: Sơ đồ phòng trực quan (Room Matrix) tự động đổi màu thẻ phòng theo 4 trạng thái bằng XAML `DataTrigger` (Xanh lá: Trống, Đỏ: Đang ở, Cam: Đã đặt, Xám: Dọn dẹp/Bảo trì).
 - **Tính năng nâng cao 2**: Xuất hóa đơn thanh toán ra file văn bản (.txt) hoặc in ấn khi hoàn tất trả phòng.
-- Màn hình Báo cáo & Thống kê doanh thu với các thẻ KPI nổi bật, thanh tiến trình tỷ lệ công suất phòng và bảng chi tiết doanh thu bằng WPF XAML thuần.
+- Màn hình Báo cáo & Thống kê doanh thu với các thẻ KPI nổi bật, thanh tiến trình tỷ lệ công suất phòng, biểu đồ đường doanh thu theo ngày (LiveCharts2) và bảng chi tiết hóa đơn.
 
 ## User Stories
 
@@ -46,7 +46,9 @@ Phát triển ứng dụng WPF Quản lý Khách sạn chuẩn kiến trúc MVVM
 
 ## Implementation Decisions
 
-- **Architectural Pattern**: MVVM with `CommunityToolkit.Mvvm` (`ObservableObject`, `[ObservableProperty]`, `[RelayCommand]`). View navigation is managed via `CurrentView` property in `MainViewModel` hosting Views inside a central `ContentControl`. Input forms use `Window.ShowDialog()`.
+- **Architectural Pattern**: MVVM with `CommunityToolkit.Mvvm` 8.4.2 (`ObservableObject`, `[ObservableProperty]`, `[RelayCommand]`). View navigation is managed via `CurrentView` property in `MainViewModel` hosting Views inside a central `ContentControl`. Input forms use `Window.ShowDialog()`.
+- **UI Framework**: `WPF-UI` 4.3.0 on `net10.0-windows`, providing the Fluent shell (`NavigationView` for the main sidebar, `FluentWindow` for windows) and base styles. Third-party UI packages are permitted; the project is not restricted to framework-pure XAML.
+- **Charting**: `LiveChartsCore.SkiaSharpView.WPF` 2.0.5, used exclusively by the reporting module (TASK-11) for a revenue-by-day line chart.
 - **Database & Persistence**: Microsoft SQL Server (SSMS / SQL Server Express). Database schema and seed data are maintained in `Database/HotelDB.sql` with 8 core tables: `Users`, `RoomTypes`, `Rooms`, `Customers`, `Bookings`, `Services`, `BookingServices`, `Invoices`.
 - **Data Access Layer**: Pure ADO.NET (`SqlConnection`, `SqlCommand`, `SqlDataReader`, `SqlDataAdapter`) via reusable `DataProvider.cs` and Data Access Objects (`UserDAO`, `RoomDAO`, `CustomerDAO`, `BookingDAO`, `ServiceDAO`, `InvoiceDAO`).
 - **Domain Status Representations**:
@@ -56,7 +58,7 @@ Phát triển ứng dụng WPF Quản lý Khách sạn chuẩn kiến trúc MVVM
 - **Booking Overlap Logic**: Two intervals `[A, B]` and `[C, D]` overlap if and only if `A < D && C < B`.
 - **Pricing Policy**: Room charge calculated on a daily basis: `TotalDays = Math.Max(1, (CheckOut.Date - CheckIn.Date).Days); RoomCost = TotalDays * PricePerDay`. Total Invoice = `RoomCost + SUM(Quantity * UnitPrice)`.
 - **Visual Room Matrix**: Implemented with WPF `ItemsControl` / `WrapPanel` using XAML `DataTrigger` styles for status-driven background colors.
-- **Reporting & Dashboard**: Pure WPF XAML metric KPI cards, `ProgressBar` occupancy meter, and `DataGrid` date-filtered invoice list without third-party charting dependencies.
+- **Reporting & Dashboard**: WPF XAML metric KPI cards, `ProgressBar` occupancy meter, and `DataGrid` date-filtered invoice list, plus a LiveCharts2 revenue-by-day line chart.
 
 ## Testing Decisions
 
