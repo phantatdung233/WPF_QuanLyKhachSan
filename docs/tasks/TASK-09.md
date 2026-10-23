@@ -18,7 +18,7 @@
   - 🟢 **Xanh lá cây (`#48BB78`)**: Phòng trống (Available)
   - 🔴 **Đỏ (`#F56565`)**: Đang có khách ở (Occupied)
   - 🟠 **Cam / Vàng (`#ED8936`)**: Đã đặt trước (Reserved)
-  - ⚫ **Xám (`#A0AEC0`)**: Đang dọn dẹp / Bảo trì (Maintenance)
+  - ⚫ **Xám (`#A0AEC0`)**: Bảo trì (Maintenance)
 - Tương tác trực tiếp trên sơ đồ phòng: Click vào thẻ phòng để xem thông tin, click đúp để mở nhanh tác vụ Đặt phòng hoặc Check-in/Check-out.
 
 ---
@@ -61,7 +61,7 @@
 ## 3. Tiêu chí nghiệm thu & Ca biên (Acceptance Criteria & Edge Cases)
 ### Checklist Definition of Done:
 - [ ] RoomMapView.xaml: Hiển thị danh sách tất cả các phòng dạng thẻ (Card/Button) xếp theo lưới tự co giãn (WrapPanel hoặc UniformGrid).
-- [ ] Áp dụng Style.Triggers hoặc DataTrigger trong XAML để tự động đổi màu thẻ phòng theo trạng thái: Xanh lá (Trống), Đỏ (Đang ở), Cam (Đã đặt), Xám (Dọn dẹp/Bảo trì).
+- [ ] Áp dụng Style.Triggers hoặc DataTrigger trong XAML để tự động đổi màu thẻ phòng theo trạng thái: Xanh lá (Trống), Đỏ (Đang ở), Cam (Đã đặt), Xám (Bảo trì).
 - [ ] Thẻ phòng hiển thị rõ: Số phòng, Loại phòng, Trạng thái.
 - [ ] Click vào thẻ phòng: Xem nhanh thông tin chi tiết; click đúp để mở form Đặt phòng hoặc Check-out nhanh.
 

@@ -12,6 +12,14 @@ _Avoid_: Account, login, employee
 The permission level of a User, strictly partitioned into Administrator and Staff.
 _Avoid_: Access level, group, type
 
+**Administrator**:
+A Role granting full access, including room-category management and revenue reporting.
+_Avoid_: Admin (in prose), manager, superuser
+
+**Staff**:
+A Role limited to reception duties, with administrative and revenue features hidden.
+_Avoid_: Employee, receptionist, nhân viên
+
 ## Rooms & Facilities
 
 **RoomType**:
@@ -23,8 +31,8 @@ An individual lodging unit identified by a unique room code, belonging to a Room
 _Avoid_: Chamber, unit
 
 **RoomStatus**:
-The operational lifecycle state of a Room: `Available` (ready for check-in), `Reserved` (booked in advance), `Occupied` (guest staying), `Maintenance` (out of order), and `Cleaning` (housekeeping in progress).
-_Avoid_: Trạng thái phòng (raw string in database), condition
+The operational lifecycle state of a Room: `Available` (ready for check-in), `Reserved` (booked in advance), `Occupied` (guest staying), and `Maintenance` (out of order).
+_Avoid_: Trạng thái phòng, condition
 
 ## Customers & Services
 
@@ -52,21 +60,25 @@ _Avoid_: Order detail, service usage, dịch vụ phát sinh
 
 **Check-in**:
 The operational transition when a guest receives access to the room, changing Booking status to `Occupied` and Room status to `Occupied`.
-_Avoid_: Nhận phòng (in code)
+_Avoid_: Nhận phòng
 
 **Check-out**:
-The operational transition when a guest departs, triggering invoice settlement, changing Booking status to `Completed`, and releasing Room to `Cleaning` or `Available`.
-_Avoid_: Trả phòng (in code)
+The operational transition when a guest departs, triggering invoice settlement, changing Booking status to `Completed`, and releasing Room to `Available`.
+_Avoid_: Trả phòng
 
 ## Billing & Finance
 
 **Invoice**:
 The financial statement generated upon check-out detailing room charges and all associated service charges.
-_Avoid_: Bill, receipt, hóa đơn (in code)
+_Avoid_: Bill, receipt, hóa đơn
 
 **InvoiceStatus**:
 The payment state of an Invoice: `Pending` (unpaid) and `Paid` (settled via cash or bank transfer).
-_Avoid_: Thanh toán (in code)
+_Avoid_: Thanh toán
+
+**Settlement Invariant**:
+A `Paid` Invoice implies its Booking is `Completed` and its Room is back to `Available`; a Booking is never `Completed` while its Invoice is `Pending`. All three transition together.
+_Avoid_: Marking an invoice paid without completing the booking
 
 **Room Charge Policy**:
 The billing formula where room cost equals nightly base rate multiplied by the number of overnight stays: `Math.Max(1, (CheckOut.Date - CheckIn.Date).Days) * UnitPrice`.

@@ -25,7 +25,7 @@
   1. Đăng nhập tài khoản Nhân viên (`staff`): Kiểm tra quyền hạn, thấy bị ẩn menu Quản trị.
   2. Đăng xuất, đăng nhập tài khoản Quản trị (`admin`): Kiểm tra quyền hạn đầy đủ.
   3. Mở **Sơ đồ phòng trực quan**: Thấy 12 phòng hiển thị 4 màu trực quan.
-  4. Chọn 1 phòng màu Xanh (Trống) -> Tạo phiếu **Đặt phòng** cho khách mới. Sơ đồ phòng đổi sang màu Vàng (Đã đặt).
+  4. Chọn 1 phòng màu Xanh (Trống) -> Tạo phiếu **Đặt phòng** cho khách mới. Sơ đồ phòng đổi sang màu Cam (Đã đặt).
   5. Khách đến -> Bấm **Check-in**: Sơ đồ phòng đổi sang màu Đỏ (Đang ở).
   6. Khách gọi đồ -> Bấm **Thêm dịch vụ phòng** (2 lon nước, 1 giặt ủi).
   7. Khách trả phòng -> Bấm **Check-out**: Kiểm tra màn hình Hóa đơn tính chuẩn tiền phòng + tiền dịch vụ.

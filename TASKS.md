@@ -43,6 +43,7 @@ Tài liệu Task Backlog đóng vai trò **Single Source of Truth** cho đồ á
 - **Priority**: High
 - **Labels**: `core`, `architecture`, `m1`
 - **Branch**: `feature/core-mvvm-setup`
+- **Blocked by**: None (Bắt đầu ngay)
 - **Milestone**: Mốc 1: Khung Ứng Dụng, CSDL & Danh Mục Cơ Bản (Tuần 1-3)
 - **Definition of Done**:
   - [ ] Solution tạo bằng .NET 10 WPF (`net10.0-windows`), chạy thành công không có lỗi/cảnh báo.
@@ -58,6 +59,7 @@ Tài liệu Task Backlog đóng vai trò **Single Source of Truth** cho đồ á
 - **Priority**: High
 - **Labels**: `database`, `core`, `m1`
 - **Branch**: `feature/database-sqlserver-setup`
+- **Blocked by**: #58 (TASK-01)
 - **Milestone**: Mốc 1: Khung Ứng Dụng, CSDL & Danh Mục Cơ Bản (Tuần 1-3)
 - **Definition of Done**:
   - [ ] Tạo file script Database/HotelDB.sql gồm lệnh CREATE DATABASE, CREATE TABLE cho 8 bảng: Users, RoomTypes, Rooms, Customers, Bookings, Services, BookingServices, Invoices.
@@ -73,6 +75,7 @@ Tài liệu Task Backlog đóng vai trò **Single Source of Truth** cho đồ á
 - **Priority**: High
 - **Labels**: `auth`, `security`, `m1`
 - **Branch**: `feature/auth-login`
+- **Blocked by**: #59 (TASK-02)
 - **Milestone**: Mốc 1: Khung Ứng Dụng, CSDL & Danh Mục Cơ Bản (Tuần 1-3)
 - **Definition of Done**:
   - [ ] Màn hình LoginWindow.xaml đẹp mắt với TextBox Username, PasswordBox và nút Đăng nhập.
@@ -88,6 +91,7 @@ Tài liệu Task Backlog đóng vai trò **Single Source of Truth** cho đồ á
 - **Priority**: Medium
 - **Labels**: `room`, `crud`, `m1`
 - **Branch**: `feature/room-management`
+- **Blocked by**: #59 (TASK-02)
 - **Milestone**: Mốc 1: Khung Ứng Dụng, CSDL & Danh Mục Cơ Bản (Tuần 1-3)
 - **Definition of Done**:
   - [ ] RoomDAO.cs và RoomTypeDAO.cs thực hiện các câu lệnh SQL SELECT, INSERT, UPDATE, DELETE vào bảng Rooms và RoomTypes.
@@ -102,6 +106,7 @@ Tài liệu Task Backlog đóng vai trò **Single Source of Truth** cho đồ á
 - **Priority**: High
 - **Labels**: `customer`, `crud`, `m1`
 - **Branch**: `feature/customer-management`
+- **Blocked by**: #59 (TASK-02)
 - **Milestone**: Mốc 1: Khung Ứng Dụng, CSDL & Danh Mục Cơ Bản (Tuần 1-3)
 - **Definition of Done**:
   - [ ] CustomerDAO.cs: Viết các hàm lấy danh sách, thêm, sửa, tìm kiếm khách hàng từ bảng Customers.
@@ -116,6 +121,7 @@ Tài liệu Task Backlog đóng vai trò **Single Source of Truth** cho đồ á
 - **Priority**: Medium
 - **Labels**: `service`, `crud`, `m1`
 - **Branch**: `feature/service-management`
+- **Blocked by**: #59 (TASK-02)
 - **Milestone**: Mốc 1: Khung Ứng Dụng, CSDL & Danh Mục Cơ Bản (Tuần 1-3)
 - **Definition of Done**:
   - [ ] ServiceDAO.cs: Truy vấn lấy danh mục dịch vụ từ bảng Services.
@@ -131,6 +137,7 @@ Tài liệu Task Backlog đóng vai trò **Single Source of Truth** cho đồ á
 - **Priority**: High
 - **Labels**: `booking`, `business-logic`, `m2`
 - **Branch**: `feature/booking-conflict-check`
+- **Blocked by**: #78 (TASK-05), #61 (TASK-04)
 - **Milestone**: Mốc 2: Nghiệp Vụ Cốt Lõi, Sơ Đồ Phòng & Hóa Đơn (Tuần 3-5)
 - **Definition of Done**:
   - [ ] BookingDAO.cs: Thao tác thêm, cập nhật, truy vấn bảng Bookings.
@@ -146,6 +153,7 @@ Tài liệu Task Backlog đóng vai trò **Single Source of Truth** cho đồ á
 - **Priority**: High
 - **Labels**: `booking`, `service`, `workflow`, `m2`
 - **Branch**: `feature/checkin-checkout-services`
+- **Blocked by**: #62 (TASK-07), #79 (TASK-06)
 - **Milestone**: Mốc 2: Nghiệp Vụ Cốt Lõi, Sơ Đồ Phòng & Hóa Đơn (Tuần 3-5)
 - **Definition of Done**:
   - [ ] Nút Check-in: Đổi trạng thái Booking sang Đang ở, đổi trạng thái Phòng sang Đang ở.
@@ -160,10 +168,11 @@ Tài liệu Task Backlog đóng vai trò **Single Source of Truth** cho đồ á
 - **Priority**: High
 - **Labels**: `advanced`, `ui`, `room-map`, `m2`
 - **Branch**: `feature/room-matrix-trigger`
+- **Blocked by**: #61 (TASK-04)
 - **Milestone**: Mốc 2: Nghiệp Vụ Cốt Lõi, Sơ Đồ Phòng & Hóa Đơn (Tuần 3-5)
 - **Definition of Done**:
   - [ ] RoomMapView.xaml: Hiển thị danh sách tất cả các phòng dạng thẻ (Card/Button) xếp theo lưới tự co giãn (WrapPanel hoặc UniformGrid).
-  - [ ] Áp dụng Style.Triggers hoặc DataTrigger trong XAML để tự động đổi màu thẻ phòng theo trạng thái: Xanh lá (Trống), Đỏ (Đang ở), Cam (Đã đặt), Xám (Dọn dẹp/Bảo trì).
+  - [ ] Áp dụng Style.Triggers hoặc DataTrigger trong XAML để tự động đổi màu thẻ phòng theo trạng thái: Xanh lá (Trống), Đỏ (Đang ở), Cam (Đã đặt), Xám (Bảo trì).
   - [ ] Thẻ phòng hiển thị rõ: Số phòng, Loại phòng, Trạng thái.
   - [ ] Click vào thẻ phòng: Xem nhanh thông tin chi tiết; click đúp để mở form Đặt phòng hoặc Check-out nhanh.
 
@@ -174,6 +183,7 @@ Tài liệu Task Backlog đóng vai trò **Single Source of Truth** cho đồ á
 - **Priority**: High
 - **Labels**: `advanced`, `invoice`, `billing`, `m2`
 - **Branch**: `feature/invoice-export`
+- **Blocked by**: #80 (TASK-08)
 - **Milestone**: Mốc 2: Nghiệp Vụ Cốt Lõi, Sơ Đồ Phòng & Hóa Đơn (Tuần 3-5)
 - **Definition of Done**:
   - [ ] InvoiceDAO.cs: Thao tác với bảng Invoices.
@@ -188,6 +198,7 @@ Tài liệu Task Backlog đóng vai trò **Single Source of Truth** cho đồ á
 - **Priority**: Medium
 - **Labels**: `stats`, `report`, `ui`, `m3`
 - **Branch**: `feature/revenue-stats-report`
+- **Blocked by**: #63 (TASK-10)
 - **Milestone**: Mốc 3: Báo Cáo Thống Kê & Chốt Demo (Tuần 5-6)
 - **Definition of Done**:
   - [ ] ReportView.xaml: Có bộ lọc khoảng thời gian (Từ ngày - Đến ngày).
@@ -203,6 +214,7 @@ Tài liệu Task Backlog đóng vai trò **Single Source of Truth** cho đồ á
 - **Priority**: High
 - **Labels**: `docs`, `presentation`, `demo`, `qa`, `m3`
 - **Branch**: `feature/demo-rehearsal-slides`
+- **Blocked by**: #81 (TASK-09), #63 (TASK-10), #64 (TASK-11)
 - **Milestone**: Mốc 3: Báo Cáo Thống Kê & Chốt Demo (Tuần 5-6)
 - **Definition of Done**:
   - [ ] Kiểm thử thông suốt chuỗi kịch bản Demo: Đăng nhập -> Sơ đồ phòng -> Đặt phòng -> Check-in -> Thêm 2 dịch vụ -> Check-out xuất hóa đơn -> Xem thống kê doanh thu.

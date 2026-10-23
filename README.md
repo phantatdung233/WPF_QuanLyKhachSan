@@ -61,9 +61,14 @@ Check-in → Thêm dịch vụ → Check-out / Hóa đơn → Báo cáo doanh th
 2. Mở `Database/HotelDB.sql` trong SSMS và Execute để tạo database
    `HotelManagementDb` cùng dữ liệu mẫu (2 users, 4 loại phòng, 12 phòng,
    5 khách hàng, 5 dịch vụ).
-3. Kiểm tra chuỗi kết nối trong `DataProvider.cs` khớp tên SQL Server trên máy
-   (ví dụ `.\SQLEXPRESS`).
-4. Mở solution trong Visual Studio, nhấn F5.
+3. Cấu hình chuỗi kết nối trong `DataProvider.cs` khớp tên SQL Server trên máy
+   (ví dụ `.\SQLEXPRESS`). *(`DataProvider.cs` được tạo ở TASK-02 và giải
+   thích trong `docs/tasks/TASK-02.md`.)*
+4. Mở solution trong Visual Studio, nhấn F5. *(Solution `HotelManagement.sln`
+   được tạo ở TASK-01 — xem `docs/tasks/TASK-01.md`.)*
+
+> Hai bước 3–4 áp dụng **sau khi** đã hoàn thành TASK-01 và TASK-02. Repository
+> hiện chỉ chứa tài liệu (spec + 12 task guide), chưa có mã nguồn.
 
 Để reset dữ liệu trước buổi demo, chỉ cần chạy lại `HotelDB.sql` trong SSMS.
 

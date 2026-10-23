@@ -16,7 +16,7 @@ Phát triển ứng dụng WPF Quản lý Khách sạn chuẩn kiến trúc MVVM
 - Quản lý danh mục cơ bản (Loại phòng, Phòng, Khách hàng, Dịch vụ).
 - Thuật toán kiểm tra và ngăn chặn xung đột trùng lịch đặt phòng (`A < D && C < B`).
 - Chu trình lưu trú khép kín: Đặt phòng → Check-in nhận phòng → Gọi dịch vụ phòng → Check-out thanh toán hóa đơn.
-- **Tính năng nâng cao 1**: Sơ đồ phòng trực quan (Room Matrix) tự động đổi màu thẻ phòng theo 4 trạng thái bằng XAML `DataTrigger` (Xanh lá: Trống, Đỏ: Đang ở, Cam: Đã đặt, Xám: Dọn dẹp/Bảo trì).
+- **Tính năng nâng cao 1**: Sơ đồ phòng trực quan (Room Matrix) tự động đổi màu thẻ phòng theo 4 trạng thái bằng XAML `DataTrigger` (Xanh lá: Trống, Đỏ: Đang ở, Cam: Đã đặt, Xám: Bảo trì).
 - **Tính năng nâng cao 2**: Xuất hóa đơn thanh toán ra file văn bản (.txt) hoặc in ấn khi hoàn tất trả phòng.
 - Màn hình Báo cáo & Thống kê doanh thu với các thẻ KPI nổi bật, thanh tiến trình tỷ lệ công suất phòng, biểu đồ đường doanh thu theo ngày (LiveCharts2) và bảng chi tiết hóa đơn.
 
