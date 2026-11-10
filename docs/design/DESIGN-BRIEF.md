@@ -1,6 +1,6 @@
 # Design Brief — Hotel Management System (IT008)
 
-**Dành cho**: Designer thiết kế Figma
+**Dành cho**: Người thiết kế Figma
 **Tham chiếu nguồn**: [`docs/specs/hotel-management-system.md`](../specs/hotel-management-system.md) (Issue #77), [`GLOSSARY.md`](../../GLOSSARY.md), [`docs/tasks/TASK-01..12`](../tasks/)
 **Tài liệu liên quan**: [`WIREFRAMES.md`](./WIREFRAMES.md), [`DELIVERY-PLAN.md`](./DELIVERY-PLAN.md)
 
@@ -15,6 +15,17 @@
 > **Ràng buộc quan trọng nhất**: mọi thứ bạn vẽ phải **code được bằng XAML trong 6 tuần bởi 3 sinh viên**, dùng đúng thư viện Fluent UI có sẵn. Nếu thiết kế đẹp nhưng không code được trong thời gian đó thì phải làm lại.
 
 Mục tiêu của bạn: tạo **bộ Figma làm chuẩn giao diện** để team dev bám theo chính xác — không phải mockup để trình bày.
+
+### 0.1 Quy tắc bám theo Windows UI Kit
+
+Nguồn trực quan là [Windows UI Kit](https://www.figma.com/design/4wEK8iFt0i0RJIfmVYU0iO/Windows-UI-kit--Community-?node-id=2434-129659) và trang ứng dụng [Hotel Management](https://www.figma.com/design/4wEK8iFt0i0RJIfmVYU0iO/Windows-UI-kit--Community-?node-id=172994-2). Kiểm tra trực tiếp mẫu App window, Side Nav, Button, Text Box, ComboBox, Date Picker, Dialog và primitives Surface. Khi cập nhật hoặc mở rộng:
+
+- Dùng **component instance/biến thể của kit** cho Button, Text Box, ComboBox và Date Picker khi có control tương ứng. Không vẽ lại control bằng các shape rời.
+- Giữ hình dáng, chiều cao, khoảng đệm, kiểu chữ và đường viền, trạng thái focus, vô hiệu hóa và di chuột của component gốc. Button accent trong kit dùng `#005FB8`; các trạng thái lấy từ biến thể của kit, không tự bịa thêm một sắc navy hoặc màu di chuột. Tránh detach instance.
+- Search box, badge, room card, bảng, shell và các hộp thoại nghiệp vụ là pattern của ứng dụng nếu kit không có đúng thành phần. Hãy ghép chúng từ component kit và ghi chú rõ phần riêng của ứng dụng.
+- Các màu trạng thái phòng bên dưới là giá trị màu nghiệp vụ cố định, khác với màu nhấn Windows. Dùng đúng mã ở chú thích màu, ô màu, nhãn hoặc vạch chỉ trạng thái; giữ thân thẻ trung tính để giao diện không thành các mảng màu bão hòa. Luôn có chữ/icon đi kèm, không truyền trạng thái chỉ bằng màu.
+- Nếu tên/biến thể trong kit khác cách gọi trong tài liệu, dùng biến thể thực tế của kit và ghi mapping vào Figma; không tự tạo thêm một bộ component song song.
+- Kit dùng Segoe UI Variable và Segoe Fluent Icons. Dùng text styles/iconography của kit; với UI tiếng Việt hãy kiểm tra dấu và phương án thay thế theo Windows. Nếu phiên Figma không tải được font, Inter chỉ là bản xem trước tạm thời, không phải font chuẩn bàn giao.
 
 ---
 
@@ -39,14 +50,14 @@ Chuỗi này là "vòng đời" chính. Mọi màn hình của bạn phải ph�
 
 ### 1.2 Quy tắc nghiệp vụ ảnh hưởng trực tiếp tới UI
 
-Đây là những chỗ designer hay vẽ sai nếu không được cảnh báo:
+Đây là những chỗ người thiết kế hay vẽ sai nếu không được cảnh báo:
 
 1. **Phòng có 4 trạng thái, không phải 2.** Không được gộp "Đã đặt" với "Đang ở".
 2. **Có 2 biến thể sidebar theo vai trò.** Staff **không thấy** mục "Loại phòng" và "Báo cáo".
 3. **Đặt phòng có thể bị từ chối** vì trùng lịch → phải thiết kế **trạng thái lỗi** của form đặt phòng.
 4. **Hóa đơn có 2 trạng thái**: chưa thanh toán / đã thanh toán → cần 2 diện mạo khác nhau.
 5. **Tính tiền phòng tối thiểu 1 đêm** kể cả khi khách nhận và trả trong cùng ngày — chỗ này cần hiển thị rõ để lễ tân giải thích được với khách.
-6. **Phòng đang có khách ở** thì không được xóa → nút Xóa phải có trạng thái bị khóa (disabled).
+6. **Phòng đang có khách ở** thì không được xóa → nút Xóa phải có trạng thái bị khóa (vô hiệu hóa).
 7. **Dịch vụ / loại phòng đã được dùng** thì không được xóa → cần thông báo chặn, không phải màn hình trắng.
 8. **Ngày trả phòng phải sau ngày nhận phòng ít nhất 1 ngày** → validate ngày trên form đặt phòng.
 9. **Hóa đơn xuất ra file `.txt`** → cần một màn preview văn bản hóa đơn dạng monospace (xem màn 11).
@@ -58,53 +69,53 @@ Chuỗi này là "vòng đời" chính. Mọi màn hình của bạn phải ph�
 
 ### 2.1 Những gì ĐƯỢC dùng
 
-| Thành phần | Dùng cho |
+| Thành phần | Nguồn / cách dùng |
 | --- | --- |
-| Sidebar dạng `NavigationView` | Menu dọc bên trái, có icon + chữ, có mục đang chọn được highlight |
-| `FluentWindow` | Khung cửa sổ, có nút minimize/maximize/close chuẩn Fluent |
-| Bảng dữ liệu (`DataGrid`) | Mọi màn danh mục. Có header, sắp xếp, chọn dòng, cuộn |
-| Bộ lọc `ComboBox` | Lọc theo loại / trạng thái |
-| Ô tìm kiếm `TextBox` (có icon kính lúp) | Tìm khách hàng, tìm dịch vụ |
-| `DatePicker` | Ngày nhận / trả phòng, khoảng ngày báo cáo |
-| `ProgressBar` | Thanh công suất phòng trong báo cáo |
-| Biểu đồ đường (LiveCharts2) | Duy nhất trang Báo cáo |
-| Hộp thoại `Window.ShowDialog()` | Mọi form thêm/sửa, xác nhận |
-| Toast / `MessageBox` | Thông báo thành công, lỗi, cảnh báo |
+| Button | Instance và các biến thể của Windows UI Kit; map action thành Primary/Secondary/Danger/Disabled theo nhu cầu app. |
+| Text Box / Password | Windows UI Kit; dùng cho nhập liệu, mật khẩu và tìm kiếm. Search có thể là riêng của ứng dụng pattern ghép từ Text Box + icon của kit. |
+| ComboBox | Instance/biến thể của kit cho bộ lọc và lựa chọn. |
+| Date Picker | Instance/biến thể của kit cho ngày nhận/trả và lọc báo cáo. |
+| Shell / navigation | Dùng ngôn ngữ thị giác của kit; shell Admin/Staff là component riêng của app, với các mục menu theo quyền. |
+| Table / DataGrid | Bảng nghiệp vụ riêng của ứng dụng theo mật độ và kiểu chữ của kit; có header, chọn dòng, di chuột, cuộn và trạng thái rỗng. |
+| Room card / status badge | Pattern riêng của ứng dụng; dùng giá trị thiết kế cố định cho bốn trạng thái phòng. |
+| Dialog / toast | Ưu tiên component kit nếu có; nếu không, ghép từ bề mặt, kiểu chữ, divider và Button của kit. |
+| ProgressBar / chart | Chỉ dùng trên báo cáo; biểu đồ đường đơn giản. |
+
+**Nguyên tắc nguồn**: Windows UI Kit là nguồn cho cách trình bày control cơ bản. Không mặc định kit có sẵn bảng, room card, shell khách sạn, KPI hoặc luồng nghiệp vụ; những phần đó phải được cấu tạo theo cùng hệ giá trị thiết kế và quy tắc của kit. XAML/WPF-UI là đích triển khai, nên các component Figma cần có mapping rõ sang control/style phía code.
 
 ### 2.2 Những gì KHÔNG được dùng
 
-- ❌ Mobile layout, responsive breakpoint, tablet
-- ❌ Dark mode, theme switcher
-- ❌ Animation chuyển trang phức tạp, parallax, gradient động
-- ❌ Kéo-thả (drag & drop), swipe
-- ❌ Multi-window ngoài 1 cửa sổ chính + hộp thoại
-- ❌ Biểu đồ tròn 3D, gauge đồng hồ nhiều kim, biểu đồ nhiệt
-- ❌ Icon bộ tự vẽ không có trong Fluent Icons
-- ❌ Hiệu ứng blur / backdrop / glassmorphism
+- ❌ Mobile/tablet hoặc breakpoint ngoài phạm vi desktop đã chốt; 1024px chỉ là kiểm tra khả năng co giãn theo wireframe.
+- ❌ Dark mode/theme switcher trong bản bàn giao này (dù kit có biến thể tối).
+- ❌ Animation chuyển trang phức tạp, parallax, gradient trang trí.
+- ❌ Kéo-thả (drag & drop), swipe.
+- ❌ Multi-window ngoài một cửa sổ chính và các dialog.
+- ❌ Biểu đồ tròn 3D, gauge nhiều kim, biểu đồ nhiệt.
+- ❌ Icon tự vẽ hoặc emoji; dùng glyph của Segoe Fluent Icons/kit.
+- ❌ Glassmorphism hoặc blur trang trí. Mica chỉ dùng ở base/title bar nếu WPF-UI hỗ trợ; Acrylic chỉ cho flyout tạm thời nếu có sẵn trong stack. Nếu không hỗ trợ, dùng nền trung tính thay thế của kit.
 
 ### 2.3 Nguyên tắc thị giác
 
-- **Phẳng, sạch, viền mảnh.** Bóng đổ rất nhẹ (nếu có), bán kính góc 4–8px.
-- **Mật độ thông tin cao nhưng có nhịp**: hàng bảng cao ~40px, padding 12–16px.
-- **Màu dùng có mục đích, không trang trí.** Màu mạnh nhất trong app phải dành cho **trạng thái phòng** — vì đó là thứ lễ tân cần nhận ra trong 0.5 giây.
-- **Không dùng màu thương hiệu cho badge trạng thái.** Xem 2.4.
+- **Calm và sáng**: nền app/shell dùng bề mặt trung tính kiểu Windows; bề mặt layer phân cấp nội dung bằng khoảng cách, viền nhẹ và độ nổi vừa đủ, không dùng panel màu đậm lớn.
+- **Geometry theo kit**: control thường (Button, ComboBox, Text Box, ListView) radius 4px; container cửa sổ/dialog/flyout radius 8px; các cạnh ghép sát giữ radius 0px. Không dùng badge dạng viên thuốc nếu component kit không có.
+- **Mật độ cao nhưng dễ quét**: dùng khoảng cách theo nhịp 4/8/12/16/24px; bảng khoảng 40px mỗi dòng; ưu tiên căn trái và nhãn viết hoa đầu câu.
+- **Accent vừa đủ**: xanh Windows chỉ nhấn action chính, trạng thái bàn phím và chọn mục và liên kết. Không tô navy toàn sidebar/header, không dùng KPI card có ba nền màu riêng.
+- **Trạng thái phòng là ngoại lệ nghiệp vụ**: bốn màu phải nhận ra nhanh qua chú thích màu, dấu màu và nhãn; thân thẻ, bảng và nội dung vẫn dùng nền trung tính.
 
-### 2.4 Bảng màu
+### 2.4 Bảng màu và vai trò giá trị thiết kế
 
-**Màu thương hiệu (đã chốt):**
+**Nguồn màu giao diện**: Windows UI Kit. Dùng các primitive/alias theo vai trò (App Surface, Layer, Shell Surface, màu chữ và đường viền trung tính, accent, status) thay cho bảng màu tự đặt kiểu navy. Mẫu App Window của kit dùng nền sáng trung tính, vùng điều hướng trung tính và vạch xanh ở selector; Button accent trong component set có fill `#005FB8`.
 
-| Vai trò | Mã | Ghi chú |
+| Vai trò | Giá trị/cách chọn | Dùng ở đâu |
 | --- | --- | --- |
-| Primary — xanh navy | `#1E3A5F` | Sidebar, nút chính, header, tiêu đề |
-| Primary — nhạt (hover/selected) | `#2F5280` | Mục menu đang chọn |
-| Primary — nền trang | `#F5F7FA` | Nền vùng nội dung |
-| Bề mặt thẻ (surface) | `#FFFFFF` | Thẻ, bảng, hộp thoại |
-| Chữ chính | `#1A202C` | |
-| Chữ phụ / nhãn | `#4A5568` | |
-| Viền / đường kẻ | `#E2E8F0` | |
-| Thành công | `#2F855A` | Thông báo lưu thành công |
+| Nền cửa sổ | `App Surface` / `Base (Mica)` của kit; nếu không hỗ trợ thì dùng nền trung tính thay thế sáng | Nền cửa sổ và title bar |
+| Nền nội dung | `Layer` hoặc `Card Surface` của kit | Vùng nội dung, form, bảng, room card |
+| Neutral màu chữ | `Neutral foreground 1/2` từ kit | Chữ chính, nhãn, nội dung phụ |
+| Neutral stroke | `Neutral stroke` từ kit | Viền control, divider, bảng |
+| Windows accent | `#005FB8` (màu Button accent và selector trong kit) | nút chính, trạng thái bàn phím và chọn mục, progress/link; không phủ diện tích lớn |
+| Success/warning/error | Semantic status colors/backgrounds của kit | Toast, validation, thanh toán; chọn nền màu nhạt và màu chữ theo cặp tương phản của kit |
 
-**Màu trạng thái phòng (BẮT BUỘC, không đổi mã):**
+**Màu trạng thái phòng (giá trị màu nghiệp vụ BẮT BUỘC, không đổi mã):**
 
 | Trạng thái | Nhãn tiếng Việt | Mã | Ý nghĩa nghiệp vụ |
 | --- | --- | --- | --- |
@@ -113,16 +124,16 @@ Chuỗi này là "vòng đời" chính. Mọi màn hình của bạn phải ph�
 | Reserved | Đã đặt | `#ED8936` | Đã đặt trước, chưa đến |
 | Maintenance | Bảo trì | `#A0AEC0` | Ngừng hoạt động |
 
-> ⚠️ Bốn mã màu trên được quy định cố định trong `docs/tasks/TASK-09.md` và dev sẽ dùng đúng các giá trị đó trong XAML. Đừng "làm mềm" hay đổi tông. Bạn được phép đổi **màu chữ trên nền đó** nếu cần tương phản — hãy kiểm tra badge cam `#ED8936` và xám `#A0AEC0` trước khi dùng chữ trắng.
+Bốn mã trên là quy ước dữ liệu của dự án, không phải palette Windows. Giữ nguyên mã trong `Colors.xaml`; trong UI ưu tiên dùng làm ô màu chú thích màu, vạch chỉ báo, icon hoặc badge gọn có nhãn. **Không tô kín cả room card bằng các màu bão hòa**; card giữ `Card Surface` để chữ và dữ liệu vẫn rõ. Không thêm mã tint tự chọn nếu chưa ghi rõ ánh xạ giá trị thiết kế.
 
-**Màu ngữ nghĩa khác:** thông báo lỗi dùng tông đỏ đậm hơn `#F56565` để không lẫn với trạng thái "Đang ở" (ví dụ `#C53030`). Trạng thái thanh toán: chưa thanh toán dùng tông cam nhạt, đã thanh toán dùng tông xanh lá đậm.
+**Thanh toán và thông báo**: dùng màu ngữ nghĩa của kit (success/warning/danger) cùng nền tint và màu chữ tương ứng. Lỗi validation không dùng cùng một mảng đỏ lớn như trạng thái phòng Đang ở; dùng thông báo ngay dưới ô nhập, icon và viền báo lỗi.
 
 ### 2.5 Kiểu chữ
 
-- Font: **Segoe UI** (có sẵn trên Windows, hỗ trợ tiếng Việt đầy đủ). Nếu bạn dùng font khác trong Figma, phải đảm bảo tiếng Việt hiển thị đúng dấu.
-- Thang chữ gợi ý: 12 (nhãn nhỏ) / 13 (nội dung bảng) / 14 (nội dung chuẩn) / 16 (tiêu đề khu vực) / 20–24 (tiêu đề trang) / 28–32 (số liệu KPI).
-- Số tiền dùng numeral tabular (chữ số đều bề ngang) để cột tiền trong bảng thẳng hàng.
-- **Không** dùng chữ in hoa toàn bộ cho nội dung — chỉ dùng cho nhãn phụ nhỏ.
+- Font chuẩn: **Segoe UI Variable** và icon **Segoe Fluent Icons**, theo Windows UI Kit; kiểm tra đầy đủ dấu tiếng Việt. Dùng một họ font xuyên suốt.
+- Theo Windows type ramp: Small 12/16 Regular; Text 14/20 Regular; Text Strong 14/20 Semibold; Body Large 18/24; Subtitle 20/28 Semibold; Title 28/36 Semibold. Dùng 40/52 chỉ khi thực sự cần headline; KPI không tự động thành display text lớn.
+- Dùng Regular cho đa số nội dung và Semibold cho tiêu đề; căn trái mặc định, viết hoa đầu câu, không dùng toàn chữ hoa.
+- Số tiền có thể dùng tabular numerals nếu style trong kit hỗ trợ; ưu tiên khả năng đọc và cột thẳng hàng.
 
 ### 2.6 Định dạng dữ liệu
 
@@ -155,14 +166,14 @@ Chuỗi này là "vòng đời" chính. Mọi màn hình của bạn phải ph�
 └──────────────┴────────────────────────────────────────────────┘
 ```
 
-**Kích thước gợi ý**: sidebar rộng 220–240px (có thể thu gọn còn icon), header cao 56–64px, padding nội dung 24px.
+**Kích thước gợi ý**: title bar Windows cao khoảng 48px theo App Window mẫu; pane điều hướng 220–240px (có thể thu gọn về rail icon); hàng điều hướng theo component Side Nav 40px; vùng nội dung có gutter 24px. Title bar hệ thống và header nội dung là hai lớp riêng, không gộp thành một thanh navy.
 
 **Menu sidebar — Admin (8 mục):** Sơ đồ phòng, Đặt phòng, Phòng, Loại phòng, Khách hàng, Dịch vụ, Hóa đơn, Báo cáo.
 **Menu sidebar — Staff (6 mục):** bỏ **Loại phòng** và **Báo cáo**.
 
 > Ghi chú về nguồn: TASK-01 liệt kê menu "Sơ đồ phòng, Đặt phòng, Phòng, Khách hàng, Dịch vụ, Hóa đơn, Báo cáo" (7 mục, chưa có Loại phòng); TASK-04 và TASK-03 yêu cầu mục "Quản lý loại phòng" chỉ Admin thấy. Gộp lại thành 8 mục cho Admin. Nếu bạn thấy 8 mục quá dài, được phép gộp "Phòng" + "Loại phòng" thành một màn có 2 tab — nhưng phải giữ đúng quyền ẩn với Staff.
 
-**Header** phải có: tiêu đề trang hiện tại, "Xin chào: [Họ tên] ([Vai trò])", nút "Đăng xuất".
+**Header nội dung** phải có: tiêu đề trang hiện tại và cụm tài khoản "Xin chào: [Họ tên] ([Vai trò])" + nút "Đăng xuất". Dùng nền/bề mặt và nút theo kit; giữ title bar hệ thống riêng ở trên.
 
 Bố cục khung này vẽ **một lần** thành component, các màn hình khác tái sử dụng.
 
@@ -207,20 +218,20 @@ Chi tiết từng màn: xem [`WIREFRAMES.md`](./WIREFRAMES.md).
 
 ## 6. Trạng thái bắt buộc cho từng loại màn
 
-Designer thường chỉ vẽ trạng thái "đẹp" (có dữ liệu đầy đủ). Đồ án này cần cả trạng thái xấu — vì giảng viên sẽ bấm thử.
+Người thiết kế thường chỉ vẽ trạng thái "đẹp" (có dữ liệu đầy đủ). Đồ án này cần cả trạng thái xấu — vì giảng viên sẽ bấm thử.
 
 ### 6.1 Màn danh mục (Phòng / Loại phòng / Khách hàng / Dịch vụ / Booking)
 - **Bình thường**: có ~10 dòng dữ liệu, có ít nhất 1 dòng được chọn.
 - **Rỗng**: "Chưa có dữ liệu" + nút gọi hành động (Thêm mới). Không phải bảng trắng trơn.
 - **Đang tìm kiếm, không có kết quả**: "Không tìm thấy khách hàng phù hợp với '079'". Gợi ý xóa từ khóa.
 - **Đang lọc, không có kết quả**: "Không có phòng nào ở trạng thái Bảo trì".
-- **Dòng bị khóa thao tác**: nút Xóa disabled + tooltip giải thích lý do (vd: "Phòng đang có khách ở").
+- **Dòng bị khóa thao tác**: nút Xóa vô hiệu hóa + tooltip giải thích lý do (vd: "Phòng đang có khách ở").
 - **Lỗi validate trên form**: lỗi hiển thị **ngay dưới ô nhập**, không phải chỉ popup.
 
 ### 6.2 Sơ đồ phòng
 - Đủ 4 màu cùng lúc (12 phòng).
-- Hover + focus một thẻ phòng.
-- Tooltip khi hover gợi ý "Click đúp để đặt phòng / check-out".
+- Hover + được chọn bằng bàn phím một thẻ phòng.
+- Tooltip khi di chuột gợi ý "Click đúp để đặt phòng / check-out".
 - Cửa sổ hẹp (khoảng 1024px): thẻ tự xuống dòng, không tràn ngang.
 - Trạng thái rỗng: "Chưa có phòng nào" (trường hợp database trống).
 
@@ -228,7 +239,7 @@ Designer thường chỉ vẽ trạng thái "đẹp" (có dữ liệu đầy đ�
 - Khách có dùng dịch vụ (bảng kê 2–3 dòng).
 - Khách không dùng dịch vụ (tiền dịch vụ `0 đ`).
 - Ở đúng 1 đêm (nhận và trả trong cùng ngày) → hiển thị "1 đêm" chứ không phải "0".
-- Đã thanh toán → các nút thanh toán chuyển disabled, có badge "ĐÃ THANH TOÁN".
+- Đã thanh toán → các nút thanh toán chuyển vô hiệu hóa, có badge "ĐÃ THANH TOÁN".
 - Lỗi: chưa chọn phương thức thanh toán.
 
 ### 6.4 Đặt phòng
@@ -247,26 +258,27 @@ Designer thường chỉ vẽ trạng thái "đẹp" (có dữ liệu đầy đ�
 ## 7. Design System cần bàn giao
 
 ### 7.1 Trang `01-Styles`
+- Ghi rõ Windows UI Kit là nguồn control cơ bản; các giá trị thiết kế dưới đây là lớp sản phẩm áp trên kit, không phải một bộ UI kit mới.
 - Bảng màu (brand + 4 trạng thái + ngữ nghĩa), có mã hex ghi chú bên cạnh.
 - Typography scale với tên style: `Display/KPI`, `Heading/Page`, `Heading/Section`, `Body`, `Body/Small`, `Label`.
 - Spacing scale: 4 / 8 / 12 / 16 / 24 / 32.
 - Bán kính góc, độ dày viền, độ đổ bóng.
 
 ### 7.2 Trang `02-Components`
-Mỗi component phải có **các biến thể trạng thái**:
+Dùng instance gốc của Windows UI Kit cho control cơ bản; tạo component riêng chỉ cho mẫu giao diện nghiệp vụ. Mỗi component phải có **các biến thể trạng thái**:
 
 | Component | Biến thể |
 | --- | --- |
-| Button | Primary / Secondary / Danger / Disabled / Loading |
-| Text input | Default / Focus / Error / Disabled / có icon |
+| Button | Dùng các biến thể sẵn có của kit cho kiểu nút và trạng thái; Loading là trạng thái riêng của ứng dụng nếu kit không có biến thể tương ứng. |
+| Text input | Dùng các biến thể sẵn có của kit cho Default / Focus / Error / Disabled; icon chỉ thêm theo pattern của kit. |
 | Search box | Default / có từ khóa / không có kết quả |
 | ComboBox | Closed / Open / Selected |
 | DatePicker | Default / Focus / Error |
-| Table | Header / Row / Row selected / Row hover / Empty |
-| Card KPI | 3 màu nền như mô tả trong wireframe |
-| Room card | 4 trạng thái màu × (normal / hover / selected) |
-| Badge trạng thái | Trống / Đang ở / Đã đặt / Bảo trì + thanh toán |
-| Sidebar item | Normal / Active / Disabled (mục bị ẩn với Staff thì không vẽ) |
+| Table | Header / Row / Row được chọn / Row di chuột / Empty |
+| Card KPI | Cùng bề mặt thẻ (Card Surface); hierarchy bằng type và khoảng cách; điểm nhấn nhỏ nếu cần, không tô ba nền màu |
+| Room card | Neutral bề mặt × (normal / di chuột / được chọn); 4 status dấu chỉ trạng thái hoặc nhãn màu có nhãn |
+| Badge trạng thái | Trống / Đang ở / Đã đặt / Bảo trì + thanh toán; màu semantic/room indicator kèm nhãn, dùng quy tắc bo góc theo kit |
+| Sidebar item | Normal / Hover / Active theo Side Nav kit (nền trung tính + accent selector) / Disabled (mục ẩn với Staff thì không vẽ) |
 | Dialog | Info / Confirm xóa / Lỗi |
 | Toast | Thành công / Lỗi / Cảnh báo |
 | Legend (chú thích màu) | 4 ô màu + nhãn |
@@ -310,7 +322,7 @@ Dùng đúng dữ liệu này để mockup khớp với bản demo thật và đ
 
 **Loại phòng (4)** — ví dụ: Đơn (500.000 đ/đêm), Đôi (700.000 đ/đêm), VIP (1.200.000 đ/đêm), Gia đình (950.000 đ/đêm).
 
-**Phòng (12)** — đánh số 101, 102, 103, 201, 202, 203, 301, 302, 303, 305, 401, 402. Phân bổ trạng thái trong mockup: **6 Trống, 2 Đang ở, 3 Đã đặt, 1 Bảo trì** (để legend trông có ý nghĩa).
+**Phòng (12)** — đánh số 101, 102, 103, 201, 202, 203, 301, 302, 303, 305, 401, 402. Phân bổ trạng thái trong mockup: **6 Trống, 2 Đang ở, 3 Đã đặt, 1 Bảo trì** (để chú thích màu trông có ý nghĩa).
 
 **Khách hàng (5)** — gồm ít nhất: Nguyễn Văn An, CCCD `079201001234`, SĐT `0901234567`, email `an.nguyen@example.com`.
 
@@ -332,7 +344,7 @@ Chia **3 vòng**, chi tiết ở [`DELIVERY-PLAN.md`](./DELIVERY-PLAN.md).
 | Vòng | Nội dung | Mục đích |
 | --- | --- | --- |
 | **Vòng 1** | Styles + Components + 3 màn lõi (Đăng nhập, Khung chính, Sơ đồ phòng) | **Chốt phong cách.** Duyệt xong mới làm tiếp |
-| **Vòng 2** | 5 màn danh mục + Đặt phòng + các dialog cơ bản | Nhân bản layout đã chốt |
+| **Vòng 2** | 5 màn danh mục + Đặt phòng + các dialog cơ bản | Nhân bản bố cục đã chốt |
 | **Vòng 3** | Gọi dịch vụ, Hóa đơn, Xuất hóa đơn, Báo cáo + polish toàn bộ | Hoàn thiện 3 màn điểm nhấn |
 
 **Quy tắc phản hồi:** mỗi vòng gửi **link Figma có quyền xem** (không xuất ảnh) để dev inspect được khoảng cách và mã màu.
@@ -356,16 +368,28 @@ Bộ Figma được coi là **đạt** khi:
 - [ ] Hóa đơn có trạng thái chưa thanh toán / đã thanh toán / không có dịch vụ / ở đúng 1 đêm.
 - [ ] Báo cáo có trạng thái có dữ liệu và không có dữ liệu.
 - [ ] Toàn bộ chữ là tiếng Việt có dấu, tiền định dạng `#,##0 đ`, ngày `dd/MM/yyyy`.
-- [ ] Có trang Styles + Components với đầy đủ biến thể trạng thái.
+- [ ] Có trang Styles + Components với đầy đủ biến thể trạng thái; Button, Text Box, ComboBox và Date Picker bám instance/biến thể gốc của Windows UI Kit, không bị vẽ lại hoặc lệch style.
+- [ ] Không còn màu navy `#1E3A5F`, nền sidebar đậm hoặc KPI card phủ màu; dùng màu nhấn `#005FB8` và nền trung tính theo kit.
+- [ ] Font, viết hoa đầu câu, type ramp, radius 4/8px, được chọn/được chọn bằng bàn phím state và bề mặt độ nổi được đối chiếu với kit.
 - [ ] Không có thành phần nằm ngoài danh sách "được dùng" ở mục 2.1.
+- [ ] Các control có trong Windows UI Kit dùng đúng instance/biến thể; mẫu giao diện riêng của ứng dụng được ghi nhãn và ghép từ giá trị thiết kế/control của kit.
 - [ ] Dev đọc Figma và **không cần hỏi lại** về khoảng cách, màu, kích thước chữ.
 
 ---
 
-## 12. Câu chốt để gửi designer
+## 12. Câu chốt để gửi người thiết kế
 
-> Đây là app **desktop WPF** cho **lễ tân khách sạn**, không phải web. Mọi thứ bạn vẽ phải **code được bằng XAML trong 6 tuần với 3 sinh viên**, dùng Fluent UI có sẵn. Chúng ta ưu tiên **rõ ràng, mật độ thông tin cao, ít click** hơn là đẹp kiểu landing page.
+> Đây là app **desktop WPF** cho **lễ tân khách sạn**, không phải web. Dùng Windows UI Kit làm nguồn giao diện: nền trung tính sáng, Segoe UI Variable, control chuẩn, radius theo quy tắc bo góc Windows và màu nhấn `#005FB8` dùng tiết chế. Không dùng sidebar navy hoặc thẻ KPI tô màu lớn. Các màu phòng cố định chỉ làm dấu màu và nhãn trạng thái trên thân thẻ neutral. Thiết kế phải code được bằng XAML/WPF-UI trong 6 tuần, đồng thời ưu tiên đọc nhanh, mật độ cao và ít click.
 >
 > Màn quan trọng nhất là **Sơ đồ phòng** — vẽ trước, chốt trước. Có 4 màu trạng thái phòng **cố định**, không được đổi. Có **2 vai trò** với menu khác nhau. Toàn bộ UI **tiếng Việt**.
 >
 > Làm theo 3 vòng: vòng 1 chỉ Styles + Components + 3 màn lõi để chốt phong cách, duyệt xong mới sang vòng 2. Dùng đúng dữ liệu mẫu trong brief.
+
+
+## 13. Nguồn tham chiếu phong cách Windows
+
+- [Windows UI Kit — Figma](https://www.figma.com/design/4wEK8iFt0i0RJIfmVYU0iO/Windows-UI-kit--Community-?node-id=2434-129659) (nguồn component/biến thể và mẫu App Window).
+- [Windows 11 design principles](https://learn.microsoft.com/en-us/windows/apps/design/design-principles) (calm bề mặts, color hierarchy, layering, quy tắc bo góc, kiểu chữ).
+- [Windows quy tắc bo góc](https://learn.microsoft.com/en-us/windows/apps/design/signature-experiences/quy tắc bo góc) (8px top-level/overlay, 4px controls, 0px edges that meet).
+- [Windows kiểu chữ](https://learn.microsoft.com/en-us/windows/apps/design/signature-experiences/kiểu chữ) (Segoe UI Variable và type ramp).
+- [Fluent color giá trị thiết kếs](https://fluent2.microsoft.design/color-giá trị thiết kếs) (neutral, brand và semantic status aliases).

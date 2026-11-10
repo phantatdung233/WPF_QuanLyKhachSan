@@ -2,7 +2,7 @@
 
 **Kèm theo**: [`DESIGN-BRIEF.md`](./DESIGN-BRIEF.md), [`WIREFRAMES.md`](./WIREFRAMES.md)
 
-Mục đích: chia việc cho designer thành **3 vòng có điểm duyệt rõ ràng**, để nếu sai phong cách thì sửa sớm thay vì phải làm lại 13 màn.
+Mục đích: chia việc cho người thiết kế thành **3 vòng có điểm duyệt rõ ràng**, để nếu sai phong cách thì sửa sớm thay vì phải làm lại 13 màn.
 
 Nguyên tắc: **duyệt xong vòng N mới bắt đầu vòng N+1**. Không giao dồn.
 
@@ -10,39 +10,44 @@ Nguyên tắc: **duyệt xong vòng N mới bắt đầu vòng N+1**. Không gia
 
 ## Vòng 1 — Chốt phong cách (quan trọng nhất)
 
-**Mục tiêu**: khoá *style* — màu, chữ, mật độ, kiểu thẻ phòng, kiểu bảng — trước khi nhân bản ra 10 màn còn lại.
+**Mục tiêu**: chốt cách áp dụng Windows UI Kit — nền trung tính sáng, xanh Windows làm accent, kiểu chữ Segoe UI Variable, quy tắc bo góc và mật độ — trước khi nhân bản ra 10 màn còn lại.
 
 **Bàn giao**
 | Hạng mục | Chi tiết |
 | --- | --- |
-| Trang `01-Styles` | Bảng màu (brand + 4 trạng thái + ngữ nghĩa), typography scale, spacing, bán kính, bóng đổ |
-| Trang `02-Components` (phần 1) | Button (5 biến thể), Text input (5), Search box, ComboBox, DatePicker, Badge trạng thái, Dialog, Toast |
+| Trang `01-Styles` | Token theo vai trò: Surface/App Surface/Layer, màu chữ trung tính và đường viền, màu nhấn `#005FB8`, bốn màu trạng thái nghiệp vụ; type ramp Segoe UI Variable; khoảng cách, radius 4/8px và độ nổi theo Windows UI Kit. |
+| Trang `02-Components` (phần 1) | Dùng instance/component gốc từ Windows UI Kit cho Button, Text Box, ComboBox và Date Picker; bổ sung Search, badge, dialog, toast theo cùng kiểu chữ, viền, chiều cao và trạng thái của kit. Giữ rõ đâu là instance gốc, đâu là pattern riêng của ứng dụng. |
 | `LoginWindow` | Gồm trạng thái bình thường + lỗi để trống + sai tài khoản |
 | `MainWindow-Shell` | 2 frame: Admin (8 mục) và Staff (6 mục) |
-| `RoomMapView` | Đủ 4 màu, legend, hover + tooltip, cửa sổ hẹp 1024px, trạng thái rỗng |
+| `RoomMapView` | Đủ 4 màu, chú thích màu, di chuột và chú thích, cửa sổ hẹp 1024px, trạng thái rỗng |
 
 **Điểm duyệt (bạn/tổ trưởng xem)**
-- [ ] Màu navy `#1E3A5F` lên sidebar trông sang, không bị nặng nề.
-- [ ] 4 mã trạng thái đúng và nổi bật hơn mọi thứ khác trên màn sơ đồ phòng.
+- [ ] Shell và nội dung dùng các lớp nền sáng trung tính của kit; không còn sidebar/header/KPI mảng navy lớn.
+- [ ] Accent Windows `#005FB8` dùng có tiết chế cho CTA và vạch chọn; item điều hướng được chọn có nền trung tính nhẹ, chữ và biểu tượng màu trung tính và vạch xanh.
+- [ ] Bốn mã trạng thái phòng giữ chính xác; thể hiện nhanh bằng chú thích màu, nhãn và vạch/badge màu trên thẻ phòng trung tính, không tô toàn bộ thẻ bằng màu bão hòa.
 - [ ] Chữ tiếng Việt hiển thị đúng dấu, không bị cắt.
 - [ ] Mật độ thông tin đủ cao — không có khoảng trắng lãng phí.
 - [ ] Không có hiệu ứng / component vượt ràng buộc ở mục 2.2 của brief.
 - [ ] Dev nhìn vào là biết sẽ code `Colors.xaml` và `Styles.xaml` thế nào.
 
+**Căn cứ Figma**: [Windows UI Kit — Hotel Management page](https://www.figma.com/design/4wEK8iFt0i0RJIfmVYU0iO/Windows-UI-kit--Community-?node-id=172994-2). Vòng 1 đã được dựng trên page này; dùng nó làm mốc đối chiếu khi tiếp tục.
+
 **Thời lượng gợi ý**: 1 tuần (đây là vòng chậm nhất, làm kỹ).
 
-**Sau khi duyệt**: ghi lại 1 trang "style đã chốt" (nếu có thay đổi so với brief) và gửi designer để vòng 2 không bị trôi.
+**Sau khi duyệt**: ghi lại 1 trang "style đã chốt" (nếu có thay đổi so với brief) và gửi người thiết kế để vòng 2 không bị trôi. Trong Figma, ưu tiên sửa biến thể và giá trị thiết kế của component kit hoặc instance; không tạo bản vẽ thay thế nếu component tương ứng đã có.
 
 ---
 
-## Vòng 2 — Nhân bản layout danh mục & luồng đặt phòng
+## Vòng 2 — Nhân bản bố cục danh mục & luồng đặt phòng
 
-**Mục tiêu**: tận dụng tối đa một layout bảng đã chốt, chỉ khác cột và hành động.
+**Quy tắc kế thừa**: lấy shell, kiểu chữ, khoảng cách, Button, Text Box, ComboBox, Date Picker và dialog đã chốt ở vòng 1. Bảng, thẻ phòng và các mẫu giao diện nghiệp vụ có thể là component riêng của app, nhưng phải dùng cùng giá trị thiết kế và trạng thái của Windows UI Kit; không tự đặt lại hệ màu/kiểu control.
+
+**Mục tiêu**: tận dụng tối đa một bố cục bảng đã chốt, chỉ khác cột và hành động.
 
 **Bàn giao**
 | Hạng mục | Chi tiết |
 | --- | --- |
-| Component bổ sung | Table (header, row, selected, hover, empty), Sidebar item (normal/active), Card |
+| Component bổ sung | Table (header, row, được chọn, di chuột, empty), Sidebar item (normal/active), Card |
 | `RoomView` + `RoomDialog` | Lọc 2 combobox, cột Thao tác, dòng bị khóa xóa |
 | `RoomTypeView` | Cột "Số phòng", dialog chặn xóa |
 | `CustomerView` + `CustomerDialog` | Search real-time, 3 trạng thái lỗi validate, trùng CCCD |
@@ -62,6 +67,8 @@ Nguyên tắc: **duyệt xong vòng N mới bắt đầu vòng N+1**. Không gia
 ---
 
 ## Vòng 3 — Ba màn điểm nhấn + hoàn thiện
+
+**Quy tắc kế thừa**: tiếp tục dùng cùng các component/biến thể đã chốt; chỉ tạo pattern mới khi nghiệp vụ cần và ghi rõ cách ghép từ component kit.
 
 **Mục tiêu**: các màn được giảng viên nhìn kỹ nhất trong buổi demo, cộng với polish toàn bộ.
 
@@ -93,16 +100,16 @@ Nguyên tắc: **duyệt xong vòng N mới bắt đầu vòng N+1**. Không gia
 
 | Tuần | Công việc |
 | --- | --- |
-| Tuần 1 | Gửi brief + wireframe, designer đọc & hỏi lại |
+| Tuần 1 | Gửi brief + wireframe, người thiết kế đọc & hỏi lại |
 | Tuần 1–2 | **Vòng 1** → duyệt (chốt style) |
 | Tuần 2 | Dev bắt đầu code `Resources/Colors.xaml`, `Styles.xaml`, `MainWindow` theo vòng 1 |
 | Tuần 2–3 | **Vòng 2** → duyệt |
 | Tuần 3 | Dev code các màn danh mục + booking theo vòng 2 |
 | Tuần 3–4 | **Vòng 3** → duyệt |
-| Tuần 4–5 | Dev code sơ đồ phòng, hóa đơn, báo cáo; designer chỉ hỗ trợ chỉnh nhỏ |
+| Tuần 4–5 | Dev code sơ đồ phòng, hóa đơn, báo cáo; người thiết kế chỉ hỗ trợ chỉnh nhỏ |
 | Tuần 5–6 | Chỉ sửa lỗi thị giác, không thêm màn mới |
 
-> Nếu thời gian gấp: ưu tiên tuyệt đối **Vòng 1** (Sơ đồ phòng) và **màn Hóa đơn** — vì đó là 2 điểm nhấn nâng cao của đồ án. Các màn danh mục có thể dùng layout mặc định của `DataGrid` nếu buộc phải cắt.
+> Nếu thời gian gấp: ưu tiên tuyệt đối **Vòng 1** (Sơ đồ phòng) và **màn Hóa đơn** — vì đó là 2 điểm nhấn nâng cao của đồ án. Các màn danh mục có thể dùng bố cục mặc định của `DataGrid` nếu buộc phải cắt.
 
 ---
 
@@ -121,15 +128,15 @@ Nguyên tắc: **duyệt xong vòng N mới bắt đầu vòng N+1**. Không gia
 > Chào [tên], gửi bạn 2 file đính kèm: `DESIGN-BRIEF.md` (yêu cầu + ràng buộc + dữ liệu mẫu) và `WIREFRAMES.md` (bố cục sơ bộ từng màn). Đọc mục 0→2 của brief trước, có gì chưa rõ nhắn mình ngay trong ngày để mình trả lời trước khi bạn bắt tay vẽ.
 >
 > **Vòng 1** chỉ cần 5 thứ:
-> 1. Trang Styles (màu, chữ, spacing)
+> 1. Trang Styles (màu, chữ, khoảng cách)
 > 2. Components cơ bản (button, input, search, combobox, datepicker, badge, dialog)
 > 3. `LoginWindow`
 > 4. `MainWindow-Shell` — 2 biến thể Admin / Staff
-> 5. `RoomMapView` — đủ 4 màu phòng, có legend, có hover + tooltip, có bản 1024px
+> 5. `RoomMapView` — đủ 4 màu phòng, có chú thích màu, có di chuột và chú thích, có bản 1024px
 >
-> Mục tiêu vòng này là **chốt phong cách**, nên mình chưa cần 10 màn kia. Duyệt xong mình giao vòng 2.
+> Mục tiêu vòng này là **chốt cách áp dụng Windows UI Kit**, nên mình chưa cần 10 màn kia. Dùng component có sẵn làm instance; chỉ tạo component riêng của ứng dụng cho thẻ phòng, shell, badge, bảng hoặc nội dung nghiệp vụ mà kit không cung cấp. Nền sáng trung tính và bề mặt theo kit; xanh `#005FB8` là accent, không dùng navy làm nền điều hướng hoặc nền KPI. Duyệt xong mình giao vòng 2.
 >
-> Lưu ý: đây là **app desktop WPF**, mọi thứ phải code được bằng XAML với Fluent UI có sẵn. 4 mã màu trạng thái phòng là cố định, đừng đổi. UI tiếng Việt 100%.
+> Lưu ý: đây là **app desktop WPF**. Dùng Windows UI Kit làm nguồn cho control cơ bản trong Figma và đối chiếu khả năng triển khai bằng XAML/WPF-UI. Các mẫu giao diện nghiệp vụ có thể là component riêng nhưng phải cùng hệ giá trị thiết kế. 4 mã màu trạng thái phòng cố định; UI tiếng Việt 100%.
 >
 > Deadline vòng 1: [ngày]. Gửi mình link Figma có quyền xem nhé.
 
