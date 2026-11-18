@@ -1,4 +1,4 @@
-# [TASK-03] Màn hình Đăng nhập (Login) & Phân quyền Admin / Nhân viên
+# [TASK-03] Màn hình Đăng nhập (Login MVVM) & Phân quyền Administrator / Staff
 
 **Part of Spec**: [#77](https://github.com/phantatdung233/WPF_QuanLyKhachSan/issues/77)  
 **Mã Task**: `TASK-03`  
@@ -6,57 +6,57 @@
 **Thành viên đảm nhiệm**: **Member A (@phantatdung233)**  
 **Mức độ ưu tiên**: `High`  
 **Nhánh làm việc**: `feature/auth-login`  
-**Milestone**: Mốc 1: Khung Ứng Dụng, CSDL & Danh Mục Cơ Bản (Tuần 1-3)  
-**Labels**: `auth`, `security`, `m1`  
+**Milestone**: Mốc 1: Khung Ứng Dụng, CSDL & Danh Mục Cơ Bản (18/11 – 04/12)  
+**Khung thời gian dự kiến**: `24/11/2026 – 28/11/2026`  
+**Labels**: `auth`, `security`, `m1`, `ready-for-agent`  
 **Blocked by**: #59 (TASK-02)  
 
 ---
 
 ## 1. Bối cảnh & Mục tiêu kỹ thuật (Architecture & Scope)
-- Xây dựng cửa sổ `LoginWindow.xaml` với giao diện gọn gàng, trang nhã.
-- Xây dựng lớp `UserDAO.cs` trong thư mục `DAO/` chịu trách nhiệm truy vấn bảng `Users`.
-- Kiểm tra tài khoản bằng username và mật khẩu plaintext trực tiếp từ SQL Server.
-- Quản lý phiên đăng nhập hiện tại (`CurrentLoginUser`): Lưu trữ thông tin tài khoản đang làm việc (UserId, FullName, Role).
-- Phân quyền giao diện: Phân biệt rõ quyền `Admin` và quyền `Staff` (Nhân viên lễ tân).
+- Xây dựng cửa sổ `LoginWindow.xaml` và `LoginViewModel.cs` chuẩn MVVM (`CommunityToolkit.Mvvm`), bám sát bố cục Windows UI Kit tại `docs/design/WIREFRAMES.md` mục 1 (cửa sổ gọn `~960×600`, bo góc 8px, nền sáng trung tính, nút chính `#005FB8`, không dùng mảng nền navy).
+- Xây dựng `UserDAO.cs` trong `DAO/` truy vấn tham số hóa bảng `Users`.
+- Quản lý phiên đăng nhập qua lớp `UserSession` (`CurrentUser`: `UserId`, `Username`, `FullName`, `Role`, `RoleDisplay`).
+- Áp dụng phân quyền chặt chẽ dựa trên `GLOSSARY.md`:
+  - `Role == "Administrator"` (hiển thị `"Quản trị"`): thấy đủ 8 mục điều hướng.
+  - `Role == "Staff"` (hiển thị `"Lễ tân"`): ẩn hoàn toàn 2 mục `Loại phòng` và `Báo cáo` trên Sidebar (còn 6 mục).
 
 ---
 
 ## 2. Hướng dẫn nghiệp vụ & Luồng xử lý chi tiết (Implementation Details)
-- Giao diện `LoginWindow.xaml`:
-  - Ô nhập Tên đăng nhập (`TextBox txtUsername`).
-  - Ô nhập Mật khẩu (`PasswordBox txtPassword`).
-  - Nút Đăng nhập (`Button btnLogin`) và nút Thoát (`Button btnExit`).
-- Trong sự kiện bấm nút Đăng nhập:
-  - Lấy chuỗi username và password.
-  - Gọi `UserDAO.Instance.Login(username, password)` thực thi câu lệnh SQL:
-    `SELECT * FROM Users WHERE Username = @username AND Password = @password`.
-  - Nếu đúng: Lưu đối tượng `User` vào biến tĩnh toàn cục (ví dụ `App.CurrentUser`), đóng `LoginWindow` và mở `MainWindow.Show()`.
-  - Nếu sai: Hiển thị `MessageBox.Show("Tên đăng nhập hoặc mật khẩu không chính xác!", "Lỗi đăng nhập")`.
-- Trong `MainWindow.xaml`:
-  - Header hiển thị: "Xin chào: [FullName] ([Role])".
-  - Nút "Đăng xuất": Đóng `MainWindow`, reset `App.CurrentUser = null` và mở lại `LoginWindow.Show()`.
-  - Kiểm tra `App.CurrentUser.Role`: Nếu là `Staff`, ẩn hoặc vô hiệu hóa các nút chức năng quản trị ("Quản lý loại phòng", "Báo cáo thống kê").
+- **`LoginWindow.xaml` & `LoginViewModel.cs`**:
+  - Gồm thương hiệu **"KHÁCH SẠN IT008"** bên trái và form đăng nhập bên phải: ô `Tên đăng nhập`, ô `Mật khẩu`, vùng hiển thị lỗi inline ngay trên form (`ErrorMessage`, không lạm dụng `MessageBox.Show`), nút `Đăng nhập` (Primary, khóa nút khi `IsBusy == true` để chống bấm đúp) và nút `Thoát` (Secondary).
+  - Validate đầu vào qua seam `ValidationRules`:
+    - Để trống `Username` → lỗi inline: `"Vui lòng nhập tên đăng nhập"`.
+    - Để trống `Password` → lỗi inline: `"Vui lòng nhập mật khẩu"`.
+  - Khi hợp lệ: gọi `UserDAO.Instance.Login(username.Trim(), password)` thực thi câu lệnh tham số hóa:
+    `SELECT UserId, Username, Password, FullName, Role FROM Users WHERE Username = @username AND Password = @password`.
+  - Nếu sai thông tin: gán `ErrorMessage = "Tên đăng nhập hoặc mật khẩu không chính xác!"`.
+  - Nếu đúng: gán `UserSession.CurrentUser = user`, khởi tạo `MainWindow` với `MainViewModel` nhận phiên hiện tại, hiển thị `MainWindow` và đóng `LoginWindow`.
+- **Phiên làm việc & Đăng xuất trên `MainWindow`**:
+  - Header hiển thị: `Xin chào: [FullName] ([RoleDisplay])` (ví dụ: `Xin chào: Lê Thu Ngân (Lễ tân)`).
+  - Nút `Đăng xuất`: xóa `UserSession.CurrentUser`, mở lại `LoginWindow` sạch trạng thái và đóng `MainWindow`.
 
 ---
 
 ## 3. Tiêu chí nghiệm thu & Ca biên (Acceptance Criteria & Edge Cases)
 ### Checklist Definition of Done:
-- [ ] Màn hình LoginWindow.xaml đẹp mắt với TextBox Username, PasswordBox và nút Đăng nhập.
-- [ ] UserDAO.cs truy vấn kiểm tra tài khoản trong bảng Users theo username và mật khẩu plaintext.
-- [ ] Đăng nhập đúng: Đóng LoginWindow, mở MainWindow, hiển thị Tên người dùng và Chức vụ ở thanh Header.
-- [ ] Phân quyền theo cột Role: Nếu là Nhân viên (Staff), tự động ẩn hoặc vô hiệu hóa các nút Quản lý loại phòng và Báo cáo doanh thu trên Sidebar menu.
-- [ ] Hỗ trợ nút Đăng xuất (Logout) quay trở lại màn hình đăng nhập.
+- [ ] `LoginWindow.xaml` + `LoginViewModel.cs` đúng chuẩn Windows UI Kit (`WIREFRAMES.md` mục 1), hỗ trợ phím `Enter` để Đăng nhập (`IsDefault="True"`), hiển thị lỗi inline và khóa nút khi đang kiểm tra.
+- [ ] `UserDAO.cs` truy vấn tham số hóa bảng `Users`, chống SQL Injection.
+- [ ] Đăng nhập thành công mở `MainWindow` tại màn mặc định `Sơ đồ phòng`, hiển thị đúng `Xin chào: [FullName] ([RoleDisplay])`.
+- [ ] Phân quyền chuẩn xác: `Administrator` thấy đủ 8 mục menu; `Staff` bị ẩn `Loại phòng` và `Báo cáo` (còn 6 mục).
+- [ ] Đăng xuất đưa người dùng về `LoginWindow`, xóa sạch phiên cũ và mật khẩu trên form.
+- [ ] Có unit test trong `HotelManagement.Tests` cho `LoginViewModel` (qua interface/delegate xác thực) kiểm tra lỗi bỏ trống, sai mật khẩu, `.Trim()` khoảng trắng đầu/cuối ở `Username`, và phân quyền `Administrator` vs `Staff`.
 
 ### Ca biên cần xử lý (Edge Cases):
-- Để trống Username hoặc Password khi bấm Đăng nhập -> Hiển thị cảnh báo yêu cầu nhập đầy đủ.
-- Tài khoản phân biệt hoa/thường hoặc có khoảng trắng thừa -> Dùng `.Trim()` khi đọc dữ liệu đầu vào.
+- Người dùng nhập khoảng trắng thừa đầu/cuối ở ô `Tên đăng nhập` -> tự động `.Trim()` (không `.Trim()` mật khẩu).
+- Đóng `LoginWindow` bằng nút X hoặc nút `Thoát` khi chưa đăng nhập -> kết thúc gọn ứng dụng (`Application.Current.Shutdown()`), không treo tiến trình ngầm.
 
 ---
 
 ## 4. Chiến lược kiểm thử (Testing Strategy)
-- Thử đăng nhập bằng tài khoản `admin` / `123456`: Đăng nhập thành công, thấy đầy đủ menu.
-- Thử đăng nhập bằng tài khoản `staff` / `123456`: Đăng nhập thành công, menu Loại phòng và Báo cáo bị ẩn/khóa.
-- Thử nhập sai mật khẩu: Hiển thị hộp thoại báo lỗi thân thiện.
+- Tự động (`TDD` seam): `dotnet test` kiểm tra các trạng thái lỗi inline của `LoginViewModel`, khóa bấm đúp `IsBusy` và logic ẩn/hiện menu theo `Role`.
+- Trực quan: Đăng nhập `admin`/`123456` (thấy 8 mục, header `Trần Minh Quản (Quản trị)`), đăng xuất rồi đăng nhập `staff`/`123456` (thấy 6 mục, ẩn Loại phòng & Báo cáo, header `Lê Thu Ngân (Lễ tân)`).
 
 ---
 

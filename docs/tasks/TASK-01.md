@@ -1,4 +1,4 @@
-# [TASK-01] Khởi tạo Solution WPF .NET 10 & Kiến trúc MVVM Toolkit
+# [TASK-01] Khởi tạo Solution WPF .NET 10, Test Project & Khung Điều Hướng MVVM
 
 **Part of Spec**: [#77](https://github.com/phantatdung233/WPF_QuanLyKhachSan/issues/77)  
 **Mã Task**: `TASK-01`  
@@ -6,54 +6,62 @@
 **Thành viên đảm nhiệm**: **Member A (@phantatdung233)**  
 **Mức độ ưu tiên**: `High`  
 **Nhánh làm việc**: `feature/core-mvvm-setup`  
-**Milestone**: Mốc 1: Khung Ứng Dụng, CSDL & Danh Mục Cơ Bản (Tuần 1-3)  
-**Labels**: `core`, `architecture`, `m1`  
+**Milestone**: Mốc 1: Khung Ứng Dụng, CSDL & Danh Mục Cơ Bản (18/11 – 04/12)  
+**Khung thời gian dự kiến**: `18/11/2026 – 20/11/2026` (Sprint 0 — mở khóa toàn nhóm)  
+**Labels**: `core`, `architecture`, `m1`, `ready-for-agent`  
 **Blocked by**: None (Bắt đầu ngay)  
 
 ---
 
 ## 1. Bối cảnh & Mục tiêu kỹ thuật (Architecture & Scope)
-- Khởi tạo Solution .NET 10 WPF mang tên `HotelManagement`.
-- Cài đặt 2 package qua NuGet: `CommunityToolkit.Mvvm` (8.4.2) và `WPF-UI` (4.3.0).
-- Tổ chức cấu trúc thư mục rõ ràng theo mô hình MVVM sinh viên:
-  - `Models/`: Chứa các lớp thực thể (`User.cs`, `Room.cs`, `Customer.cs`...).
-  - `DAO/`: Chứa các lớp Data Access Object và `DataProvider.cs` kết nối ADO.NET.
-  - `ViewModels/`: Kế thừa `ObservableObject` hoặc `ViewModelBase`.
-  - `Views/`: Chứa `MainWindow.xaml`, `LoginWindow.xaml` và các `UserControl` chức năng.
-  - `Resources/`: Chứa `Colors.xaml`, `Styles.xaml` dùng chung cho toàn bộ ứng dụng.
-- Xây dựng `ViewModelBase` kế thừa `ObservableObject` để hỗ trợ sinh tự động thuộc tính `[ObservableProperty]` và lệnh `[RelayCommand]`.
-- Thiết lập cơ chế điều hướng giao diện chính trong `MainViewModel`: Thuộc tính `CurrentView` kiểu `object` bind vào `ContentControl` trong `MainWindow.xaml`.
+- Thay thế template tạm `src/src.slnx` + `src/src.csproj` hiện có bằng Solution chuẩn `HotelManagement.slnx` (kèm `global.json` ghim SDK `10.0.100` với `rollForward: latestFeature`), gồm 2 project:
+  - `src/HotelManagement/HotelManagement.csproj`: `.NET 10 WPF` (`net10.0-windows`, `<UseWPF>true</UseWPF>`, `<EnableWindowsTargeting>true</EnableWindowsTargeting>` để `dotnet build` chạy được trên cả Windows, macOS và GitHub Actions).
+  - `tests/HotelManagement.Tests/HotelManagement.Tests.csproj`: project kiểm thử tự động `xUnit` (`net10.0-windows` với `EnableWindowsTargeting=true`) phục vụ `/tdd` cho các seam nghiệp vụ ở các task sau.
+- Cài đặt NuGet cho `HotelManagement`: `CommunityToolkit.Mvvm` (`8.4.2`) và `WPF-UI` (`4.3.0`).
+- Tổ chức cấu trúc thư mục rõ ràng bên trong `src/HotelManagement/`:
+  - `Models/`: Thực thể nghiệp vụ (sẽ hoàn thiện đủ 8 lớp ở `TASK-02`).
+  - `DAO/`: Tầng truy cập dữ liệu ADO.NET.
+  - `Services/`: Các lớp logic/validation thuần phục vụ kiểm thử tự động (`BookingRules`, `InvoiceCalculator`, `ValidationRules`, `RolePermissions`).
+  - `ViewModels/`: `ViewModelBase` kế thừa `ObservableObject` + `MainViewModel` và các placeholder ViewModel cho 8 màn hình.
+  - `Views/`: `MainWindow.xaml`, `LoginWindow.xaml` (stub) và các placeholder `UserControl` cho 8 màn hình điều hướng để **tránh xung đột merge** ở `App.xaml` / `MainWindow.xaml` khi 3 thành viên code song song `TASK-03..11`.
+  - `Resources/`: `Colors.xaml`, `Styles.xaml` bám sát quy chuẩn **Windows UI Kit** tại `docs/design/DESIGN-BRIEF.md`.
 
 ---
 
 ## 2. Hướng dẫn nghiệp vụ & Luồng xử lý chi tiết (Implementation Details)
-- Cấu hình `MainWindow.xaml`:
-  - Bên trái: Menu Sidebar chứa các nút điều hướng (Sơ đồ phòng, Đặt phòng, Phòng, Khách hàng, Dịch vụ, Hóa đơn, Báo cáo).
-  - Phía trên: Header hiển thị tiêu đề, tên nhân viên đăng nhập và nút Đăng xuất.
-  - Trung tâm: `<ContentControl Content="{Binding CurrentView}" />`.
-- Khi người dùng click nút menu, `RelayCommand` trong `MainViewModel` sẽ khởi tạo ViewModel tương ứng và gán vào `CurrentView`.
-- Cấu hình `DataTemplate` trong `App.xaml` hoặc `MainWindow.Resources` ánh xạ từ ViewModel sang View tương ứng (ví dụ: `<DataTemplate DataType="{x:Type vm:RoomViewModel}"> <views:RoomView /> </DataTemplate>`).
+- **`Resources/Colors.xaml` & `Styles.xaml`** (bám sát `docs/design/DESIGN-BRIEF.md` mục 2.3–2.5):
+  - Bề mặt sáng trung tính (`App Surface`, `Card Surface`), màu nhấn Windows `#005FB8`, kiểu chữ Segoe UI Variable, bo góc 4px cho control và 8px cho container/dialog (tuyệt đối không dùng mảng nền navy đậm).
+  - Khai báo cố định 4 brush trạng thái phòng (`RoomStatus`):
+    - `RoomAvailableBrush`: `#48BB78` (`Trống`)
+    - `RoomOccupiedBrush`: `#F56565` (`Đang ở`)
+    - `RoomReservedBrush`: `#ED8936` (`Đã đặt`)
+    - `RoomMaintenanceBrush`: `#A0AEC0` (`Bảo trì`)
+- **`MainWindow.xaml` & `MainViewModel.cs`** (bám sát `docs/design/WIREFRAMES.md` mục 2):
+  - Kế thừa `FluentWindow` của `WPF-UI`, kích thước thiết kế `1280×800`, tối thiểu `MinWidth="1280" MinHeight="720"`.
+  - Bên trái: Sidebar điều hướng (`NavigationView`) gồm **8 mục cho `Administrator`**: `Sơ đồ phòng`, `Đặt phòng`, `Phòng`, `Loại phòng`, `Khách hàng`, `Dịch vụ`, `Hóa đơn`, `Báo cáo` (với `Staff`, ẩn 2 mục `Loại phòng` và `Báo cáo` qua seam `RolePermissions`).
+  - Phía trên vùng nội dung: Header hiển thị tiêu đề trang hiện tại, cụm phiên làm việc `Xin chào: [Họ tên] ([Vai trò])` và nút `Đăng xuất`.
+  - Trung tâm: `<ContentControl Content="{Binding CurrentView}" />` kèm `DataTemplate` đăng ký sẵn cho cả 8 cặp ViewModel/View placeholder trong `App.xaml`.
 
 ---
 
 ## 3. Tiêu chí nghiệm thu & Ca biên (Acceptance Criteria & Edge Cases)
 ### Checklist Definition of Done:
-- [ ] Solution tạo bằng .NET 10 WPF (`net10.0-windows`), chạy thành công không có lỗi/cảnh báo.
-- [ ] Cài đặt 2 package: CommunityToolkit.Mvvm (8.4.2) và WPF-UI (4.3.0).
-- [ ] Tổ chức cấu trúc thư mục chuẩn: Models/, Views/, ViewModels/, DAO/, Resources/.
-- [ ] ViewModelBase kế thừa ObservableObject từ MVVM Toolkit hỗ trợ [ObservableProperty] và [RelayCommand].
-- [ ] MainWindow cấu hình cơ bản gồm Sidebar menu và ContentControl hiển thị View động theo thuộc tính CurrentView trong MainViewModel.
-- [ ] `MainWindow` dùng `FluentWindow` và sidebar dùng `NavigationView` của WPF-UI, kế thừa theme Fluent trong `App.xaml`.
+- [ ] Dọn bỏ `src/src.csproj` + `src/src.slnx` cũ; tạo `global.json`, `HotelManagement.slnx`, `src/HotelManagement/HotelManagement.csproj` và `tests/HotelManagement.Tests/HotelManagement.Tests.csproj` chạy `dotnet build` & `dotnet test` xanh 100% không lỗi.
+- [ ] Cài đặt đúng `CommunityToolkit.Mvvm` (8.4.2) và `WPF-UI` (4.3.0).
+- [ ] Tổ chức đầy đủ thư mục `Models/`, `DAO/`, `Services/`, `ViewModels/`, `Views/`, `Resources/` cùng `Colors.xaml` (accent `#005FB8` + 4 mã màu `RoomStatus`) và `Styles.xaml`.
+- [ ] `ViewModelBase` kế thừa `ObservableObject`; `MainViewModel` quản lý `CurrentView`, tiêu đề trang và danh sách mục điều hướng theo `RolePermissions` (Admin 8 mục, Staff 6 mục).
+- [ ] Khởi tạo sẵn 8 cặp placeholder View/ViewModel và đăng ký `DataTemplate` trong `App.xaml` để các nhánh `TASK-03..11` chỉ sửa file riêng của từng module, không gây conflict tập trung.
+- [ ] Có unit test đầu tiên trong `HotelManagement.Tests` kiểm tra điều hướng `MainViewModel` và phân quyền menu `RolePermissions` (8 mục vs 6 mục).
 
 ### Ca biên cần xử lý (Edge Cases):
-- Đảm bảo khi khởi chạy ứng dụng lần đầu, `CurrentView` có giá trị mặc định (ví dụ trỏ vào `RoomMapViewModel` hoặc hiển thị trang chủ chào mừng).
-- Giao diện MainWindow có kích thước tối thiểu (`MinWidth`, `MinHeight`) để tránh bị vỡ layout khi co kéo cửa sổ.
+- Khi mở `MainWindow` lần đầu sau đăng nhập, `CurrentView` mặc định trỏ vào `RoomMapViewModel` (`Sơ đồ phòng`).
+- Cửa sổ giữ `MinWidth="1280"` và `MinHeight="720"` để không vỡ bố cục trên máy chiếu hội đồng chấm bài.
 
 ---
 
 ## 4. Chiến lược kiểm thử (Testing Strategy)
-- Kiểm tra chạy F5 ứng dụng hiển thị MainWindow với Sidebar và thanh Header.
-- Bấm thử các nút trên Sidebar để xác nhận `ContentControl` chuyển đổi View trơn tru.
+- Tự động (`TDD` seam): Chạy `dotnet test` xác nhận `MainViewModel` mặc định mở `RoomMapViewModel`, chuyển đổi đúng giữa các màn và lọc đúng 8 mục (`Administrator`) so với 6 mục (`Staff`).
+- Trực quan: Chạy ứng dụng trên Windows, bấm lần lượt 8 mục trên Sidebar xác nhận `ContentControl` và tiêu đề Header đổi mượt trên nền sáng chuẩn Windows UI Kit.
 
 ---
 

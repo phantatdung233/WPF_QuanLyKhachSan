@@ -1,4 +1,4 @@
-# [TASK-10] Module Hóa đơn, Thanh toán & Xuất hóa đơn ra file
+# [TASK-10] Module Hóa đơn, Thanh toán & Xuất biên lai ra file (.txt)
 
 **Part of Spec**: [#77](https://github.com/phantatdung233/WPF_QuanLyKhachSan/issues/77)  
 **Mã Task**: `TASK-10`  
@@ -6,44 +6,37 @@
 **Thành viên đảm nhiệm**: **Member C (@ngocthuyen1)**  
 **Mức độ ưu tiên**: `High`  
 **Nhánh làm việc**: `feature/invoice-export`  
-**Milestone**: Mốc 2: Nghiệp Vụ Cốt Lõi, Sơ Đồ Phòng & Hóa Đơn (Tuần 3-5)  
-**Labels**: `advanced`, `invoice`, `billing`, `m2`  
+**Milestone**: Mốc 2: Nghiệp Vụ Cốt Lõi, Sơ Đồ Phòng & Hóa Đơn (05/12 – 18/12)  
+**Khung thời gian dự kiến**: `15/12/2026 – 19/12/2026` *(có thể viết trước `InvoiceCalculator` bằng TDD từ 09/12)*  
+**Labels**: `advanced`, `invoice`, `billing`, `m2`, `ready-for-agent`  
 **Blocked by**: #80 (TASK-08)  
 
 ---
 
 ## 1. Bối cảnh & Mục tiêu kỹ thuật (Architecture & Scope)
-- Xây dựng `InvoiceDAO.cs` trong thư mục `DAO/` và `Invoice.cs` trong `Models/`.
-- Xây dựng `InvoiceViewModel.cs` và giao diện `InvoiceView.xaml`.
-- Tính toán tổng viện phí lưu trú:
-  - Tiền phòng tính theo **Room Charge Policy** trong `GLOSSARY.md`.
-  - Tiền dịch vụ = Tổng tiền tất cả các dịch vụ đã sử dụng trong `BookingServices`.
-  - Tổng cộng = Tiền phòng + Tiền dịch vụ.
-- Ghi nhận phương thức thanh toán: Tiền mặt hoặc Chuyển khoản ngân hàng.
-- Cập nhật trạng thái `Invoices.Status = N'Đã thanh toán'`, `Bookings.Status = N'Hoàn thành'`, và giải phóng `Rooms.Status = N'Trống'`.
-- **Điểm nhấn nâng cao 2**: Xuất hóa đơn thanh toán ra file văn bản `.txt` hoặc in ấn trực tiếp, lưu trữ biên lai thanh toán.
+- Xây dựng lớp tính toán & định dạng biên lai thuần `InvoiceCalculator.cs` trong `Services/` (seam kiểm thử tự động TDD) và `InvoiceDAO.cs` trong `DAO/`.
+- Hoàn thiện `InvoiceViewModel.cs`, `InvoiceView.xaml` và khung xem trước biên lai `InvoicePreview` (**Tính năng nâng cao 2**) bám sát `docs/design/DESIGN-BRIEF.md` mục 6.3 & `WIREFRAMES.md` mục 11–12:
+  - Tính tiền phòng theo **Room Charge Policy** (`Math.Max(1, (CheckOut.Date - CheckIn.Date).Days) * PricePerDay`).
+  - Cộng tổng tiền dịch vụ từ `BookingServices`.
+  - Thực thi **Settlement Invariant** (`GLOSSARY.md`): khi xác nhận thanh toán (`Tiền mặt` / `Chuyển khoản`), cập nhật đồng bộ `Invoices.Status = N'Đã thanh toán'`, `Bookings.Status = N'Hoàn thành'`, và trả `Rooms.Status = N'Trống'`.
+  - Xem trước biên lai dạng font monospace và xuất ra file `.txt` chuẩn mã hóa UTF-8 qua `SaveFileDialog`.
 
 ---
 
 ## 2. Hướng dẫn nghiệp vụ & Luồng xử lý chi tiết (Implementation Details)
-- `InvoiceView.xaml`:
-  - Thông tin chung: Mã hóa đơn, Tên khách hàng, Số phòng, Ngày nhận phòng, Ngày trả phòng, Số ngày ở.
-  - Bảng kê chi tiết dịch vụ: Tên dịch vụ, Số lượng, Đơn giá, Thành tiền.
-  - Tổng kết tiền tệ: Tiền phòng, Tiền dịch vụ, Tổng tiền phải thanh toán (VNĐ).
-  - Lựa chọn Phương thức thanh toán (Radio Button hoặc ComboBox: "Tiền mặt", "Chuyển khoản").
-  - Nút "Xác nhận thanh toán" và nút "In / Xuất hóa đơn".
-- Tính năng Xuất hóa đơn ra file:
-  - Khi bấm nút "Xuất hóa đơn", mở hộp thoại `SaveFileDialog` (mặc định định dạng `.txt` hoặc `.rtf`).
-  - Sử dụng `StreamWriter` định dạng nội dung hóa đơn chỉn chu:
-    ```
+- **Seam `Services/InvoiceCalculator.cs` (TDD-first — Member C có thể code ngay trước khi chờ `TASK-08` xong)**:
+  - `CalculateStayNights(DateTime checkIn, DateTime checkOut)` → `Math.Max(1, (checkOut.Date - checkIn.Date).Days)` (nhận và trả trong cùng ngày vẫn hiển thị và tính **1 đêm**, không bao giờ hiện `0 đêm`).
+  - `CalculateInvoiceSummary(...)` → trả về `Nights`, `RoomCharge`, `ServiceCharge`, `TotalAmount`.
+  - `FormatReceiptText(...)` → sinh chuỗi biên lai `.txt` căn cột thẳng hàng, tên thương hiệu thống nhất với màn đăng nhập (**`KHÁCH SẠN IT008`**):
+    ```text
     =======================================================
-                    KHÁCH SẠN IT008 LUXURY
-               HÓA ĐƠN THANH TOÁN (RECEIPT)
+                        KHÁCH SẠN IT008
+                   HÓA ĐƠN THANH TOÁN (RECEIPT)
     Mã HĐ: HD-001               Ngày lập: 14/10/2026
-    Khách hàng: Nguyễn Văn An   Phòng: 101 (VIP)
-    Thời gian: 12/10/2026 -> 14/10/2026 (2 ngày)
+    Khách hàng: Nguyễn Văn An   Phòng: 101 (Đơn)
+    Thời gian: 12/10/2026 -> 14/10/2026 (2 đêm)
     -------------------------------------------------------
-    Tiền phòng: 2 ngày x 500,000 đ = 1,000,000 đ
+    Tiền phòng: 2 đêm x 500,000 đ = 1,000,000 đ
     Dịch vụ phát sinh:
       - Nước suối Lavie (x2): 20,000 đ
       - Ăn sáng buffet (x1): 50,000 đ
@@ -55,25 +48,32 @@
     =======================================================
                CẢM ƠN QUÝ KHÁCH & HẸN GẶP LẠI!
     ```
+- **5 trạng thái giao diện bắt buộc trên `InvoiceView.xaml` (`DESIGN-BRIEF.md` mục 6.3)**:
+  1. Hóa đơn `Chưa thanh toán` có dịch vụ phát sinh (cho chọn `Tiền mặt` / `Chuyển khoản` và bấm `Xác nhận thanh toán`).
+  2. Hóa đơn `Đã thanh toán`: hiển thị badge xanh `ĐÃ THANH TOÁN`, khóa (vô hiệu hóa) nút thanh toán để không bấm thanh toán lần 2, vẫn cho phép `Xem trước / Xuất file .txt`.
+  3. Khách không dùng dịch vụ nào: hiển thị dòng thân thiện `"Không phát sinh dịch vụ"`, tiền dịch vụ `0 đ`.
+  4. Nhận và trả phòng cùng ngày: hiển thị rõ `"1 đêm (tối thiểu 1 đêm)"`.
+  5. Lỗi inline khi bấm `Xác nhận thanh toán` mà chưa chọn phương thức thanh toán.
 
 ---
 
 ## 3. Tiêu chí nghiệm thu & Ca biên (Acceptance Criteria & Edge Cases)
 ### Checklist Definition of Done:
-- [ ] InvoiceDAO.cs: Thao tác với bảng Invoices.
-- [ ] InvoiceView.xaml: Hiển thị chi tiết hóa đơn thanh toán gồm: Tiền phòng (theo **Room Charge Policy** trong `GLOSSARY.md`) + Tiền dịch vụ (tổng tiền các dịch vụ từ BookingServices).
-- [ ] Chọn phương thức thanh toán (Tiền mặt / Chuyển khoản), bấm nút Thanh toán cập nhật trạng thái hóa đơn sang Đã thanh toán, cập nhật Booking sang Hoàn thành và Phòng về trạng thái Trống.
-- [ ] Tính năng nâng cao: Nút Xuất hóa đơn ghi toàn bộ chi tiết hóa đơn ra file văn bản .txt hoặc mở cửa sổ In hóa đơn định dạng chuẩn đẹp.
+- [ ] `Services/InvoiceCalculator.cs` có đầy đủ unit test trong `HotelManagement.Tests` cho kịch bản mẫu `1,070,000 đ`, ca cùng ngày (1 đêm tối thiểu), ca 0 dịch vụ và nội dung chuỗi biên lai `.txt`.
+- [ ] `InvoiceDAO.cs` thực hiện thanh toán trong `SqlTransaction` đảm bảo **Settlement Invariant**: cập nhật `Invoices` (`Đã thanh toán`, `PaymentMethod`, `PaymentDate`), `Bookings` (`Hoàn thành`) và `Rooms` (`Trống`) nguyên tử.
+- [ ] `InvoiceView.xaml` + `InvoicePreview` thể hiện đủ 5 trạng thái giao diện chuẩn Windows UI Kit.
+- [ ] Nút `Xuất hóa đơn (.txt)` mở `SaveFileDialog` và ghi file bằng `UTF8Encoding` đầy đủ dấu tiếng Việt.
 
 ### Ca biên cần xử lý (Edge Cases):
-- Khách nhận và trả phòng trong cùng một ngày: **Room Charge Policy** trong `GLOSSARY.md` quy định tính tối thiểu 1 ngày ở.
-- Khách không sử dụng dịch vụ nào: Tiền dịch vụ hiển thị `0 đ`, tổng tiền bằng đúng tiền phòng.
+- Khách check-in và check-out trong cùng một ngày -> tính đúng **1 đêm** theo `Room Charge Policy`.
+- Hóa đơn đã ở trạng thái `Đã thanh toán` -> vô hiệu hóa nút thanh toán và lựa chọn phương thức để tránh ghi đè ngày thanh toán hoặc thanh toán kép.
+- Người dùng bấm `Cancel` ở cửa sổ `SaveFileDialog` -> thoát êm, không quăng ngoại lệ.
 
 ---
 
 ## 4. Chiến lược kiểm thử (Testing Strategy)
-- Tạo hóa đơn cho phòng 101 (ở 2 ngày đơn giá 500,000 đ, dùng 70,000 đ dịch vụ): Tổng thanh toán chính xác là 1,070,000 đ.
-- Bấm "Xuất hóa đơn", mở file `.txt` vừa lưu kiểm tra nội dung đầy đủ, chuẩn font tiếng Việt UTF-8.
+- Tự động (`TDD` seam): `dotnet test` xác nhận phép tính tiền phòng, tiền dịch vụ (`1,000,000 + 70,000 = 1,070,000`), bất biến thanh toán và mẫu xuất `.txt`.
+- Trực quan: Check-out phòng mẫu -> xác nhận thanh toán bằng `Chuyển khoản` -> badge chuyển sang `ĐÃ THANH TOÁN`, phòng trên Sơ đồ phòng về lại `Trống` (`#48BB78`), xuất file `.txt` mở bằng Notepad đúng chuẩn tiếng Việt.
 
 ---
 

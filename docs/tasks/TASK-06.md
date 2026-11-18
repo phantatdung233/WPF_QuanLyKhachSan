@@ -6,51 +6,50 @@
 **Thành viên đảm nhiệm**: **Member B (@xuanduong29)**  
 **Mức độ ưu tiên**: `Medium`  
 **Nhánh làm việc**: `feature/service-management`  
-**Milestone**: Mốc 1: Khung Ứng Dụng, CSDL & Danh Mục Cơ Bản (Tuần 1-3)  
-**Labels**: `service`, `crud`, `m1`  
+**Milestone**: Mốc 1: Khung Ứng Dụng, CSDL & Danh Mục Cơ Bản (18/11 – 04/12)  
+**Khung thời gian dự kiến**: `30/11/2026 – 04/12/2026`  
+**Labels**: `service`, `crud`, `m1`, `ready-for-agent`  
 **Blocked by**: #59 (TASK-02)  
 
 ---
 
 ## 1. Bối cảnh & Mục tiêu kỹ thuật (Architecture & Scope)
-- Xây dựng `ServiceDAO.cs` trong thư mục `DAO/` và `Service.cs` trong `Models/`.
-- Xây dựng `ServiceViewModel.cs` và giao diện `ServiceView.xaml`.
-- Quản lý danh mục các dịch vụ mà khách sạn cung cấp (ví dụ: Giặt ủi, Nước suối Lavie, Ăn sáng buffet, Nước ngọt, Thuê xe máy).
-- Hỗ trợ thêm mới dịch vụ, sửa tên và đơn giá dịch vụ, xóa dịch vụ không còn cung cấp.
+- Xây dựng `ServiceDAO.cs` trong `DAO/` sử dụng model `Service.cs` (đã tạo ở `TASK-02`).
+- Hoàn thiện `ServiceViewModel.cs`, `ServiceView.xaml` và `ServiceDialog.xaml` theo cùng khung bảng Windows UI Kit với các màn danh mục khác (`docs/design/DESIGN-BRIEF.md` mục 6.1 & `WIREFRAMES.md` mục 7).
+- Quản lý danh mục dịch vụ phụ trợ (Nước suối Lavie, Ăn sáng buffet, Giặt ủi, Nước ngọt, Thuê xe máy...): Xem/tìm kiếm nhanh, Thêm mới, Cập nhật tên & đơn giá, Xóa dịch vụ chưa phát sinh giao dịch.
 
 ---
 
 ## 2. Hướng dẫn nghiệp vụ & Luồng xử lý chi tiết (Implementation Details)
-- Thông tin dịch vụ: `ServiceId`, `ServiceName` (Tên dịch vụ), `Price` (Đơn giá VNĐ).
-- `ServiceView.xaml`:
-  - Nút "Thêm dịch vụ mới".
-  - Bảng `DataGrid`: Hiển thị Mã DV, Tên dịch vụ, Đơn giá định dạng tiền tệ VNĐ (`#,##0 đ`), Cột thao tác (Sửa, Xóa).
-- Form Dialog Thêm / Sửa dịch vụ:
-  - Nhập Tên dịch vụ.
-  - Nhập Đơn giá dịch vụ.
-  - Validate: Tên dịch vụ không được để trống; đơn giá phải là số thực >= 0.
-- Xử lý xóa dịch vụ:
-  - Nếu dịch vụ đã từng được sử dụng trong các đơn đặt phòng cũ (có tồn tại trong `BookingServices`): Không cho xóa hoặc hiển thị cảnh báo để tránh vi phạm khóa ngoại SQL Server.
+- **`ServiceView.xaml`**:
+  - Thanh công cụ: ô tìm kiếm theo tên dịch vụ + nút `Thêm dịch vụ mới`.
+  - Bảng `DataGrid`: Mã DV, Tên dịch vụ, Đơn giá định dạng tiền tệ VNĐ (`#,##0 đ`), Cột Thao tác (`Sửa`, `Xóa`).
+  - **Khóa xóa an toàn**: truy vấn kiểm tra số lần xuất hiện trong `BookingServices`. Nếu dịch vụ đã từng được sử dụng (`UsageCount > 0`), khóa nút `Xóa` kèm tooltip *"Dịch vụ đã phát sinh trong phiếu lưu trú, không thể xóa"* (tuyệt đối không để quăng lỗi SQL Foreign Key ra giao diện).
+  - Hỗ trợ trạng thái rỗng và không tìm thấy kết quả.
+- **`ServiceDialog.xaml` & Seam `ValidationRules`**:
+  - Validate inline dưới ô nhập:
+    - `ServiceName`: không để trống, không trùng tên dịch vụ đã có.
+    - `Price`: phải là số hợp lệ `>= 0` (cho phép `0 đ` đối với tiện ích miễn phí kèm phòng).
 
 ---
 
 ## 3. Tiêu chí nghiệm thu & Ca biên (Acceptance Criteria & Edge Cases)
 ### Checklist Definition of Done:
-- [ ] ServiceDAO.cs: Truy vấn lấy danh mục dịch vụ từ bảng Services.
-- [ ] ServiceView.xaml: Hiển thị bảng danh mục dịch vụ (Tên dịch vụ, Đơn giá).
-- [ ] Hỗ trợ thêm mới dịch vụ (ví dụ: Giặt ủi, Nước suối, Ăn sáng, Thuê xe máy).
-- [ ] Chỉnh sửa thông tin và đơn giá dịch vụ (kiểm tra đơn giá phải >= 0).
-- [ ] Xóa dịch vụ khi không còn phục vụ.
+- [ ] `ServiceDAO.cs` thực thi đầy đủ `GetAll` (kèm cờ `IsInUse` từ `BookingServices`), `Insert`, `Update`, `Delete` bằng truy vấn tham số hóa.
+- [ ] `ServiceView.xaml` dùng chung khung thiết kế bảng của Windows UI Kit, định dạng tiền `#,##0 đ`, có tìm kiếm nhanh và trạng thái rỗng.
+- [ ] `ServiceDialog.xaml` validate inline Tên dịch vụ và Đơn giá (`>= 0`).
+- [ ] Chặn xóa an toàn các dịch vụ đã tồn tại trong `BookingServices`.
+- [ ] Có unit test tại seam `ValidationRules` trong `HotelManagement.Tests` cho: tên dịch vụ rỗng/trùng, đơn giá âm/nhập chữ, đơn giá `0` hợp lệ, và quy tắc khóa xóa khi `UsageCount > 0`.
 
 ### Ca biên cần xử lý (Edge Cases):
-- Nhập đơn giá là số âm hoặc chữ cái -> Validate ngăn chặn và thông báo lỗi.
-- Đơn giá hiển thị trên giao diện phải có dấu phân cách phần nghìn rõ ràng (ví dụ: `50,000 đ`).
+- Đổi đơn giá dịch vụ trong danh mục **không được làm thay đổi ngược** thành tiền của các phòng đã gọi dịch vụ trước đó (vì `BookingServices.UnitPrice` lưu snapshot đơn giá tại thời điểm gọi).
+- Nhập đơn giá âm hoặc ký tự chữ -> chặn lưu và báo lỗi inline dưới ô Đơn giá.
 
 ---
 
 ## 4. Chiến lược kiểm thử (Testing Strategy)
-- Thêm mới dịch vụ "Bia Tiger", giá `25,000`. Dữ liệu xuất hiện ngay trên bảng danh mục.
-- Cập nhật giá dịch vụ "Bia Tiger" lên `30,000`: Cơ sở dữ liệu cập nhật chính xác.
+- Tự động (`TDD` seam): `dotnet test` xác nhận toàn bộ test validate dịch vụ và điều kiện khóa xóa xanh 100%.
+- Trực quan: Thêm mới dịch vụ `"Bia Tiger"` giá `25,000` -> hiển thị `25.000 đ` (hoặc `25,000 đ` nhất quán culture), sửa lên `30,000` thành công.
 
 ---
 

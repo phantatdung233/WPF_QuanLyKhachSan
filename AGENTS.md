@@ -22,7 +22,10 @@ Single-context (`GLOSSARY.md` and `docs/adr/` at repo root). See `docs/agents/do
 Before designing entities or naming concepts, read `GLOSSARY.md` at root for canonical terms (`RoomStatus`, `BookingStatus`, `InvoiceStatus`, billing formulas).
 
 ### Specification
-Before implementing features or answering architecture questions, read `docs/specs/hotel-management-system.md` (Issue #77) for system requirements, 24 user stories, and architectural decisions.
+Before implementing features or answering architecture questions, read `docs/specs/hotel-management-system.md` (Issue #77) for system requirements, 21 user stories, testing seams, and the 18/11–30/12 delivery plan.
+
+### UI design & wireframes
+Before building or styling any XAML window, dialog, card, or chart, read `docs/design/DESIGN-BRIEF.md` and `docs/design/WIREFRAMES.md` for Windows UI Kit surface rules, role-based navigation, and required empty/error states.
 
 ### Task implementation guides
 When working on any ticket, read its corresponding technical guide under `docs/tasks/<TASK-ID>.md` (e.g. `docs/tasks/TASK-01.md`). It contains architecture scope, classes, validation rules, edge cases, and testing strategies.

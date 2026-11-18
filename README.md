@@ -65,8 +65,7 @@ Check-in → Thêm dịch vụ → Check-out / Hóa đơn → Báo cáo doanh th
 3. Cấu hình chuỗi kết nối trong `DataProvider.cs` khớp tên SQL Server trên máy
    (ví dụ `.\SQLEXPRESS`). *(`DataProvider.cs` được tạo ở TASK-02 và giải
    thích trong `docs/tasks/TASK-02.md`.)*
-4. Mở solution trong Visual Studio, nhấn F5. *(Solution `HotelManagement.sln`
-   được tạo ở TASK-01 — xem `docs/tasks/TASK-01.md`.)*
+4. Mở solution trong Visual Studio, nhấn F5 (hoặc chạy `dotnet build` / `dotnet test` từ CLI). *(Solution `HotelManagement.slnx` và project test `HotelManagement.Tests` được tạo ở TASK-01 — xem `docs/tasks/TASK-01.md`.)*
 
 > Hai bước 3–4 áp dụng **sau khi** đã hoàn thành TASK-01 và TASK-02. Repository
 > hiện chỉ chứa tài liệu (spec + 12 task guide), chưa có mã nguồn.
@@ -105,6 +104,7 @@ phòng, trạng thái phòng) nằm **duy nhất** trong [`GLOSSARY.md`](./GLOSS
 
 - Backlog, Single Source of Truth: `docs/tasks/TASK-01.md` … `TASK-12.md`
 - Đặc tả hệ thống: `docs/specs/hotel-management-system.md` (SPEC #77)
+- Thiết kế giao diện & Wireframe (Windows UI Kit): `docs/design/DESIGN-BRIEF.md`, `docs/design/WIREFRAMES.md`, `docs/design/DELIVERY-PLAN.md`
 - Hướng dẫn chi tiết từng task: `docs/tasks/TASK-01.md` … `TASK-12.md`
 - Thuật ngữ chuẩn: `GLOSSARY.md`
 - GitHub Issues: [#58](https://github.com/phantatdung233/WPF_QuanLyKhachSan/issues/58)–[#65](https://github.com/phantatdung233/WPF_QuanLyKhachSan/issues/65),

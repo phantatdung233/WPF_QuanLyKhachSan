@@ -19,7 +19,8 @@ on:
     branches:
       - main
     paths:
-      - docs/tasks/**.md
+      - 'docs/tasks/*.md'
+      - '.github/scripts/sync-issues.js'
 
 permissions:
   contents: read
