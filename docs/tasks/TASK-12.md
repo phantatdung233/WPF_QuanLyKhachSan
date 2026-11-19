@@ -24,7 +24,7 @@
 ## 2. Hướng dẫn nghiệp vụ & Luồng xử lý chi tiết (Implementation Details)
 - **Kịch bản chuỗi nghiệp vụ E2E bắt buộc vượt qua (9 bước liên hoàn)**:
   1. Chạy `Database/HotelDB.sql` trên SSMS để đưa dữ liệu về trạng thái mẫu chuẩn.
-  2. Đăng nhập tài khoản Lễ tân (`staff` / `123456`): xác nhận header `Xin chào: Lê Thu Ngân (Lễ tân)` và Sidebar chỉ có 6 mục (ẩn `Loại phòng` và `Báo cáo`).
+  2. Đăng nhập tài khoản Lễ tân (`staff` / `123456`): xác nhận nút tài khoản hiển thị `Lê Thu Ngân` và `Lễ tân` trên hai dòng, menu có `Đăng xuất` và Sidebar chỉ có 6 mục (ẩn `Loại phòng` và `Báo cáo`).
   3. Đăng xuất, đăng nhập tài khoản Quản trị (`admin` / `123456`): xác nhận đủ 8 mục điều hướng.
   4. Mở **Sơ đồ phòng (`RoomMapView`)**: thấy 12 phòng trên nền thẻ trung tính với đủ 4 dấu màu `DataTrigger` (`6 Trống`, `2 Đang ở`, `3 Đã đặt`, `1 Bảo trì`).
   5. Thử tạo **Đặt phòng** trùng vào khoảng ngày đang bận -> xác nhận hệ thống chặn bằng banner lỗi đỏ rõ ràng; sau đó chọn phòng `Trống` đặt lịch hợp lệ -> thẻ phòng chuyển dấu sang màu Cam (`Đã đặt`).

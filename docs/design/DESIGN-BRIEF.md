@@ -151,8 +151,8 @@ Bốn mã trên là quy ước dữ liệu của dự án, không phải palette
 
 ```
 ┌──────────────┬────────────────────────────────────────────────┐
-│              │  Header: [Tiêu đề trang]  Xin chào: Tên (Role) │
-│   Sidebar    │                            [Đăng xuất]         │
+│              │  Header: [Tiêu đề trang]  [Tên / Role ▾] │
+│   Sidebar    │                            [Menu tài khoản]     │
 │  (nav dọc)   ├────────────────────────────────────────────────┤
 │              │                                                │
 │  • Sơ đồ phòng                                                │
@@ -166,14 +166,14 @@ Bốn mã trên là quy ước dữ liệu của dự án, không phải palette
 └──────────────┴────────────────────────────────────────────────┘
 ```
 
-**Kích thước gợi ý**: title bar Windows cao khoảng 48px theo App Window mẫu; pane điều hướng 220–240px (có thể thu gọn về rail icon); hàng điều hướng theo component Side Nav 40px; vùng nội dung có gutter 24px. Title bar hệ thống và header nội dung là hai lớp riêng, không gộp thành một thanh navy.
+**Kích thước theo Figma**: title bar 48px; vùng pane trái 240px, mục điều hướng 208×40px có icon và nhóm; vùng nội dung bắt đầu tại (240,132), gutter phải/dưới 24px. Title bar hệ thống và header nội dung là hai lớp riêng, không gộp thành một thanh navy.
 
 **Menu sidebar — Admin (8 mục):** Sơ đồ phòng, Đặt phòng, Phòng, Loại phòng, Khách hàng, Dịch vụ, Hóa đơn, Báo cáo.
 **Menu sidebar — Staff (6 mục):** bỏ **Loại phòng** và **Báo cáo**.
 
 > Ghi chú về nguồn: TASK-01 liệt kê menu "Sơ đồ phòng, Đặt phòng, Phòng, Khách hàng, Dịch vụ, Hóa đơn, Báo cáo" (7 mục, chưa có Loại phòng); TASK-04 và TASK-03 yêu cầu mục "Quản lý loại phòng" chỉ Admin thấy. Gộp lại thành 8 mục cho Admin. Nếu bạn thấy 8 mục quá dài, được phép gộp "Phòng" + "Loại phòng" thành một màn có 2 tab — nhưng phải giữ đúng quyền ẩn với Staff.
 
-**Header nội dung** phải có: tiêu đề trang hiện tại và cụm tài khoản "Xin chào: [Họ tên] ([Vai trò])" + nút "Đăng xuất". Dùng nền/bề mặt và nút theo kit; giữ title bar hệ thống riêng ở trên.
+**Header nội dung**: tiêu đề 28px tại (256,72), cụm tài khoản 232×40 tại (1024,66) gồm icon, họ tên, vai trò và chevron mở menu Đăng xuất. Không lặp tiêu đề trong module. Thương hiệu chuẩn là AURA HOTEL; dùng logo gốc xuất từ Figma. Xem thông số đầy đủ tại `WIREFRAMES.md` mục 1–2.
 
 Bố cục khung này vẽ **một lần** thành component, các màn hình khác tái sử dụng.
 

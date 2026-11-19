@@ -14,7 +14,7 @@
 ---
 
 ## 1. Bối cảnh & Mục tiêu kỹ thuật (Architecture & Scope)
-- Xây dựng cửa sổ `LoginWindow.xaml` và `LoginViewModel.cs` chuẩn MVVM (`CommunityToolkit.Mvvm`), bám sát bố cục Windows UI Kit tại `docs/design/WIREFRAMES.md` mục 1 (cửa sổ gọn `~960×600`, bo góc 8px, nền sáng trung tính, nút chính `#005FB8`, không dùng mảng nền navy).
+- Xây dựng cửa sổ `LoginWindow.xaml` và `LoginViewModel.cs` chuẩn MVVM (`CommunityToolkit.Mvvm`), bám sát bố cục Windows UI Kit tại `docs/design/WIREFRAMES.md` mục 1 (cửa sổ gọn `960×524`, bo góc 8px, nền sáng trung tính, nút chính `#005FB8`, không dùng mảng nền navy).
 - Xây dựng `UserDAO.cs` trong `DAO/` truy vấn tham số hóa bảng `Users`.
 - Quản lý phiên đăng nhập qua lớp `UserSession` (`CurrentUser`: `UserId`, `Username`, `FullName`, `Role`, `RoleDisplay`).
 - Áp dụng phân quyền chặt chẽ dựa trên `GLOSSARY.md`:
@@ -25,7 +25,7 @@
 
 ## 2. Hướng dẫn nghiệp vụ & Luồng xử lý chi tiết (Implementation Details)
 - **`LoginWindow.xaml` & `LoginViewModel.cs`**:
-  - Gồm thương hiệu **"KHÁCH SẠN IT008"** bên trái và form đăng nhập bên phải: ô `Tên đăng nhập`, ô `Mật khẩu`, vùng hiển thị lỗi inline ngay trên form (`ErrorMessage`, không lạm dụng `MessageBox.Show`), nút `Đăng nhập` (Primary, khóa nút khi `IsBusy == true` để chống bấm đúp) và nút `Thoát` (Secondary).
+  - Gồm thương hiệu **"AURA HOTEL"** bên trái và form đăng nhập bên phải: ô `Tên đăng nhập`, ô `Mật khẩu`, vùng hiển thị lỗi inline ngay trên form (`ErrorMessage`, không lạm dụng `MessageBox.Show`), nút `Đăng nhập` (Primary, khóa nút khi `IsBusy == true` để chống bấm đúp) và nút `Thoát` (Secondary).
   - Validate đầu vào qua seam `ValidationRules`:
     - Để trống `Username` → lỗi inline: `"Vui lòng nhập tên đăng nhập"`.
     - Để trống `Password` → lỗi inline: `"Vui lòng nhập mật khẩu"`.
@@ -34,7 +34,7 @@
   - Nếu sai thông tin: gán `ErrorMessage = "Tên đăng nhập hoặc mật khẩu không chính xác!"`.
   - Nếu đúng: gán `UserSession.CurrentUser = user`, khởi tạo `MainWindow` với `MainViewModel` nhận phiên hiện tại, hiển thị `MainWindow` và đóng `LoginWindow`.
 - **Phiên làm việc & Đăng xuất trên `MainWindow`**:
-  - Header hiển thị: `Xin chào: [FullName] ([RoleDisplay])` (ví dụ: `Xin chào: Lê Thu Ngân (Lễ tân)`).
+  - Header hiển thị họ tên và vai trò trên hai dòng trong nút tài khoản; bấm mở menu có `Đăng xuất`.
   - Nút `Đăng xuất`: xóa `UserSession.CurrentUser`, mở lại `LoginWindow` sạch trạng thái và đóng `MainWindow`.
 
 ---
@@ -43,7 +43,7 @@
 ### Checklist Definition of Done:
 - [ ] `LoginWindow.xaml` + `LoginViewModel.cs` đúng chuẩn Windows UI Kit (`WIREFRAMES.md` mục 1), hỗ trợ phím `Enter` để Đăng nhập (`IsDefault="True"`), hiển thị lỗi inline và khóa nút khi đang kiểm tra.
 - [ ] `UserDAO.cs` truy vấn tham số hóa bảng `Users`, chống SQL Injection.
-- [ ] Đăng nhập thành công mở `MainWindow` tại màn mặc định `Sơ đồ phòng`, hiển thị đúng `Xin chào: [FullName] ([RoleDisplay])`.
+- [ ] Đăng nhập thành công mở `MainWindow` tại màn mặc định `Sơ đồ phòng`, hiển thị đúng `[FullName] và [RoleDisplay] trong nút tài khoản`.
 - [ ] Phân quyền chuẩn xác: `Administrator` thấy đủ 8 mục menu; `Staff` bị ẩn `Loại phòng` và `Báo cáo` (còn 6 mục).
 - [ ] Đăng xuất đưa người dùng về `LoginWindow`, xóa sạch phiên cũ và mật khẩu trên form.
 - [ ] Có unit test trong `HotelManagement.Tests` cho `LoginViewModel` (qua interface/delegate xác thực) kiểm tra lỗi bỏ trống, sai mật khẩu, `.Trim()` khoảng trắng đầu/cuối ở `Username`, và phân quyền `Administrator` vs `Staff`.
@@ -61,3 +61,7 @@
 ---
 
 *Tài liệu tự động đồng bộ từ `docs/tasks/TASK-03.md` lên GitHub Issue #60.*
+
+### Đồng bộ Figma — 19/11/2026
+
+Chuẩn trực quan: `docs/design/FIGMA-ALIGNMENT.md`. Dùng AURA HOTEL, title bar 48px, pane trái 240px, menu nhóm có icon, header tài khoản dạng menu. Login 960×524 chia cột 344/616px. Xác thực thật thuộc TASK-03; TASK-01 giữ nhãn xem trước.

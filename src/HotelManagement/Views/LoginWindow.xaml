@@ -1,0 +1,32 @@
+<ui:FluentWindow x:Class="HotelManagement.Views.LoginWindow"
+ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+ xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+ xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+ ExtendsContentIntoTitleBar="True" Title="AURA HOTEL" Width="680" Height="360" ResizeMode="NoResize"
+ WindowStartupLocation="CenterScreen" Background="{StaticResource AppSurfaceBrush}"
+ FontFamily="{StaticResource AppFontFamily}">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="48" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <ui:TitleBar Title="AURA HOTEL" ShowMaximize="False" />
+        <Border Grid.Row="1" Margin="24,8,24,24" Style="{StaticResource CardSurfaceBorderStyle}">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <Image Source="{StaticResource AuraLogoImage}" Width="200" Height="48"
+                       HorizontalAlignment="Center" Stretch="Uniform"
+                       RenderOptions.BitmapScalingMode="HighQuality" AutomationProperties.Name="AURA HOTEL" />
+                <TextBlock Text="Xem trước giao diện" Style="{StaticResource PageTitleTextStyle}"
+                           HorizontalAlignment="Center" Margin="0,20,0,8" />
+                <TextBlock Text="Chọn vai trò để mở ứng dụng. Bản xem trước chưa cần tài khoản."
+                           Style="{StaticResource BodySecondaryTextStyle}" TextAlignment="Center" TextWrapping="Wrap" />
+                <UniformGrid Columns="2" Margin="0,24,0,0">
+                    <ui:Button Content="Lễ tân" Click="PreviewStaff" IsDefault="True" MinHeight="36"
+                               Appearance="Primary" HorizontalAlignment="Stretch" Margin="0,0,6,0" />
+                    <ui:Button Content="Quản trị" Click="PreviewAdministrator" MinHeight="36"
+                               HorizontalAlignment="Stretch" Margin="6,0,0,0" />
+                </UniformGrid>
+            </StackPanel>
+        </Border>
+    </Grid>
+</ui:FluentWindow>

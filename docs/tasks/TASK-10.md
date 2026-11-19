@@ -27,10 +27,10 @@
 - **Seam `Services/InvoiceCalculator.cs` (TDD-first — Member C có thể code ngay trước khi chờ `TASK-08` xong)**:
   - `CalculateStayNights(DateTime checkIn, DateTime checkOut)` → `Math.Max(1, (checkOut.Date - checkIn.Date).Days)` (nhận và trả trong cùng ngày vẫn hiển thị và tính **1 đêm**, không bao giờ hiện `0 đêm`).
   - `CalculateInvoiceSummary(...)` → trả về `Nights`, `RoomCharge`, `ServiceCharge`, `TotalAmount`.
-  - `FormatReceiptText(...)` → sinh chuỗi biên lai `.txt` căn cột thẳng hàng, tên thương hiệu thống nhất với màn đăng nhập (**`KHÁCH SẠN IT008`**):
+  - `FormatReceiptText(...)` → sinh chuỗi biên lai `.txt` căn cột thẳng hàng, tên thương hiệu thống nhất với màn đăng nhập (**`AURA HOTEL`**):
     ```text
     =======================================================
-                        KHÁCH SẠN IT008
+                        AURA HOTEL
                    HÓA ĐƠN THANH TOÁN (RECEIPT)
     Mã HĐ: HD-001               Ngày lập: 14/10/2026
     Khách hàng: Nguyễn Văn An   Phòng: 101 (Đơn)

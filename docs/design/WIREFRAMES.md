@@ -26,59 +26,25 @@ Ký hiệu: `[ ]` nút/ô lớn · `( )` combobox · `< >` ô nhập · `[*]` b�
 
 ## 1. `LoginWindow` — Đăng nhập
 
-Cửa sổ riêng, nhỏ gọn (≈ 960×600 hoặc nhỏ hơn), **không có sidebar**. Khung/dialog theo radius Windows 8px; form dùng instance kit, nền bề mặt sáng, xanh nhấn chỉ ở nút Đăng nhập và trạng thái focus. Thay mảng navy thương hiệu bằng biểu tượng/wordmark đơn giản trên nền trung tính.
+Nguồn chuẩn: Figma `173024:783` (LoginWindow / Bình thường), kiểm tra ngày 19/11/2026.
 
-```
-┌──────────────────────────┬────────────────────────────────────┐
-│ KHÁCH SẠN IT008          │ Đăng nhập để tiếp tục              │
-│ Biểu tượng khách sạn     │ Tên đăng nhập                      │
-│ Nền trung tính           │ [ Nhập tên đăng nhập           ]   │
-│                          │ Mật khẩu                           │
-│                          │ [ Nhập mật khẩu                ]   │
-│                          │                                    │
-│                          │ [ Đăng nhập ]     [ Thoát ]        │
-└──────────────────────────┴────────────────────────────────────┘
-```
-
-**Thành phần bắt buộc**: ô Tên đăng nhập, ô Mật khẩu (ẩn ký tự), nút Đăng nhập (primary), nút Thoát (secondary).
-Tên hiển thị gợi ý: **"Khách sạn IT008"** (lấy từ tên khách sạn trong mẫu hóa đơn ở TASK-10); bạn có thể đề xuất tên khác nhưng phải đồng bộ với màn Hóa đơn và `InvoicePreview`.
-
-**Trạng thái cần vẽ**
-- Bình thường.
-- ⚠ Lỗi: bấm Đăng nhập khi để trống → lỗi inline dưới ô: "Vui lòng nhập tên đăng nhập" / "Vui lòng nhập mật khẩu".
-- ⚠ Lỗi: sai tài khoản → thông báo "Tên đăng nhập hoặc mật khẩu không chính xác!".
-- Loading khi đang kiểm tra tài khoản (nút chuyển trạng thái đang tải, không cho bấm 2 lần).
-
----
+- Cửa sổ 960×524, title bar 48px, hai cột 344px / 616px.
+- Cột giới thiệu: logo AURA HOTEL gốc tại x=53, y=168 của cửa sổ, slot 172×48; dòng “Chào mừng / trở lại”, phụ đề “Trang Quản Trị Hệ Thống”.
+- Form: lề trái 56px trong cột phải, tiêu đề 28px; nhãn 14px và ô nhập cao 32px; trường Tên đăng nhập và Mật khẩu, action ở cuối bên phải.
+- TASK-01 dùng cửa sổ xem trước 680×360 với hai nút Lễ tân và Quản trị. Form đăng nhập, lỗi inline, trạng thái đang kiểm tra và hỗ trợ Enter được triển khai ở TASK-03.
+- Giữ các trạng thái lỗi bỏ trống, sai tài khoản và đang kiểm tra theo các frame cùng tên trong Figma.
 
 ## 2. `MainWindow-Shell` — Khung chính
 
-```
-┌────────────────────────┬────────────────────────────────────────────┐
-│ KHÁCH SẠN IT008        │ Sơ đồ phòng                                │
-│                        │ Xin chào: Lê Thu Ngân (Lễ tân)             │
-│                        │ [ Đăng xuất ]                              │
-├────────────────────────┼────────────────────────────────────────────┤
-│ ● Sơ đồ phòng          │                                            │
-│   Đặt phòng            │                                            │
-│   Phòng                │                                            │
-│   Loại phòng 🔒        │ Vùng nội dung                              │
-│   Khách hàng           │ (cuộn dọc khi cần)                         │
-│   Dịch vụ              │                                            │
-│   Hóa đơn              │                                            │
-│   Báo cáo 🔒           │                                            │
-└────────────────────────┴────────────────────────────────────────────┘
-```
+Nguồn chuẩn: Figma `173024:784` (Admin), `173024:785` (Staff), kiểm tra ngày 19/11/2026.
 
-**Vẽ 2 frame**: `MainWindow-Shell / Admin` (đủ 8 mục) và `MainWindow-Shell / Staff` (thiếu Loại phòng, Báo cáo).
-
-**Ghi chú**
-- Mục đang chọn: nền của mục trung tính nhẹ, chữ và biểu tượng màu trung tính và vạch xanh `#005FB8` ở cạnh trái theo Side Nav biến thể; không dùng nền xanh đậm + chữ trắng.
-- Sidebar có thể thu gọn về icon — nếu vẽ, cần đảm bảo vẫn nhận ra mục.
-- Trạng thái đăng nhập đầu tiên: nội dung mặc định là **Sơ đồ phòng**.
-- Kích thước thiết kế chính: 1280×800; cửa sổ tối thiểu hỗ trợ là 1280×720. Bản 1024px trong Figma chỉ là kiểm tra khả năng co giãn mật độ/thu gọn, không thay đổi yêu cầu tối thiểu nếu nhóm chưa xác nhận hỗ trợ độ phân giải này.
-
----
+- Cửa sổ 1280×800, tối thiểu 1280×720; title bar 48px.
+- Pane trái chiếm vùng 240px. Logo gốc AURA HOTEL đặt tại (20,62), slot 200×48.
+- Mục điều hướng 208×40, lề trái 12px; có icon Fluent, nền trung tính, trạng thái chọn có dấu accent. Chia nhóm **VẬN HÀNH**, **DANH MỤC**, **BÁO CÁO**. Staff ẩn Loại phòng, Báo cáo và tiêu đề nhóm Báo cáo rỗng.
+- Tiêu đề trang tại (256,72), 28px / line-height 36px. Chỉ có một tiêu đề, không lặp trong nội dung placeholder.
+- Cụm tài khoản tại (1024,66), slot 232×40: icon, họ tên, vai trò và chevron. Bấm mở menu có Đăng xuất; không đặt chuỗi chào dài bên cạnh nút riêng.
+- Vùng nội dung tại (240,132), kích thước 1016×644 ở khung 1280×800; co chiều cao khi xuống 720px. Gutter bên phải và dưới 24px; nội dung module có padding 24px.
+- Admin có 8 mục; Staff 6 mục. Vận hành: Sơ đồ phòng, Đặt phòng. Danh mục: Phòng, Loại phòng, Khách hàng, Dịch vụ, Hóa đơn. Báo cáo: Báo cáo.
 
 ## 3. `RoomMapView` — Sơ đồ phòng ⭐
 
@@ -381,7 +347,7 @@ Có thể là màn riêng trong sidebar, hoặc dialog mở từ Sơ đồ phòn
 │ Xuất hóa đơn — HD-001                                   [x] │
 ├─────────────────────────────────────────────────────────────┤
 │ =========================================================   │
-│ KHÁCH SẠN IT008 LUXURY                                      │
+│ AURA HOTEL                                      │
 │ HÓA ĐƠN THANH TOÁN (RECEIPT)                                │
 │ Mã HĐ: HD-001              Ngày lập: 14/10/2026             │
 │ Khách hàng: Nguyễn Văn An  Phòng: 101 (VIP)                 │

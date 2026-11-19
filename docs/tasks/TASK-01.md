@@ -39,19 +39,19 @@
 - **`MainWindow.xaml` & `MainViewModel.cs`** (bám sát `docs/design/WIREFRAMES.md` mục 2):
   - Kế thừa `FluentWindow` của `WPF-UI`, kích thước thiết kế `1280×800`, tối thiểu `MinWidth="1280" MinHeight="720"`.
   - Bên trái: Sidebar điều hướng (`NavigationView`) gồm **8 mục cho `Administrator`**: `Sơ đồ phòng`, `Đặt phòng`, `Phòng`, `Loại phòng`, `Khách hàng`, `Dịch vụ`, `Hóa đơn`, `Báo cáo` (với `Staff`, ẩn 2 mục `Loại phòng` và `Báo cáo` qua seam `RolePermissions`).
-  - Phía trên vùng nội dung: Header hiển thị tiêu đề trang hiện tại, cụm phiên làm việc `Xin chào: [Họ tên] ([Vai trò])` và nút `Đăng xuất`.
+  - Phía trên vùng nội dung: Header hiển thị tiêu đề trang hiện tại, cụm phiên làm việc `[Họ tên] và [Vai trò] trong nút tài khoản` ; nút tài khoản mở menu `Đăng xuất`.
   - Trung tâm: `<ContentControl Content="{Binding CurrentView}" />` kèm `DataTemplate` đăng ký sẵn cho cả 8 cặp ViewModel/View placeholder trong `App.xaml`.
 
 ---
 
 ## 3. Tiêu chí nghiệm thu & Ca biên (Acceptance Criteria & Edge Cases)
 ### Checklist Definition of Done:
-- [ ] Dọn bỏ `src/src.csproj` + `src/src.slnx` cũ; tạo `global.json`, `HotelManagement.slnx`, `src/HotelManagement/HotelManagement.csproj` và `tests/HotelManagement.Tests/HotelManagement.Tests.csproj` chạy `dotnet build` & `dotnet test` xanh 100% không lỗi.
-- [ ] Cài đặt đúng `CommunityToolkit.Mvvm` (8.4.2) và `WPF-UI` (4.3.0).
-- [ ] Tổ chức đầy đủ thư mục `Models/`, `DAO/`, `Services/`, `ViewModels/`, `Views/`, `Resources/` cùng `Colors.xaml` (accent `#005FB8` + 4 mã màu `RoomStatus`) và `Styles.xaml`.
-- [ ] `ViewModelBase` kế thừa `ObservableObject`; `MainViewModel` quản lý `CurrentView`, tiêu đề trang và danh sách mục điều hướng theo `RolePermissions` (Admin 8 mục, Staff 6 mục).
-- [ ] Khởi tạo sẵn 8 cặp placeholder View/ViewModel và đăng ký `DataTemplate` trong `App.xaml` để các nhánh `TASK-03..11` chỉ sửa file riêng của từng module, không gây conflict tập trung.
-- [ ] Có unit test đầu tiên trong `HotelManagement.Tests` kiểm tra điều hướng `MainViewModel` và phân quyền menu `RolePermissions` (8 mục vs 6 mục).
+- [x] Dọn bỏ `src/src.csproj` + `src/src.slnx` cũ; tạo `global.json`, `HotelManagement.slnx`, `src/HotelManagement/HotelManagement.csproj` và `tests/HotelManagement.Tests/HotelManagement.Tests.csproj` chạy `dotnet build` & `dotnet test` xanh 100% không lỗi.
+- [x] Cài đặt đúng `CommunityToolkit.Mvvm` (8.4.2) và `WPF-UI` (4.3.0).
+- [x] Tổ chức đầy đủ thư mục `Models/`, `DAO/`, `Services/`, `ViewModels/`, `Views/`, `Resources/` cùng `Colors.xaml` (accent `#005FB8` + 4 mã màu `RoomStatus`) và `Styles.xaml`.
+- [x] `ViewModelBase` kế thừa `ObservableObject`; `MainViewModel` quản lý `CurrentView`, tiêu đề trang và danh sách mục điều hướng theo `RolePermissions` (Admin 8 mục, Staff 6 mục).
+- [x] Khởi tạo sẵn 8 cặp placeholder View/ViewModel và đăng ký `DataTemplate` trong `App.xaml` để các nhánh `TASK-03..11` chỉ sửa file riêng của từng module, không gây conflict tập trung.
+- [x] Có unit test đầu tiên trong `HotelManagement.Tests` kiểm tra điều hướng `MainViewModel` và phân quyền menu `RolePermissions` (8 mục vs 6 mục).
 
 ### Ca biên cần xử lý (Edge Cases):
 - Khi mở `MainWindow` lần đầu sau đăng nhập, `CurrentView` mặc định trỏ vào `RoomMapViewModel` (`Sơ đồ phòng`).
@@ -66,3 +66,13 @@
 ---
 
 *Tài liệu tự động đồng bộ từ `docs/tasks/TASK-01.md` lên GitHub Issue #58.*
+
+## Ghi chú triển khai TASK-01
+
+- Đã hoàn thiện khung và test điều hướng/phân quyền; `LoginWindow` là màn xem trước vai trò, được thay bằng xác thực thật ở TASK-03.
+- Project test giữ `net10.0-windows` + project reference trên Windows. Trên macOS/Linux dùng `net10.0` và liên kết cùng source thuần ViewModels/Services để chạy test khi không có WindowsDesktop runtime.
+- Build WPF và unit test đã kiểm tra trên macOS. **Nghiệm thu trực quan trên Windows còn chờ**: mở hai vai trò, kiểm tra 8/6 menu, chuyển đủ trang, chọn trang bằng bàn phím, đăng xuất và kiểm tra cửa sổ tại 1280×720.
+
+### Đồng bộ Figma — 19/11/2026
+
+Chuẩn trực quan: `docs/design/FIGMA-ALIGNMENT.md`. Dùng AURA HOTEL, title bar 48px, pane trái 240px, menu nhóm có icon, header tài khoản dạng menu. TASK-01 dùng màn xem trước 680×360 với hai nút chọn vai trò. Bố cục đăng nhập hai cột trong Figma dành cho TASK-03.
