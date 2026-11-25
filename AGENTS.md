@@ -1,6 +1,6 @@
 # Project Agent Guidelines
 
-Hotel Management System (WPF .NET 10 MVVM) - IT008.
+Hotel Management System (C# .NET 10 WPF MVVM + `WPF-UI` 4.3.0 + `LiveCharts2` 2.0.5 + SQL Server ADO.NET) — IT008.
 
 ## Agent skills
 
@@ -24,8 +24,15 @@ Before designing entities or naming concepts, read `GLOSSARY.md` at root for can
 ### Specification
 Before implementing features or answering architecture questions, read `docs/specs/hotel-management-system.md` (Issue #77) for system requirements, 21 user stories, testing seams, and the 18/11–30/12 delivery plan.
 
-### UI design & wireframes
-Before building or styling any XAML window, dialog, card, or chart, read `docs/design/DESIGN-BRIEF.md` and `docs/design/WIREFRAMES.md` for Windows UI Kit surface rules, role-based navigation, and required empty/error states.
+### Design system (Google `DESIGN.md`)
+Before building or styling any XAML window, dialog, card, table, or chart, read `DESIGN.md` at repo root for normative YAML design tokens, mandatory `WPF-UI` primitives, anti-slop rules, and the 4 mandatory UI states (`Loading`, `Empty`, `Error`, `Success`). Never read raw designs from Figma MCP or legacy `design-brief` files.
 
 ### Task implementation guides
-When working on any ticket, read its corresponding technical guide under `docs/tasks/<TASK-ID>.md` (e.g. `docs/tasks/TASK-01.md`). It contains architecture scope, classes, validation rules, edge cases, and testing strategies.
+When working on any ticket, read its corresponding technical guide and UI Contract under `docs/tasks/<TASK-ID>.md` (e.g. `docs/tasks/TASK-01.md`).
+
+## Mandatory 2-Phase Execution Workflow
+
+Every GitHub Issue MUST be executed in two sequential phases (full rules in `CLAUDE.md`):
+
+1. **Phase 1 — Logic & State First**: Complete `Models/` / `DAO/` / `Services/` (TDD seams) / `ViewModels/` (including `Loading`, `Empty`, `Error`, `Success` states) and pass `dotnet build` + `dotnet test` 100% before complex XAML layout work.
+2. **Phase 2 — UI Assembly & Verification**: Read `DESIGN.md` (+ attached approved screenshot if provided), assemble XAML exclusively from `WPF-UI` primitives + `{StaticResource}` tokens (max 1 Primary CTA, 4px/8px spacing grid, zero inline hex or custom button `ControlTemplate`), and verify build/layout cleanly before completion.

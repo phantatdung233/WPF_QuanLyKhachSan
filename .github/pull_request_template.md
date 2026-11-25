@@ -10,26 +10,28 @@
 
 ---
 
-## 🛠 Tóm Tắt Kỹ Thuật
+## 🛠 Tóm Tắt Kỹ Thuật (2-Phase Execution)
 
-<!-- Mô tả ngắn gọn các thay đổi trong mã nguồn (ViewModel, View, Entity, Service, Resources, v.v.) -->
-- 
+- **Pha 1 (Logic, Data & ViewModel State)**:
+  - 
+- **Pha 2 (UI Assembly theo `DESIGN.md`)**:
+  - 
 
 ---
 
 ## ✅ Checklist Kiểm Thử Trước Khi Yêu Cầu Review (Tác giả tích chọn)
 
-- [ ] Mã nguồn tuân thủ kiến trúc **MVVM** (`CommunityToolkit.Mvvm`).
-- [ ] Code sạch, không có warning/error, đã format naming convention theo chuẩn C#.
+- [ ] **Pha 1 hoàn tất**: `Models` / `DAO` / `Services` (TDD seam) / `ViewModel` chạy `dotnet build` & `dotnet test` xanh 100%, đã bao phủ đủ **4 trạng thái UI** (`Loading`, `Empty`, `Error`, `Success`).
+- [ ] **Pha 2 tuân thủ `DESIGN.md`**: Chỉ dùng primitives của `WPF-UI` / `LiveCharts2` + `{StaticResource}` tokens; **0** hex màu hardcode ngoài `Colors.xaml`, **0** `ControlTemplate` viết đè Button/Input cơ bản, spacing theo lưới `4px/8px`, tối đa **1 Primary CTA** mỗi màn/dialog.
 - [ ] Nếu có thay đổi CSDL: đã cập nhật `Database/HotelDB.sql` và chạy thử thành công trên SQL Server cục bộ.
-- [ ] Đã chạy thử chức năng và đáp ứng đầy đủ checklist **Definition of Done** của Task tương ứng trong `docs/tasks/`.
+- [ ] Đáp ứng đầy đủ checklist **Definition of Done** & **UI Contract** của Task tương ứng trong `docs/tasks/`.
 - [ ] Không có commit thừa, file rác hoặc thông tin nhạy cảm.
 
 ---
 
 ## 🔍 Checklist Dành Cho Reviewer
 
-- [ ] Code logic đúng nghiệp vụ (kiểm tra tính toán tiền tệ, trùng lịch đặt phòng theo `GLOSSARY.md`, phân quyền).
-- [ ] Xử lý ngoại lệ đầy đủ (không crash khi dữ liệu null hoặc sai định dạng).
-- [ ] Data Binding và UI hiển thị đúng trên các độ phân giải màn hình.
+- [ ] Code logic đúng bất biến nghiệp vụ trong `GLOSSARY.md` (chống trùng lịch, tính tối thiểu 1 đêm, Settlement Invariant, phân quyền).
+- [ ] Xử lý đủ 4 trạng thái (`Loading`, `Empty`, `Error`, `Success`) và khóa xóa an toàn kèm `ToolTip`.
+- [ ] Kiểm tra hiển thị ở `1280×800` và `1280×720` không bị cắt chữ, vỡ khung hay cuộn ngang thừa.
 - [ ] Đồng ý phê duyệt (Approve) và hợp nhất (Merge) vào nhánh `develop`.

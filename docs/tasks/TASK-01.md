@@ -24,23 +24,23 @@
   - `Services/`: Các lớp logic/validation thuần phục vụ kiểm thử tự động (`BookingRules`, `InvoiceCalculator`, `ValidationRules`, `RolePermissions`).
   - `ViewModels/`: `ViewModelBase` kế thừa `ObservableObject` + `MainViewModel` và các placeholder ViewModel cho 8 màn hình.
   - `Views/`: `MainWindow.xaml`, `LoginWindow.xaml` (stub) và các placeholder `UserControl` cho 8 màn hình điều hướng để **tránh xung đột merge** ở `App.xaml` / `MainWindow.xaml` khi 3 thành viên code song song `TASK-03..11`.
-  - `Resources/`: `Colors.xaml`, `Styles.xaml` bám sát quy chuẩn **Windows UI Kit** tại `docs/design/DESIGN-BRIEF.md`.
+  - `Resources/`: `Colors.xaml`, `Styles.xaml` khai báo trọn bộ Design Tokens khớp 1–1 với `DESIGN.md` tại gốc repo (chuẩn Google `DESIGN.md`).
 
 ---
 
-## 2. Hướng dẫn nghiệp vụ & Luồng xử lý chi tiết (Implementation Details)
-- **`Resources/Colors.xaml` & `Styles.xaml`** (bám sát `docs/design/DESIGN-BRIEF.md` mục 2.3–2.5):
-  - Bề mặt sáng trung tính (`App Surface`, `Card Surface`), màu nhấn Windows `#005FB8`, kiểu chữ Segoe UI Variable, bo góc 4px cho control và 8px cho container/dialog (tuyệt đối không dùng mảng nền navy đậm).
-  - Khai báo cố định 4 brush trạng thái phòng (`RoomStatus`):
-    - `RoomAvailableBrush`: `#48BB78` (`Trống`)
-    - `RoomOccupiedBrush`: `#F56565` (`Đang ở`)
-    - `RoomReservedBrush`: `#ED8936` (`Đã đặt`)
-    - `RoomMaintenanceBrush`: `#A0AEC0` (`Bảo trì`)
-- **`MainWindow.xaml` & `MainViewModel.cs`** (bám sát `docs/design/WIREFRAMES.md` mục 2):
-  - Kế thừa `FluentWindow` của `WPF-UI`, kích thước thiết kế `1280×800`, tối thiểu `MinWidth="1280" MinHeight="720"`.
-  - Bên trái: Sidebar điều hướng (`NavigationView`) gồm **8 mục cho `Administrator`**: `Sơ đồ phòng`, `Đặt phòng`, `Phòng`, `Loại phòng`, `Khách hàng`, `Dịch vụ`, `Hóa đơn`, `Báo cáo` (với `Staff`, ẩn 2 mục `Loại phòng` và `Báo cáo` qua seam `RolePermissions`).
-  - Phía trên vùng nội dung: Header hiển thị tiêu đề trang hiện tại, cụm phiên làm việc `Xin chào: [Họ tên] ([Vai trò])` và nút `Đăng xuất`.
-  - Trung tâm: `<ContentControl Content="{Binding CurrentView}" />` kèm `DataTemplate` đăng ký sẵn cho cả 8 cặp ViewModel/View placeholder trong `App.xaml`.
+## 2. Hướng dẫn nghiệp vụ & UI Contract (Theo `DESIGN.md`)
+- **Thực thi 2 Pha (`CLAUDE.md`)**:
+  - **Pha 1 (Logic & State First)**: Hoàn thiện `ViewModelBase`, `RolePermissions`, `MainViewModel` (quản lý `CurrentView`, `PageTitle`, `FullName`, `RoleDisplay`, `NavigationItems`, `LogoutCommand`) và pass `dotnet test` trước khi lắp XAML.
+  - **Pha 2 (UI Assembly & Verification)**: Lắp `Colors.xaml`, `Styles.xaml`, `MainWindow.xaml` và `LoginWindow.xaml` (stub chọn vai trò xem trước) theo đúng `DESIGN.md`.
+- **UI Contract (`MainWindow` & Shell Tokens)**:
+  - **Dữ liệu hiển thị**: Thương hiệu **`AURA HOTEL`**, tiêu đề trang hiện tại (`PageTitle` — chỉ hiển thị 1 lần trên Header shell), danh sách điều hướng theo vai trò (`Administrator` 8 mục: `Sơ đồ phòng`, `Đặt phòng`, `Phòng`, `Loại phòng`, `Khách hàng`, `Dịch vụ`, `Hóa đơn`, `Báo cáo`; `Staff` 6 mục: ẩn `Loại phòng` và `Báo cáo`), cụm tài khoản (`FullName`, `RoleDisplay`, menu `Đăng xuất`) và vùng `<ContentControl Content="{Binding CurrentView}" />`.
+  - **Primitives bắt buộc (`WPF-UI 4.3.0`)**: `ui:FluentWindow` (`1280×800`, `MinWidth="1280" MinHeight="720"`), `ui:TitleBar` (`48px`), `ui:NavigationView` (`240px` pane trái, `NavigationViewItem` + `ui:SymbolIcon`), `ui:Button` (tối đa 1 `Appearance="Primary"` trên màn stub; cấm viết lại `ControlTemplate` cho Button/Input). Mọi `Margin`/`Padding` tuân thủ hệ lưới bội số `4px/8px`.
+  - **Design Tokens (`Resources/Colors.xaml` & `Styles.xaml`)**: Khóa bề mặt sáng trung tính (`AppSurfaceBrush` `#F3F3F3`, `CardSurfaceBrush` `#FFFFFF`), `AccentBrush` `#005FB8`, semantic status brushes và 4 brush `RoomStatus` cố định (`RoomAvailableBrush` `#48BB78`, `RoomOccupiedBrush` `#F56565`, `RoomReservedBrush` `#ED8936`, `RoomMaintenanceBrush` `#A0AEC0`).
+  - **4 Trạng thái UI bắt buộc**:
+    1. *Loading*: Khai báo sẵn style/token cho `ui:ProgressRing` dùng chung toàn app.
+    2. *Empty*: 8 màn hình placeholder hiển thị trạng thái chờ phát triển gọn gàng trên nền `CardSurfaceBrush`.
+    3. *Error*: Khai báo sẵn `InlineErrorTextStyle` (`12px`, `#A42618`) và convention `ui:InfoBar` trong `Styles.xaml`.
+    4. *Success*: Điều hướng mượt giữa các mục hợp lệ theo quyền và đăng xuất sạch phiên về màn hình đầu.
 
 ---
 
@@ -61,7 +61,7 @@
 
 ## 4. Chiến lược kiểm thử (Testing Strategy)
 - Tự động (`TDD` seam): Chạy `dotnet test` xác nhận `MainViewModel` mặc định mở `RoomMapViewModel`, chuyển đổi đúng giữa các màn và lọc đúng 8 mục (`Administrator`) so với 6 mục (`Staff`).
-- Trực quan: Chạy ứng dụng trên Windows, bấm lần lượt 8 mục trên Sidebar xác nhận `ContentControl` và tiêu đề Header đổi mượt trên nền sáng chuẩn Windows UI Kit.
+- Trực quan: Chạy ứng dụng trên Windows, bấm lần lượt 8 mục trên Sidebar xác nhận `ContentControl` và tiêu đề Header đổi mượt trên nền sáng chuẩn `DESIGN.md`.
 
 ---
 

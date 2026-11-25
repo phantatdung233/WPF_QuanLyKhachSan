@@ -16,26 +16,26 @@
 ## 1. Bối cảnh & Mục tiêu kỹ thuật (Architecture & Scope)
 - Mở rộng các thao tác chuyển trạng thái lưu trú đồng bộ giữa `BookingDAO.cs` và `RoomDAO.cs`.
 - Xây dựng `BookingServiceDAO.cs` trong `DAO/` thao tác với bảng `BookingServices` (dùng model `BookingService.cs` từ `TASK-02`).
-- Hoàn thiện hộp thoại `AddServiceDialog.xaml` theo `docs/design/DELIVERY-PLAN.md` Vòng 3 & `WIREFRAMES.md` mục 10, cùng các nút hành động ngữ cảnh trên danh sách Booking / Sơ đồ phòng:
+- Hoàn thiện hộp thoại `AddServiceDialog.xaml` và các thao tác vận hành lưu trú theo quy trình **2 Pha** (`CLAUDE.md`) và chuẩn `DESIGN.md`, tích hợp trên danh sách Booking / Sơ đồ phòng:
   1. **Check-in**: chuyển cả `Booking` và `Room` sang trạng thái `Đang ở`.
   2. **Gọi dịch vụ phòng**: ghi nhận dịch vụ phát sinh kèm số lượng và snapshot `UnitPrice` cho booking đang `Đang ở`, hỗ trợ xóa dòng nhập nhầm.
   3. **Check-out**: khởi tạo hóa đơn chờ thanh toán (nếu chưa có) và điều hướng sang màn hình Hóa đơn (`InvoiceViewModel` — `TASK-10`) với đúng `BookingId`.
 
 ---
 
-## 2. Hướng dẫn nghiệp vụ & Luồng xử lý chi tiết (Implementation Details)
-- **Quy trình Check-in**:
-  - Áp dụng cho đơn đặt phòng đang ở trạng thái `Đã đặt` (và phòng hiện không đang có khách khác `Đang ở`).
-  - Thực hiện cập nhật đồng bộ (ưu tiên trong `SqlTransaction`):
-    - `Bookings.Status = N'Đang ở'`
-    - `Rooms.Status = N'Đang ở'`
-- **Hộp thoại Gọi dịch vụ phòng (`AddServiceDialog.xaml`)**:
-  - Chỉ mở được cho booking/phòng đang có trạng thái `Đang ở`.
-  - Chọn dịch vụ từ `ComboBox` (nạp từ `ServiceDAO`), nhập `Quantity` (số nguyên `>= 1`), hiển thị tức thời `Thành tiền = Quantity * UnitPrice`.
-  - Bấm `Thêm dịch vụ`: lưu vào `BookingServices (BookingId, ServiceId, Quantity, UnitPrice)` — lưu cứng `UnitPrice` tại thời điểm gọi.
-  - Bên dưới hiển thị bảng kê tất cả dịch vụ phòng đó đã gọi kèm nút `Xóa` trên từng dòng và tổng tiền dịch vụ cập nhật tức thời.
-- **Khởi tạo Check-out**:
-  - Áp dụng cho booking đang `Đang ở`: bấm `Check-out` sẽ chuyển ngữ cảnh `BookingId` sang `MainViewModel.NavigateToInvoice(bookingId)` để lễ tân đối soát tiền phòng + tiền dịch vụ và xác nhận thanh toán ở `TASK-10` (chỉ khi thanh toán xong ở `TASK-10` mới hoàn tất `Booking` và giải phóng `Room` theo **Settlement Invariant** trong `GLOSSARY.md`).
+## 2. Hướng dẫn nghiệp vụ & UI Contract (Theo `DESIGN.md`)
+- **Logic lưu trú & Dịch vụ phòng (Pha 1 — Logic & State First)**:
+  - **Check-in**: Áp dụng cho đơn `Đã đặt` (phòng không đang `Đang ở`), cập nhật đồng bộ trong `SqlTransaction`: `Bookings.Status = N'Đang ở'` và `Rooms.Status = N'Đang ở'`.
+  - **Gọi dịch vụ phòng**: Chỉ mở cho booking đang `Đang ở`; validate `Quantity >= 1` (số nguyên), lưu `BookingServices (BookingId, ServiceId, Quantity, UnitPrice)` với snapshot `UnitPrice` tại thời điểm gọi; hỗ trợ xóa dòng và tính lại tổng tức thời.
+  - **Khởi tạo Check-out**: Với booking `Đang ở`, tạo hóa đơn `Chưa thanh toán` (nếu chưa có) và chuyển `BookingId` sang `MainViewModel.NavigateToInvoice(bookingId)` (chưa giải phóng phòng cho đến khi thanh toán xong theo **Settlement Invariant** trong `GLOSSARY.md`).
+- **UI Contract (`AddServiceDialog` & Booking Row Actions — Pha 2)**:
+  - **Dữ liệu hiển thị**: Tiêu đề phòng & tên khách đang ở, bộ chọn Dịch vụ + Đơn giá (`#,##0 đ`), ô Số lượng, Thành tiền dòng tạm tính, bảng kê dịch vụ đã dùng (`Tên dịch vụ`, `SL`, `Đơn giá`, `Thành tiền`, nút `Xóa`) và `Tổng tiền dịch vụ` (`#,##0 đ`). Hành động trên dòng Booking biến thiên theo trạng thái (`Đã đặt` → Nhận phòng / Hủy; `Đang ở` → Dịch vụ / Trả phòng; `Hoàn thành` → Xem hóa đơn; `Đã hủy` → khóa thao tác).
+  - **Primitives bắt buộc (`WPF-UI`)**: Modal `ui:FluentWindow` / `ui:ContentDialog`, `ComboBox`, `ui:NumberBox` / `ui:TextBox`, `DataGrid` (`RowHeight="40"`), `ui:InfoBar`, `ui:ProgressRing`, tối đa **1 Primary CTA** `ui:Button` (`Thêm vào` / `Xác nhận`).
+  - **4 Trạng thái UI bắt buộc**:
+    1. *Loading*: Hiện `ui:ProgressRing` và khóa nút khi đang thực thi `SqlTransaction` Check-in hoặc thêm/xóa dịch vụ.
+    2. *Empty*: Khi phòng chưa dùng dịch vụ nào, hiển thị rõ `"Phòng này chưa sử dụng dịch vụ nào"` (tổng dịch vụ `0 đ`).
+    3. *Error*: Số lượng `<= 0` hoặc sai định dạng hiện lỗi inline `"Số lượng phải là số nguyên lớn hơn 0"`; chặn Check-in đè khi phòng đang có khách khác lưu trú qua `ui:InfoBar` (`Severity="Error"`).
+    4. *Success*: Bảng kê và tổng tiền dịch vụ cập nhật tức thì sau mỗi lần thêm/xóa; xác nhận Check-in / chuyển Check-out mượt sang `InvoiceView`.
 
 ---
 

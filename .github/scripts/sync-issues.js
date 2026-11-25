@@ -220,9 +220,8 @@ function run() {
     const blocked = getMeta('Blocked by');
     const schedule = getMeta('Khung thời gian dự kiến');
     const startIdx = rawLines.findIndex(l => l.startsWith('## 1.'));
-    const endIdx = rawLines.findIndex(l => l.startsWith('*Tài liệu tự động'));
     const sections = startIdx !== -1
-      ? rawLines.slice(startIdx, endIdx === -1 ? undefined : endIdx).join('\n').replace(/\n+$/, '')
+      ? rawLines.slice(startIdx).filter(l => !l.startsWith('*Tài liệu tự động')).join('\n').replace(/\n+$/, '')
       : '';
     const labelsStr = task.labels.map(l => `\`${l}\``).join(', ');
     const issueLine = getMeta('GitHub Issue');
@@ -242,7 +241,7 @@ function run() {
     ].filter(Boolean);
 
     return [
-      `> Part of SPEC #${task.parentSpecNumber} · Docs: \`docs/tasks/${task.id}.md\` · Spec: \`docs/specs/hotel-management-system.md\` · Design: \`docs/design/DESIGN-BRIEF.md\``,
+      `> Part of SPEC #${task.parentSpecNumber} · Docs: \`docs/tasks/${task.id}.md\` · Spec: \`docs/specs/hotel-management-system.md\` · Design System: \`DESIGN.md\``,
       '',
       `# ${task.title}`,
       '',
@@ -262,7 +261,8 @@ function run() {
       '',
       `- SPEC tổng: #${task.parentSpecNumber} — Hotel Management System (WPF .NET 10 MVVM, SQL Server + ADO.NET)`,
       `- Spec tổng: [\`docs/specs/hotel-management-system.md\`](https://github.com/${repo}/blob/main/docs/specs/hotel-management-system.md)`,
-      `- Thiết kế UI & Wireframes: [\`docs/design/DESIGN-BRIEF.md\`](https://github.com/${repo}/blob/main/docs/design/DESIGN-BRIEF.md), [\`docs/design/WIREFRAMES.md\`](https://github.com/${repo}/blob/main/docs/design/WIREFRAMES.md)`,
+      `- Hệ thống thiết kế & Tokens: [\`DESIGN.md\`](https://github.com/${repo}/blob/main/DESIGN.md)`,
+      `- Quy tắc Agent 2 Pha: [\`CLAUDE.md\`](https://github.com/${repo}/blob/main/CLAUDE.md)`,
       `- Tài liệu gốc: [\`docs/tasks/${task.id}.md\`](https://github.com/${repo}/blob/main/docs/tasks/${task.id}.md)`,
       `- Glossary thuật ngữ: [\`GLOSSARY.md\`](https://github.com/${repo}/blob/main/GLOSSARY.md)`,
       '',

@@ -104,7 +104,8 @@ phòng, trạng thái phòng) nằm **duy nhất** trong [`GLOSSARY.md`](./GLOSS
 
 - Backlog, Single Source of Truth: `docs/tasks/TASK-01.md` … `TASK-12.md`
 - Đặc tả hệ thống: `docs/specs/hotel-management-system.md` (SPEC #77)
-- Thiết kế giao diện & Wireframe (Windows UI Kit): `docs/design/DESIGN-BRIEF.md`, `docs/design/WIREFRAMES.md`, `docs/design/DELIVERY-PLAN.md`
+- Hệ thống thiết kế & Design Tokens (chuẩn Google `DESIGN.md`): `DESIGN.md`
+- Luật thực thi 2 Pha cho Agent: `CLAUDE.md`, `AGENTS.md`, `.cursorrules`
 - Hướng dẫn chi tiết từng task: `docs/tasks/TASK-01.md` … `TASK-12.md`
 - Thuật ngữ chuẩn: `GLOSSARY.md`
 - GitHub Issues: [#58](https://github.com/phantatdung233/WPF_QuanLyKhachSan/issues/58)–[#65](https://github.com/phantatdung233/WPF_QuanLyKhachSan/issues/65),

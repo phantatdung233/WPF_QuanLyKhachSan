@@ -16,26 +16,31 @@
 ## 1. Bối cảnh & Mục tiêu kỹ thuật (Architecture & Scope)
 - Cài đặt package `LiveChartsCore.SkiaSharpView.WPF` (`2.0.5`) cho project `HotelManagement`.
 - Xây dựng lớp tổng hợp số liệu thuần `ReportAggregator.cs` trong `Services/` (seam kiểm thử tự động TDD), hoàn thiện `ReportViewModel.cs` và giao diện `ReportView.xaml` (chỉ dành cho `Administrator`).
-- **Tuân thủ quy chuẩn Windows UI Kit tại `docs/design/DESIGN-BRIEF.md` mục 2.3, 6.5 & 7.2**:
-  - 3 thẻ KPI dùng chung bề mặt sáng trung tính (`Card Surface`), phân cấp bằng kiểu chữ Segoe UI Variable và khoảng cách (điểm nhấn nhỏ `#005FB8` nếu cần — **tuyệt đối không tô 3 nền màu navy / xanh dương / xanh ngọc**).
+- **Tuân thủ quy trình 2 Pha (`CLAUDE.md`) và chuẩn `DESIGN.md`**:
+  - 3 thẻ KPI dùng chung bề mặt sáng trung tính (`CardSurfaceBrush` `#FFFFFF`), phân cấp bằng `KpiValueTextStyle` (`24px` SemiBold) và khoảng cách (**tuyệt đối không tô 3 nền màu navy / xanh dương / xanh ngọc**).
   - Thanh `ProgressBar` hiển thị tỷ lệ công suất phòng hiện tại (`Số phòng Đang ở / Tổng số phòng`).
   - Biểu đồ đường doanh thu theo ngày (`CartesianChart` + `LineSeries` đơn giản, rõ ràng trên máy chiếu).
   - Bảng `DataGrid` danh sách hóa đơn `Đã thanh toán` trong khoảng ngày lọc.
 
 ---
 
-## 2. Hướng dẫn nghiệp vụ & Luồng xử lý chi tiết (Implementation Details)
-- **Seam `Services/ReportAggregator.cs` (TDD-first)**:
+## 2. Hướng dẫn nghiệp vụ & UI Contract (Theo `DESIGN.md`)
+- **Seam `Services/ReportAggregator.cs` (Pha 1 — Logic & State First, TDD-first)**:
   - Validate khoảng lọc: `FromDate.Date <= ToDate.Date` (nếu `FromDate > ToDate` trả về lỗi nhắc chọn lại khoảng ngày hợp lệ).
-  - Tổng hợp từ danh sách hóa đơn `Đã thanh toán` trong khoảng `[FromDate.Date, ToDate.Date.AddDays(1).AddTicks(-1)]`:
+  - Tổng hợp từ danh sách hóa đơn `Đã thanh toán` trong khoảng `[FromDate.Date, ToDate.Date.AddDays(1))`:
     1. **Tổng doanh thu**: `SUM(TotalAmount)` (`#,##0 đ`).
     2. **Số lượt thuê hoàn tất**: `COUNT(InvoiceId)`.
     3. **Doanh thu dịch vụ**: `SUM(ServiceCharge)` (`#,##0 đ`).
   - Tính **Tỷ lệ lấp đầy phòng hiện tại**: `OccupiedCount / TotalRoomCount * 100` (tránh chia cho 0 khi `TotalRoomCount == 0`).
   - Nhóm dữ liệu biểu đồ đường theo ngày (`PaymentDate.Date`): trả về chuỗi nhãn ngày (`dd/MM`) và tổng doanh thu từng ngày.
-- **Giao diện `ReportView.xaml` & Trạng thái rỗng (`DESIGN-BRIEF.md` mục 6.5)**:
-  - Bộ lọc trên cùng: `Từ ngày` (`DatePicker`, mặc định ngày đầu tháng hiện tại), `Đến ngày` (`DatePicker`, mặc định hôm nay), nút `Xem báo cáo`.
-  - Khi khoảng lọc **không có hóa đơn nào**: 3 thẻ KPI hiển thị `0 đ` / `0 lượt`, khung biểu đồ và bảng hiển thị trạng thái chủ đích `"Không có dữ liệu doanh thu trong khoảng thời gian đã chọn"` (không để khung trắng lỗi hay ném ngoại lệ null).
+- **UI Contract (`ReportView` — `Administrator` only, Pha 2)**:
+  - **Dữ liệu hiển thị**: Bộ lọc `Từ ngày` (mặc định đầu tháng) & `Đến ngày` (mặc định hôm nay), 3 thẻ KPI (`Tổng doanh thu`, `Lượt thuê hoàn tất`, `Doanh thu dịch vụ`), nhãn + thanh công suất phòng hiện tại (`"Tỷ lệ lấp đầy phòng hiện tại: X% (Y/Z phòng)"`), biểu đồ đường doanh thu theo ngày và bảng hóa đơn `Đã thanh toán`.
+  - **Primitives bắt buộc (`WPF-UI` & `LiveCharts2`)**: `DatePicker`, **duy nhất 1 Primary CTA** `ui:Button` (`Xem báo cáo`, `Appearance="Primary"`), 3 `Border` (`CardSurfaceBorderStyle`), `ProgressBar` (`AccentBrush`), `CartesianChart` (`LineSeries`), `DataGrid` (`RowHeight="40"`), `ui:InfoBar`, `ui:ProgressRing`.
+  - **4 Trạng thái UI bắt buộc**:
+    1. *Loading*: Hiện `ui:ProgressRing` và khóa nút `Xem báo cáo` khi đang truy vấn tổng hợp dữ liệu.
+    2. *Empty*: Khi khoảng lọc không có hóa đơn thanh toán nào, 3 thẻ KPI hiển thị `0 đ` / `0 lượt` / `0 đ`, vùng biểu đồ và bảng hiển thị thông báo chủ đích `"Không có dữ liệu doanh thu trong khoảng thời gian đã chọn"` (không để khung trắng lỗi hay crash).
+    3. *Error*: Khi `FromDate > ToDate`, hiển thị `ui:InfoBar` (`Severity="Error"`) `"Ngày bắt đầu phải nhỏ hơn hoặc bằng ngày kết thúc. Vui lòng chọn lại."` và giữ nguyên dữ liệu hợp lệ trước đó.
+    4. *Success*: Hiển thị đầy đủ 3 KPI định dạng `#,##0 đ`, thanh công suất, đường biểu đồ `LiveCharts2` và bảng chi tiết hóa đơn.
 
 ---
 
@@ -43,7 +48,7 @@
 ### Checklist Definition of Done:
 - [ ] Cài đặt `LiveChartsCore.SkiaSharpView.WPF` (2.0.5), `dotnet build` & `dotnet test` xanh 100%.
 - [ ] `Services/ReportAggregator.cs` có unit test đầy đủ trong `HotelManagement.Tests` cho: cộng gộp 3 KPI, nhóm doanh thu theo ngày, tính tỷ lệ công suất phòng (kể cả khi 0 phòng), khoảng ngày rỗng (`0 đ`) và lỗi `FromDate > ToDate`.
-- [ ] `ReportView.xaml` thiết kế 3 thẻ KPI bề mặt `Card Surface` trung tính (không tô nền đậm), thanh `ProgressBar` công suất phòng, biểu đồ đường `LiveCharts2` và `DataGrid` hóa đơn đã thanh toán.
+- [ ] `ReportView.xaml` tuân thủ UI Contract & `DESIGN.md`: 3 thẻ KPI bề mặt `CardSurfaceBrush` trung tính (không tô nền đậm), thanh `ProgressBar` công suất phòng, biểu đồ đường `LiveCharts2`, `DataGrid` hóa đơn đã thanh toán và đủ 4 trạng thái UI.
 - [ ] Khoảng lọc bao trọn cả ngày cuối (`ToDate` tính đến `23:59:59` để không bỏ sót hóa đơn thanh toán trong ngày hôm nay).
 - [ ] Tài khoản `Staff` không thấy và không truy cập được màn Báo cáo.
 
@@ -55,7 +60,7 @@
 
 ## 4. Chiến lược kiểm thử (Testing Strategy)
 - Tự động (`TDD` seam): `dotnet test` kiểm chứng `ReportAggregator` đặc biệt là ca biên hóa đơn có giờ trong ngày cuối cùng (`14:30` ngày `ToDate`) và ca dữ liệu rỗng.
-- Trực quan: Vừa thanh toán xong hóa đơn `1,070,000 đ` ở `TASK-10`, mở ngay màn Báo cáo thấy tổng doanh thu cộng thêm đúng `1,070,000 đ` và điểm dữ liệu ngày hôm nay nổi lên trên biểu đồ đường.
+- Trực quan: Vừa thanh toán xong hóa đơn `1.070.000 đ` ở `TASK-10`, mở ngay màn Báo cáo thấy tổng doanh thu cộng thêm đúng `1.070.000 đ` và điểm dữ liệu ngày hôm nay nổi lên trên biểu đồ đường.
 
 ---
 

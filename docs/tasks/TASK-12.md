@@ -24,18 +24,18 @@
 ## 2. Hướng dẫn nghiệp vụ & Luồng xử lý chi tiết (Implementation Details)
 - **Kịch bản chuỗi nghiệp vụ E2E bắt buộc vượt qua (9 bước liên hoàn)**:
   1. Chạy `Database/HotelDB.sql` trên SSMS để đưa dữ liệu về trạng thái mẫu chuẩn.
-  2. Đăng nhập tài khoản Lễ tân (`staff` / `123456`): xác nhận header `Xin chào: Lê Thu Ngân (Lễ tân)` và Sidebar chỉ có 6 mục (ẩn `Loại phòng` và `Báo cáo`).
+  2. Đăng nhập tài khoản Lễ tân (`staff` / `123456`): xác nhận cụm tài khoản hiển thị `Lê Thu Ngân` (`Lễ tân`), menu có `Đăng xuất` và Sidebar chỉ có 6 mục (ẩn `Loại phòng` và `Báo cáo`).
   3. Đăng xuất, đăng nhập tài khoản Quản trị (`admin` / `123456`): xác nhận đủ 8 mục điều hướng.
   4. Mở **Sơ đồ phòng (`RoomMapView`)**: thấy 12 phòng trên nền thẻ trung tính với đủ 4 dấu màu `DataTrigger` (`6 Trống`, `2 Đang ở`, `3 Đã đặt`, `1 Bảo trì`).
-  5. Thử tạo **Đặt phòng** trùng vào khoảng ngày đang bận -> xác nhận hệ thống chặn bằng banner lỗi đỏ rõ ràng; sau đó chọn phòng `Trống` đặt lịch hợp lệ -> thẻ phòng chuyển dấu sang màu Cam (`Đã đặt`).
+  5. Thử tạo **Đặt phòng** trùng vào khoảng ngày đang bận -> xác nhận hệ thống chặn bằng banner `ui:InfoBar` đỏ rõ ràng; sau đó chọn phòng `Trống` đặt lịch hợp lệ -> thẻ phòng chuyển dấu sang màu Cam (`Đã đặt`).
   6. Thực hiện **Check-in** cho khách vừa đặt -> thẻ phòng chuyển dấu sang màu Đỏ (`Đang ở`).
-  7. Mở **Gọi dịch vụ phòng** -> thêm 2 Nước suối Lavie (`20,000 đ`) + 1 Ăn sáng buffet (`50,000 đ`) = `70,000 đ`.
-  8. Bấm **Check-out** -> kiểm tra màn **Hóa đơn** tính chuẩn tiền phòng + tiền dịch vụ (kịch bản chuẩn `1,070,000 đ`), chọn `Chuyển khoản`, bấm **Xác nhận thanh toán** và **Xuất hóa đơn `.txt`** mở lên đối chiếu UTF-8; quay lại Sơ đồ phòng thấy phòng đã về lại màu Xanh (`Trống`).
-  9. Mở **Báo cáo & Thống kê**: xác nhận `1,070,000 đ` vừa thanh toán đã cộng ngay vào KPI Tổng doanh thu, bảng hóa đơn và đường biểu đồ `LiveCharts2`.
+  7. Mở **Gọi dịch vụ phòng** -> thêm 2 Nước suối Lavie (`20.000 đ`) + 1 Ăn sáng buffet (`50.000 đ`) = `70.000 đ`.
+  8. Bấm **Check-out** -> kiểm tra màn **Hóa đơn** tính chuẩn tiền phòng + tiền dịch vụ (kịch bản chuẩn `1.070.000 đ`), chọn `Chuyển khoản`, bấm **Xác nhận thanh toán** và **Xuất hóa đơn `.txt`** mở lên đối chiếu UTF-8; quay lại Sơ đồ phòng thấy phòng đã về lại màu Xanh (`Trống`).
+  9. Mở **Báo cáo & Thống kê**: xác nhận `1.070.000 đ` vừa thanh toán đã cộng ngay vào KPI Tổng doanh thu, bảng hóa đơn và đường biểu đồ `LiveCharts2`.
 - **Cấu trúc Slide báo cáo & Tài liệu kịch bản (`docs/demo/DEMO-SCRIPT.md`)**:
   - Slide 1: Tên đề tài, GVHD, 3 thành viên & phân công.
   - Slide 2: Bài toán thực tế & Chu trình khép kín.
-  - Slide 3: Kiến trúc kỹ thuật (`.NET 10 WPF`, `CommunityToolkit.Mvvm`, `WPF-UI` theo Windows UI Kit, `LiveCharts2`, ADO.NET + Unit Test Seams).
+  - Slide 3: Kiến trúc kỹ thuật (`.NET 10 WPF`, `CommunityToolkit.Mvvm`, `WPF-UI` theo `DESIGN.md`, `LiveCharts2`, ADO.NET + Unit Test Seams).
   - Slide 4: Thiết kế CSDL SQL Server (ERD 8 bảng & bất biến nghiệp vụ).
   - Slide 5: Ba màn điểm nhấn (Sơ đồ phòng `DataTrigger`, Xuất biên lai `.txt`, Báo cáo `LiveCharts2`).
   - Slide 6: Demo trực tiếp & Tổng kết hướng phát triển.

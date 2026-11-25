@@ -23,19 +23,19 @@
   6. `Services`: `ServiceId` (PK), `ServiceName`, `Price` (`DECIMAL(18,0)` >= 0).
   7. `BookingServices`: `Id` (PK), `BookingId` (FK), `ServiceId` (FK), `Quantity`, `UnitPrice`.
   8. `Invoices`: `InvoiceId` (PK), `BookingId` (FK), `RoomCharge`, `ServiceCharge`, `TotalAmount`, `PaymentMethod` (`N'Tiền mặt'`, `N'Chuyển khoản'`), `PaymentDate`, `Status` (`N'Chưa thanh toán'`, `N'Đã thanh toán'`).
-- Nạp sẵn dữ liệu mẫu chuẩn khớp chính xác với mục 9 của `docs/design/DESIGN-BRIEF.md`.
+- Nạp sẵn dữ liệu mẫu chuẩn nhất quán phục vụ kiểm thử tự động và kịch bản demo E2E.
 - Xây dựng lớp `DataProvider.cs` trong `DAO/` bằng ADO.NET thuần (`Microsoft.Data.SqlClient`).
 - Xây dựng **trọn bộ 8 lớp thực thể trong `Models/`** (`User.cs`, `RoomType.cs`, `Room.cs`, `Customer.cs`, `Service.cs`, `Booking.cs`, `BookingService.cs`, `Invoice.cs`) ngay tại task này để các nhánh `TASK-03..11` dùng chung thống nhất, không bị thiếu `BookingService.cs` hay đụng độ model.
 
 ---
 
 ## 2. Hướng dẫn nghiệp vụ & Luồng xử lý chi tiết (Implementation Details)
-- **Dữ liệu mẫu chuẩn trong `Database/HotelDB.sql`** (đồng bộ Figma & kịch bản demo):
+- **Dữ liệu mẫu chuẩn trong `Database/HotelDB.sql`** (nhất quán toán học với kịch bản kiểm thử `1.070.000 đ`):
   - **2 `Users`**:
     - `admin` / `123456` / `N'Trần Minh Quản'` / `'Administrator'`
     - `staff` / `123456` / `N'Lê Thu Ngân'` / `'Staff'`
   - **4 `RoomTypes`**: Đơn (`500000`), Đôi (`700000`), Gia đình (`950000`), VIP (`1200000`).
-  - **12 `Rooms`**: `101, 102, 103, 201, 202, 203, 301, 302, 303, 305, 401, 402` với phân bổ trạng thái phục vụ demo Sơ đồ phòng: **6 `Trống`, 2 `Đang ở`, 3 `Đã đặt`, 1 `Bảo trì`** (kèm các bản ghi `Bookings` tương ứng cho phòng `Đang ở` và `Đã đặt`).
+  - **12 `Rooms`**: `101, 102, 103, 201, 202, 203, 301, 302, 303, 305, 401, 402` (trong đó Phòng `101` thuộc loại `Đơn` `500.000 đ/đêm` để khớp kịch bản mẫu `2 đêm × 500.000 đ + 70.000 đ dịch vụ = 1.070.000 đ`) với phân bổ trạng thái phục vụ demo Sơ đồ phòng: **6 `Trống`, 2 `Đang ở`, 3 `Đã đặt`, 1 `Bảo trì`** (kèm các bản ghi `Bookings` tương ứng cho phòng `Đang ở` và `Đã đặt`).
   - **5 `Customers`**: có tối thiểu khách mẫu `N'Nguyễn Văn An'`, CCCD `'079201001234'`, SĐT `'0901234567'`, Email `'an.nguyen@example.com'`.
   - **5 `Services`**: Nước suối Lavie (`10000`), Nước ngọt (`15000`), Giặt ủi (`30000`), Ăn sáng buffet (`50000`), Thuê xe máy (`80000`).
 - **`DAO/DataProvider.cs`**:
@@ -48,7 +48,7 @@
 ## 3. Tiêu chí nghiệm thu & Ca biên (Acceptance Criteria & Edge Cases)
 ### Checklist Definition of Done:
 - [ ] Script `Database/HotelDB.sql` chạy lại nhiều lần không lỗi (tự ngắt kết nối cũ / tạo mới `HotelManagementDb`), tạo đủ 8 bảng có khóa chính, khóa ngoại và ràng buộc `CHECK` cho các cột `Status` / `Role`.
-- [ ] Dữ liệu seed khớp chuẩn `DESIGN-BRIEF.md`: 2 Users (`Administrator`/`Staff`), 4 loại phòng, 12 phòng (6 Trống, 2 Đang ở, 3 Đã đặt, 1 Bảo trì), 5 khách hàng, 5 dịch vụ và dữ liệu booking/hóa đơn mẫu.
+- [ ] Dữ liệu seed chuẩn: 2 Users (`Administrator`/`Staff`), 4 loại phòng, 12 phòng (6 Trống, 2 Đang ở, 3 Đã đặt, 1 Bảo trì; Phòng 101 loại Đơn `500.000 đ`), 5 khách hàng, 5 dịch vụ và dữ liệu booking/hóa đơn mẫu.
 - [ ] Cài đặt `Microsoft.Data.SqlClient` và hoàn thiện `DAO/DataProvider.cs` hỗ trợ tham số hóa an toàn cùng cấu hình `HOTEL_DB_CONNECTION`.
 - [ ] Hoàn thiện đủ **8 lớp trong `Models/`**: `User`, `RoomType`, `Room`, `Customer`, `Service`, `Booking`, `BookingService`, `Invoice` kèm mapping `DataRow` chống lỗi `DBNull`.
 - [ ] Viết unit test trong `HotelManagement.Tests` kiểm tra mapping `DataTable`/`DataRow` cho cả 8 Models (bao gồm cột nullable như `Email`, `PaymentDate`, `PaymentMethod`) và bộ tách tham số `@param` của `DataProvider`.

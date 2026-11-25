@@ -1,7 +1,7 @@
 # Specification: Hotel Management System (WPF .NET 10 MVVM)
 
 **Issue Tracker Reference**: [Issue #77](https://github.com/phantatdung233/WPF_QuanLyKhachSan/issues/77)  
-**Design & Wireframe Reference**: [`docs/design/DESIGN-BRIEF.md`](../design/DESIGN-BRIEF.md), [`docs/design/WIREFRAMES.md`](../design/WIREFRAMES.md)  
+**Design System Reference**: [`DESIGN.md`](../../DESIGN.md)  
 **Implementation Window**: `18/11/2026` → `30/12/2026` (6 weeks / 42 days)  
 **Status**: `ready-for-agent`
 
@@ -51,7 +51,7 @@ Phát triển ứng dụng WPF Quản lý Khách sạn chuẩn kiến trúc MVVM
 
 - **Architectural Pattern**: MVVM with `CommunityToolkit.Mvvm` 8.4.2 (`ObservableObject`, `[ObservableProperty]`, `[RelayCommand]`). View navigation is managed via `CurrentView` in `MainViewModel` hosting Views inside a central `ContentControl` mapped by `DataTemplate`s in `App.xaml`. Input forms use modal dialogs (`Window.ShowDialog()`) with inline validation errors rather than raw `MessageBox` spam.
 - **Solution & Cross-Platform Buildability**: Solution `HotelManagement.slnx` hosts `src/HotelManagement/HotelManagement.csproj` (`net10.0-windows`, `<UseWPF>true</UseWPF>`, `<EnableWindowsTargeting>true</EnableWindowsTargeting>`) and `tests/HotelManagement.Tests/HotelManagement.Tests.csproj` (`xUnit`), pinned via `global.json` (`10.0.100`, `rollForward: latestFeature`). Setting `EnableWindowsTargeting=true` ensures `dotnet build` and `dotnet test` run cleanly across Windows, macOS, and GitHub Actions.
-- **UI Framework & Design System**: `WPF-UI` 4.3.0 on `net10.0-windows`, following `docs/design/DESIGN-BRIEF.md` (Windows UI Kit light neutral surfaces `App Surface` / `Card Surface`, Windows accent `#005FB8`, Segoe UI Variable typography, Segoe Fluent Icons, 4px control radius / 8px window-dialog radius, minimum window `1280×720`).
+- **UI Framework & Design System**: `WPF-UI` 4.3.0 on `net10.0-windows`, following `DESIGN.md` at repo root (Google `DESIGN.md` format: light neutral surfaces `AppSurfaceBrush` / `CardSurfaceBrush`, Windows accent `#005FB8`, Segoe UI Variable typography, Segoe Fluent Icons, 4px control radius / 8px window-dialog radius, minimum window `1280×720`, mandatory 4 UI states `Loading` / `Empty` / `Error` / `Success`).
   - **Admin Sidebar (8 items)**: `Sơ đồ phòng`, `Đặt phòng`, `Phòng`, `Loại phòng`, `Khách hàng`, `Dịch vụ`, `Hóa đơn`, `Báo cáo`.
   - **Staff Sidebar (6 items)**: hides `Loại phòng` and `Báo cáo`.
 - **Charting**: `LiveChartsCore.SkiaSharpView.WPF` 2.0.5, used exclusively by the reporting module (`TASK-11`) for a revenue-by-day `CartesianChart` (`LineSeries`).
@@ -73,7 +73,7 @@ Phát triển ứng dụng WPF Quản lý Khách sạn chuẩn kiến trúc MVVM
 - **What Makes a Good Test**: Automated tests verify observable domain behavior and invariants through public interfaces, never private helpers or live SQL Server state. Manual E2E tests verify XAML layout, SQL Server persistence, and projector readiness.
 - **Pre-Agreed Automated Testing Seams (`tests/HotelManagement.Tests` via `xUnit`, run with `dotnet test`)**:
   1. **Scheduling & Booking Seam (`BookingRules`)**: verifies the *Overlap Conflict Rule* (partial overlap, full containment, identical dates, adjacent same-day check-out/check-in allowed, `Đã hủy`/`Hoàn thành` bookings ignored) and date range validation (`CheckOutDate.Date > CheckInDate.Date`).
-  2. **Billing, Receipt & Reporting Seam (`InvoiceCalculator` / `ReportAggregator`)**: verifies *Room Charge Policy* (same-day check-in/out billed as 1 night minimum, multi-night × `PricePerDay` + service lines = `1,070,000 đ` canonical case), *Settlement Invariant* state transitions, UTF-8 `.txt` receipt output formatting, and KPI / daily revenue grouping (including empty date ranges returning `0 đ`).
+  2. **Billing, Receipt & Reporting Seam (`InvoiceCalculator` / `ReportAggregator`)**: verifies *Room Charge Policy* (same-day check-in/out billed as 1 night minimum, multi-night × `PricePerDay` + service lines = `1.070.000 đ` canonical case), *Settlement Invariant* state transitions, UTF-8 `.txt` receipt output formatting, and KPI / daily revenue grouping (including empty date ranges returning `0 đ`).
   3. **Input Validation & Role Seam (`ValidationRules` / `RolePermissions`)**: verifies CCCD (9 or 12 digits), Phone (`0` + 9 digits), `PricePerDay > 0`, `Service.Price >= 0`, `BookingService.Quantity >= 1`, delete-lock predicates (cannot delete `Đang ở` room, in-use room type, or in-use service), and `Administrator` (8 nav items) vs `Staff` (6 nav items) visibility.
 - **End-to-End Demo & Reset Verification (`TASK-12`)**: Full user scenario rehearsal (`Login → Room Matrix → Booking → Check-in → Add Services → Check-out & .txt Export → Revenue Report`) on a clean Windows machine, backed by 1-click re-seeding via `Database/HotelDB.sql` in SSMS.
 
@@ -104,7 +104,7 @@ The backlog comprises 12 tasks (`TASK-01`..`TASK-12`, Issues `#58`–`#65` and `
 
 - **Sprint 0 — Foundation Unlock (`18/11 – 23/11`, 6 days, inside M1)**:
   - Member A completes `TASK-01` (`20/11`, including 8 navigation placeholders & test project) and `TASK-02` (`23/11`, `HotelDB.sql` + `DataProvider` + all 8 `Models/`) so the entire team is unblocked by end of Week 1.
-  - Member B & C finalize Figma Round 1–2 review and prepare unit test cases.
+  - Member B & C review `DESIGN.md` UI contracts and prepare unit test cases.
 - **Milestone 1 (`18/11 – 04/12/2026`) — Application Skeleton, Database & Basic Catalogues**:
   - `TASK-01` (`#58`), `TASK-02` (`#59`), `TASK-03` (`#60`), `TASK-04` (`#61`, prioritized by `29/11` to unlock `TASK-09` early), `TASK-05` (`#78`), `TASK-06` (`#79`).
 - **Milestone 2 (`05/12 – 18/12/2026`) — Core Business Logic, Room Matrix & Invoices**:

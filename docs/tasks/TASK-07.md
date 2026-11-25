@@ -15,33 +15,40 @@
 
 ## 1. Bối cảnh & Mục tiêu kỹ thuật (Architecture & Scope)
 - Xây dựng `BookingDAO.cs` trong `DAO/` và lớp logic thuần `BookingRules.cs` trong `Services/` (seam kiểm thử tự động TDD).
-- Hoàn thiện màn hình `BookingView.xaml` (`BookingList` + `BookingDialog.xaml`) và `BookingViewModel.cs` bám sát quy chuẩn trạng thái tại `docs/design/DESIGN-BRIEF.md` mục 6.4 & `WIREFRAMES.md` mục 8–9.
+- Hoàn thiện màn hình danh sách `BookingView.xaml` + hộp thoại `BookingDialog.xaml` và `BookingViewModel.cs` theo quy trình **2 Pha** (`CLAUDE.md`) và chuẩn `DESIGN.md`.
 - Cho phép tạo phiếu đặt phòng mới (chọn Khách hàng, chọn Phòng hoạt động, chọn Ngày nhận `CheckInDate` & Ngày trả `CheckOutDate`), xem danh sách booking theo 4 trạng thái (`Đã đặt`, `Đang ở`, `Hoàn thành`, `Đã hủy`) và hủy phiếu đang ở trạng thái `Đã đặt`.
 - Áp dụng nghiêm ngặt **Overlap Conflict Rule** trong `GLOSSARY.md` để ngăn chặn tuyệt đối trùng lịch cùng một phòng.
 
 ---
 
-## 2. Hướng dẫn nghiệp vụ & Luồng xử lý chi tiết (Implementation Details)
-- **Seam `Services/BookingRules.cs` (TDD-first)**:
+## 2. Hướng dẫn nghiệp vụ & UI Contract (Theo `DESIGN.md`)
+- **Seam `Services/BookingRules.cs` & `BookingDAO.cs` (Pha 1 — Logic & State First, TDD-first)**:
   - Hàm kiểm tra khoảng ngày hợp lệ: `CheckOutDate.Date > CheckInDate.Date` (nếu `<=` trả về lỗi: `"Ngày trả phòng phải sau ngày nhận phòng ít nhất 1 ngày"`).
-  - Cảnh báo không chặn khi `CheckInDate.Date < DateTime.Today` (tông vàng nhắc lễ tân kiểm tra lại ngày).
+  - Cảnh báo không chặn khi `CheckInDate.Date < DateTime.Today`.
   - Hàm kiểm tra xung đột lịch theo **Overlap Conflict Rule** (`GLOSSARY.md`):
     Với mọi phiếu đặt hiện có của cùng `RoomId` đang ở trạng thái hoạt động (`Đã đặt` hoặc `Đang ở`), xung đột xảy ra khi và chỉ khi:
     `NewCheckIn.Date < ExistingCheckOut.Date && ExistingCheckIn.Date < NewCheckOut.Date`
   - Tính tạm tính tiền phòng ngay trên form: `EstimatedNights = (CheckOutDate.Date - CheckInDate.Date).Days`, `EstimatedRoomCharge = EstimatedNights * PricePerDay`.
-- **Truy vấn kiểm tra trên SQL Server (`BookingDAO.cs`)**:
-  ```sql
-  SELECT BookingId, CheckInDate, CheckOutDate
-  FROM Bookings
-  WHERE RoomId = @roomId
-    AND Status IN (N'Đã đặt', N'Đang ở')
-    AND (@newCheckIn < CheckOutDate AND CheckInDate < @newCheckOut)
-  ```
-  - Nếu có bản ghi trùng: hiển thị banner lỗi đỏ nổi bật ngay trong form (`DESIGN-BRIEF.md` mục 6.4):
-    *"Phòng này đã có người đặt trong khoảng thời gian đã chọn ([CheckIn] – [CheckOut])! Vui lòng chọn khoảng ngày khác hoặc phòng khác."*
-  - Nếu hợp lệ (`0` xung đột): thêm bản ghi `Bookings` với `Status = N'Đã đặt'`; nếu phòng đang ở trạng thái `Trống`, cập nhật `Rooms.Status = N'Đã đặt'`.
-- **Hủy đặt phòng (`Cancelled`)**:
-  - Chỉ cho phép hủy khi `Booking.Status == "Đã đặt"`: chuyển `Bookings.Status = N'Đã hủy'`, và nếu phòng không còn booking hoạt động nào khác thì trả `Rooms.Status` về `N'Trống'`.
+  - Truy vấn kiểm tra trên SQL Server (`BookingDAO.cs`):
+    ```sql
+    SELECT BookingId, CheckInDate, CheckOutDate
+    FROM Bookings
+    WHERE RoomId = @roomId
+      AND Status IN (N'Đã đặt', N'Đang ở')
+      AND (@newCheckIn < CheckOutDate AND CheckInDate < @newCheckOut)
+    ```
+  - Nếu hợp lệ (`0` xung đột): thêm bản ghi `Bookings` với `Status = N'Đã đặt'`; nếu phòng đang `Trống`, cập nhật `Rooms.Status = N'Đã đặt'`.
+  - **Hủy đặt phòng (`Cancelled`)**: chỉ cho phép khi `Booking.Status == "Đã đặt"` → chuyển `Bookings.Status = N'Đã hủy'`, và nếu phòng không còn booking hoạt động nào khác thì trả `Rooms.Status` về `N'Trống'`.
+- **UI Contract (`BookingView` & `BookingDialog` — Pha 2)**:
+  - **Dữ liệu hiển thị**:
+    - `BookingView` (màn chính khi bấm Sidebar `Đặt phòng`): bộ lọc Trạng thái & Phòng, bảng danh sách gồm Mã BK, Khách hàng, Phòng, Khoảng ngày (`dd/MM/yyyy`), Badge `BookingStatus`, Cột Thao tác theo trạng thái.
+    - `BookingDialog`: chọn/tìm Khách hàng, chọn Phòng (ẩn/khóa phòng `Bảo trì`), `CheckInDate`, `CheckOutDate`, khung Tạm tính (`Số đêm × Đơn giá = Tổng tạm tính` theo `#,##0 đ`).
+  - **Primitives bắt buộc (`WPF-UI`)**: `ComboBox`, `ui:TextBox` (tìm khách), `DatePicker`, `DataGrid` (`RowHeight="40"`), modal `ui:FluentWindow` / `ui:ContentDialog`, `ui:InfoBar` (`Severity="Error"` cho trùng lịch, `Severity="Warning"` cho ngày quá khứ), `ui:ProgressRing`, tối đa **1 Primary CTA** `ui:Button` (`Đặt phòng` trên màn danh sách; `Xác nhận đặt phòng` trên dialog).
+  - **4 Trạng thái UI bắt buộc**:
+    1. *Loading*: Hiện `ui:ProgressRing` khi tải danh sách/kiểm tra trùng lịch và khóa nút `Xác nhận đặt phòng` khi đang ghi DB.
+    2. *Empty*: `"Chưa có đặt phòng nào"` hoặc `"Không có đặt phòng phù hợp bộ lọc"` kèm nút `"Xóa bộ lọc"`.
+    3. *Error*: Lỗi thiếu khách/phòng hoặc `CheckOutDate <= CheckInDate` hiện inline; lỗi trùng lịch hiển thị rõ qua `ui:InfoBar` (`Severity="Error"`): *"Phòng này đã có người đặt trong khoảng thời gian đã chọn ([CheckIn] – [CheckOut])! Vui lòng chọn khoảng ngày khác hoặc phòng khác."* Cảnh báo ngày quá khứ dùng `ui:InfoBar` (`Severity="Warning"`).
+    4. *Success*: Cập nhật trực tiếp tiền tạm tính khi đổi ngày/phòng, lưu thành công cập nhật bảng và đổi trạng thái phòng sang `Đã đặt`.
 
 ---
 

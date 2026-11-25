@@ -31,8 +31,8 @@ An individual lodging unit identified by a unique room code, belonging to a Room
 _Avoid_: Chamber, unit
 
 **RoomStatus**:
-The operational lifecycle state of a Room: `Available` (ready for check-in), `Reserved` (booked in advance), `Occupied` (guest staying), and `Maintenance` (out of order).
-_Avoid_: Trạng thái phòng, condition
+The operational lifecycle state of a Room: `Available` (`Trống` — ready for check-in), `Reserved` (`Đã đặt` — booked in advance), `Occupied` (`Đang ở` — guest staying), and `Maintenance` (`Bảo trì` — out of order).
+_Avoid_: Trạng thái phòng (as a code identifier), condition
 
 ## Customers & Services
 
@@ -51,7 +51,7 @@ A reservation record linking a Customer and a Room over a defined time interval 
 _Avoid_: Reservation, order, phiếu thuê
 
 **BookingStatus**:
-The lifecycle state of a Booking: `Reserved` (created in advance), `Occupied` (checked in), `Completed` (checked out and settled), and `Cancelled` (revoked prior to stay).
+The lifecycle state of a Booking: `Reserved` (`Đã đặt` — created in advance), `Occupied` (`Đang ở` — checked in), `Completed` (`Hoàn thành` — checked out and settled), and `Cancelled` (`Đã hủy` — revoked prior to stay).
 _Avoid_: State, stage
 
 **BookingService**:
@@ -73,7 +73,7 @@ The financial statement generated upon check-out detailing room charges and all 
 _Avoid_: Bill, receipt; hóa đơn is fine as the Vietnamese UI label
 
 **InvoiceStatus**:
-The payment state of an Invoice: `Pending` (unpaid) and `Paid` (settled via cash or bank transfer).
+The payment state of an Invoice: `Pending` (`Chưa thanh toán` — unpaid) and `Paid` (`Đã thanh toán` — settled via cash `Tiền mặt` or bank transfer `Chuyển khoản`).
 _Avoid_: Thanh toán (except as the Vietnamese UI label)
 
 **Settlement Invariant**:

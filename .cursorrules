@@ -1,0 +1,21 @@
+# Cursor & IDE Agent Rules — Hotel Management System (IT008)
+# Stack: C# .NET 10 WPF (net10.0-windows) · CommunityToolkit.Mvvm 8.4.2 · WPF-UI 4.3.0 · LiveCharts2 2.0.5 · SQL Server ADO.NET
+
+1. Sources of Truth:
+   - Domain rules & formulas: `GLOSSARY.md` and `docs/specs/hotel-management-system.md` (SPEC #77).
+   - Design tokens, primitives & anti-slop rules: `DESIGN.md` (Google DESIGN.md format at repo root).
+   - Ticket scope & UI Contract: `docs/tasks/<TASK-ID>.md`.
+   - NEVER use raw Figma MCP designs or removed `design-brief` / wireframe files.
+
+2. Mandatory 2-Phase Issue Execution:
+   - Phase 1 (Logic & State First): Build Models, parameterized ADO.NET DAOs, pure TDD Services, and ViewModels (exposing Loading, Empty, Error, Success states). Run `dotnet build` and `dotnet test` until 100% green BEFORE styling XAML.
+   - Phase 2 (UI Assembly & Verification): Read `DESIGN.md` (+ user-attached screenshot if present). Assemble XAML using ONLY `WPF-UI` primitives (`ui:FluentWindow`, `ui:NavigationView`, `ui:Button`, `ui:TextBox`, `ui:PasswordBox`, `ui:NumberBox`, `ComboBox`, `DatePicker`, `DataGrid`, `ui:ContentDialog`, `ui:InfoBar`) and `{StaticResource}` tokens from `Resources/Colors.xaml` & `Resources/Styles.xaml`.
+
+3. Anti-Slop Guardrails:
+   - No custom `<ControlTemplate>` rewrites for standard buttons, inputs, dropdowns, or modals.
+   - No inline hex colors (`#...`) outside `Resources/Colors.xaml`.
+   - All `Margin` and `Padding` values must be multiples of 4px (`0, 4, 8, 12, 16, 24, 32`).
+   - Maximum 1 Primary CTA (`Appearance="Primary"`) per screen or dialog.
+   - Neutral `CardSurfaceBrush` on all KPI and Room cards; use the 4 fixed `RoomStatus` colors (`#48BB78`, `#F56565`, `#ED8936`, `#A0AEC0`) only on status bars/dots/badges via XAML `DataTrigger`.
+   - Every data screen/form must handle all 4 states: Loading, Empty, Error, Success.
+   - Verify `dotnet build` + `dotnet test` and check layout at `1280x800` / `1280x720` before finishing.
