@@ -2,25 +2,25 @@
 
 **Issue Tracker Reference**: [Issue #77](https://github.com/phantatdung233/WPF_QuanLyKhachSan/issues/77)  
 **Design System Reference**: [`DESIGN.md`](../../DESIGN.md)  
-**Implementation Window**: `18/11/2026` → `30/12/2026` (6 weeks / 42 days)  
+**Agent Workflow Reference**: [`CLAUDE.md`](../../CLAUDE.md), [`AGENTS.md`](../../AGENTS.md)  
 **Status**: `ready-for-agent`
 
 ---
 
 ## Problem Statement
 
-Quản lý khách sạn truyền thống bằng sổ sách hoặc bảng tính Excel dễ dẫn đến sai sót: trùng lịch phòng (overbooking), thất thoát chi phí dịch vụ phát sinh khi khách lưu trú, tính sai hóa đơn khi trả phòng, và khó nắm bắt tổng quan tình trạng phòng theo thời gian thực. Đồ án IT008 (Lập trình trực quan) cần một ứng dụng desktop trực quan, tin cậy xây dựng trên nền tảng .NET 10 WPF MVVM, đáp ứng đầy đủ chu trình vận hành khách sạn khép kín và phù hợp với năng lực triển khai thực tế của nhóm 3 sinh viên trong 6 tuần (`18/11/2026` – `30/12/2026`).
+Quản lý khách sạn truyền thống bằng sổ sách hoặc bảng tính Excel dễ dẫn đến sai sót: trùng lịch phòng (overbooking), thất thoát chi phí dịch vụ phát sinh khi khách lưu trú, tính sai hóa đơn khi trả phòng, và khó nắm bắt tổng quan tình trạng phòng theo thời gian thực. Đồ án IT008 (Lập trình trực quan) cần một ứng dụng desktop trực quan, tin cậy xây dựng trên nền tảng .NET 10 WPF MVVM dưới thương hiệu **AURA HOTEL**, đáp ứng đầy đủ chu trình vận hành khách sạn khép kín cho nhóm 3 thành viên.
 
 ## Solution
 
-Phát triển ứng dụng WPF Quản lý Khách sạn chuẩn kiến trúc MVVM (`CommunityToolkit.Mvvm`) với giao diện Fluent dựa trên `WPF-UI` và quy chuẩn **Windows UI Kit**, kết nối cơ sở dữ liệu Microsoft SQL Server (SSMS & SQL Server Express) qua tầng truy cập dữ liệu ADO.NET thuần (`DataProvider.cs`). Ứng dụng cung cấp:
+Phát triển ứng dụng WPF Quản lý Khách sạn chuẩn kiến trúc MVVM (`CommunityToolkit.Mvvm`) với giao diện Fluent dựa trên `WPF-UI` theo quy chuẩn [`DESIGN.md`](../../DESIGN.md), kết nối cơ sở dữ liệu Microsoft SQL Server (SSMS & SQL Server Express) qua tầng truy cập dữ liệu ADO.NET thuần (`DataProvider.cs`). Ứng dụng cung cấp:
 
 - Hệ thống xác thực và phân quyền rõ ràng (`Administrator` và `Staff`) dựa trên bảng `Users`, ẩn các mục quản trị đối với lễ tân.
-- Quản lý danh mục cơ bản (Loại phòng, Phòng, Khách hàng, Dịch vụ) với đầy đủ trạng thái rỗng, tìm kiếm/lọc và khóa xóa an toàn.
+- Quản lý danh mục cơ bản (Loại phòng, Phòng, Khách hàng, Dịch vụ) với đầy đủ 4 trạng thái UI bắt buộc (`Loading`, `Empty`, `Error`, `Success`), tìm kiếm/lọc thời gian thực và khóa xóa an toàn.
 - Thuật toán kiểm tra và ngăn chặn xung đột trùng lịch đặt phòng (theo *Overlap Conflict Rule* trong `GLOSSARY.md`).
 - Chu trình lưu trú khép kín: Đặt phòng → Check-in nhận phòng → Gọi dịch vụ phòng → Check-out thanh toán hóa đơn.
-- **Tính năng nâng cao 1**: Sơ đồ phòng trực quan (Room Matrix) giữ nền thẻ sáng trung tính (`Card Surface`) và tự động đổi màu vạch/nhãn chỉ báo theo 4 trạng thái phòng bằng XAML `DataTrigger` (Xanh lá `#48BB78`: Trống, Đỏ `#F56565`: Đang ở, Cam `#ED8936`: Đã đặt, Xám `#A0AEC0`: Bảo trì).
-- **Tính năng nâng cao 2**: Xem trước biên lai monospace và xuất hóa đơn thanh toán chuẩn UTF-8 ra file văn bản (`.txt`) hoặc in ấn khi hoàn tất trả phòng.
+- **Tính năng nâng cao 1**: Sơ đồ phòng trực quan (Room Matrix) giữ nền thẻ sáng trung tính (`CardSurfaceBrush`) và tự động đổi màu vạch/nhãn chỉ báo theo 4 trạng thái phòng bằng XAML `DataTrigger` (Xanh lá `#48BB78`: Trống, Đỏ `#F56565`: Đang ở, Cam `#ED8936`: Đã đặt, Xám `#A0AEC0`: Bảo trì).
+- **Tính năng nâng cao 2**: Xem trước biên lai monospace và xuất hóa đơn thanh toán chuẩn UTF-8 ra file văn bản (`.txt`) khi hoàn tất trả phòng.
 - Màn hình Báo cáo & Thống kê doanh thu với 3 thẻ KPI bề mặt trung tính, thanh tiến trình tỷ lệ công suất phòng (`ProgressBar`), biểu đồ đường doanh thu theo ngày (`LiveCharts2`) và bảng chi tiết hóa đơn đã thanh toán.
 
 ## User Stories
@@ -49,33 +49,29 @@ Phát triển ứng dụng WPF Quản lý Khách sạn chuẩn kiến trúc MVVM
 
 ## Implementation Decisions
 
-- **Architectural Pattern**: MVVM with `CommunityToolkit.Mvvm` 8.4.2 (`ObservableObject`, `[ObservableProperty]`, `[RelayCommand]`). View navigation is managed via `CurrentView` in `MainViewModel` hosting Views inside a central `ContentControl` mapped by `DataTemplate`s in `App.xaml`. Input forms use modal dialogs (`Window.ShowDialog()`) with inline validation errors rather than raw `MessageBox` spam.
-- **Solution & Cross-Platform Buildability**: Solution `HotelManagement.slnx` hosts `src/HotelManagement/HotelManagement.csproj` (`net10.0-windows`, `<UseWPF>true</UseWPF>`, `<EnableWindowsTargeting>true</EnableWindowsTargeting>`) and `tests/HotelManagement.Tests/HotelManagement.Tests.csproj` (`xUnit`), pinned via `global.json` (`10.0.100`, `rollForward: latestFeature`). Setting `EnableWindowsTargeting=true` ensures `dotnet build` and `dotnet test` run cleanly across Windows, macOS, and GitHub Actions.
-- **UI Framework & Design System**: `WPF-UI` 4.3.0 on `net10.0-windows`, following `DESIGN.md` at repo root (Google `DESIGN.md` format: light neutral surfaces `AppSurfaceBrush` / `CardSurfaceBrush`, Windows accent `#005FB8`, Segoe UI Variable typography, Segoe Fluent Icons, 4px control radius / 8px window-dialog radius, minimum window `1280×720`, mandatory 4 UI states `Loading` / `Empty` / `Error` / `Success`).
+- **Architectural Pattern & 2-Phase Execution**: MVVM with `CommunityToolkit.Mvvm` 8.4.2 (`ObservableObject`, `[ObservableProperty]`, `[RelayCommand]`), executed strictly in two phases per [`CLAUDE.md`](../../CLAUDE.md) (Phase 1: Logic, DAO, TDD Seams & 4-state ViewModels passing `dotnet test`; Phase 2: XAML assembly from `DESIGN.md`). View navigation is managed via `CurrentView` in `MainViewModel` hosting Views inside a central `ContentControl` mapped by `DataTemplate`s in `App.xaml`.
+- **Solution & Cross-Platform Buildability**: Solution `HotelManagement.slnx` hosts `src/HotelManagement/HotelManagement.csproj` (`net10.0-windows`, `<UseWPF>true</UseWPF>`, `<EnableWindowsTargeting>true</EnableWindowsTargeting>`) and `tests/HotelManagement.Tests/HotelManagement.Tests.csproj` (`xUnit`), pinned via `global.json` (`10.0.100`, `rollForward: latestFeature`).
+- **UI Framework & Design System**: `WPF-UI` 4.3.0 on `net10.0-windows`, governed by [`DESIGN.md`](../../DESIGN.md) at repo root (Google `DESIGN.md` format: light neutral surfaces `AppSurfaceBrush` / `CardSurfaceBrush`, Windows accent `#005FB8`, Segoe UI Variable typography, 4px control radius / 8px container radius, minimum window `1280×720`, mandatory 4 UI states `Loading` / `Empty` / `Error` / `Success`).
   - **Admin Sidebar (8 items)**: `Sơ đồ phòng`, `Đặt phòng`, `Phòng`, `Loại phòng`, `Khách hàng`, `Dịch vụ`, `Hóa đơn`, `Báo cáo`.
   - **Staff Sidebar (6 items)**: hides `Loại phòng` and `Báo cáo`.
-- **Charting**: `LiveChartsCore.SkiaSharpView.WPF` 2.0.5, used exclusively by the reporting module (`TASK-11`) for a revenue-by-day `CartesianChart` (`LineSeries`).
+- **Charting**: `LiveChartsCore.SkiaSharpView.WPF` 2.0.5, used exclusively by the reporting module (`#64`) for a revenue-by-day `CartesianChart` (`LineSeries`).
 - **Database & Persistence**: Microsoft SQL Server (SSMS / SQL Server Express / LocalDB). Schema and deterministic seed data live in `Database/HotelDB.sql` with 8 core tables: `Users`, `RoomTypes`, `Rooms`, `Customers`, `Bookings`, `Services`, `BookingServices`, `Invoices`.
-- **Data Access Layer**: Pure ADO.NET (`Microsoft.Data.SqlClient`) via singleton/shared `DataProvider.cs` (reading `HOTEL_DB_CONNECTION` env var with fallback to `.\SQLEXPRESS`) and parameterized DAOs (`UserDAO`, `RoomTypeDAO`, `RoomDAO`, `CustomerDAO`, `ServiceDAO`, `BookingDAO`, `BookingServiceDAO`, `InvoiceDAO`). All 8 entity classes in `Models/` are created up front in `TASK-02` alongside the schema to prevent cross-branch model drift.
-- **Domain Status & Role Representations**:
-  - `Users.Role` stores canonical English glossary identifiers `'Administrator'` and `'Staff'` in SQL (displayed in Vietnamese UI as `Quản trị` and `Lễ tân`).
-  - Status columns store canonical Vietnamese strings defined in `GLOSSARY.md`:
-    - `Rooms.Status` (`RoomStatus`): `Trống`, `Đang ở`, `Đã đặt`, `Bảo trì`.
-    - `Bookings.Status` (`BookingStatus`): `Đã đặt`, `Đang ở`, `Hoàn thành`, `Đã hủy`.
-    - `Invoices.Status` (`InvoiceStatus`): `Chưa thanh toán`, `Đã thanh toán`.
-- **Booking Overlap Logic**: implements the *Overlap Conflict Rule* defined in `GLOSSARY.md` (`NewCheckIn < ExistingCheckOut && ExistingCheckIn < NewCheckOut` against bookings in `Đã đặt` or `Đang ở`).
-- **Pricing & Settlement Policy**: implements the *Room Charge Policy* (`Math.Max(1, (CheckOut.Date - CheckIn.Date).Days) * PricePerDay` + sum of `BookingServices`) and *Settlement Invariant* in `GLOSSARY.md`.
-- **Visual Room Matrix**: Implemented with `ItemsControl` + `WrapPanel` where each card keeps a neutral `Card Surface` background and uses XAML `DataTrigger` on `Status` to bind the status indicator bar/badge brush (`#48BB78`, `#F56565`, `#ED8936`, `#A0AEC0` in `Resources/Colors.xaml`).
-- **Reporting & Dashboard**: Neutral `Card Surface` KPI cards (hierarchy via typography, never 3 solid colored card backgrounds), `ProgressBar` occupancy meter, `LiveCharts2` daily revenue line chart, and date-filtered `DataGrid` of paid invoices.
+- **Data Access Layer**: Pure ADO.NET (`Microsoft.Data.SqlClient`) via shared `DataProvider.cs` (`HOTEL_DB_CONNECTION` env var with fallback to `.\SQLEXPRESS`) and parameterized DAOs (`UserDAO`, `RoomTypeDAO`, `RoomDAO`, `CustomerDAO`, `ServiceDAO`, `BookingDAO`, `BookingServiceDAO`, `InvoiceDAO`). All 8 entity classes in `Models/` are created up front in `#59` alongside the schema to prevent cross-branch model drift.
+- **Domain Status & Role Representations (`GLOSSARY.md`)**:
+  - `Users.Role`: `'Administrator'` (`Quản trị`) and `'Staff'` (`Lễ tân`).
+  - `Rooms.Status` (`RoomStatus`): `Trống`, `Đang ở`, `Đã đặt`, `Bảo trì`.
+  - `Bookings.Status` (`BookingStatus`): `Đã đặt`, `Đang ở`, `Hoàn thành`, `Đã hủy`.
+  - `Invoices.Status` (`InvoiceStatus`): `Chưa thanh toán`, `Đã thanh toán`.
+  - Currency format: dot thousands separator `#,##0 đ` (`500.000 đ`, `1.070.000 đ`).
 
 ## Testing Decisions
 
 - **What Makes a Good Test**: Automated tests verify observable domain behavior and invariants through public interfaces, never private helpers or live SQL Server state. Manual E2E tests verify XAML layout, SQL Server persistence, and projector readiness.
 - **Pre-Agreed Automated Testing Seams (`tests/HotelManagement.Tests` via `xUnit`, run with `dotnet test`)**:
-  1. **Scheduling & Booking Seam (`BookingRules`)**: verifies the *Overlap Conflict Rule* (partial overlap, full containment, identical dates, adjacent same-day check-out/check-in allowed, `Đã hủy`/`Hoàn thành` bookings ignored) and date range validation (`CheckOutDate.Date > CheckInDate.Date`).
+  1. **Scheduling & Booking Seam (`BookingRules`)**: verifies the *Overlap Conflict Rule* (partial overlap, full containment, identical dates, adjacent same-day check-out/check-in allowed, `Đã hủy`/`Hoàn thành` bookings ignored), state transition guards, and date range validation (`CheckOutDate.Date > CheckInDate.Date`).
   2. **Billing, Receipt & Reporting Seam (`InvoiceCalculator` / `ReportAggregator`)**: verifies *Room Charge Policy* (same-day check-in/out billed as 1 night minimum, multi-night × `PricePerDay` + service lines = `1.070.000 đ` canonical case), *Settlement Invariant* state transitions, UTF-8 `.txt` receipt output formatting, and KPI / daily revenue grouping (including empty date ranges returning `0 đ`).
-  3. **Input Validation & Role Seam (`ValidationRules` / `RolePermissions`)**: verifies CCCD (9 or 12 digits), Phone (`0` + 9 digits), `PricePerDay > 0`, `Service.Price >= 0`, `BookingService.Quantity >= 1`, delete-lock predicates (cannot delete `Đang ở` room, in-use room type, or in-use service), and `Administrator` (8 nav items) vs `Staff` (6 nav items) visibility.
-- **End-to-End Demo & Reset Verification (`TASK-12`)**: Full user scenario rehearsal (`Login → Room Matrix → Booking → Check-in → Add Services → Check-out & .txt Export → Revenue Report`) on a clean Windows machine, backed by 1-click re-seeding via `Database/HotelDB.sql` in SSMS.
+  3. **Input Validation & Role Seam (`ValidationRules` / `RolePermissions`)**: verifies CCCD (9 or 12 digits), Phone (`0` + 9 digits), `PricePerDay > 0`, `Service.Price >= 0`, `BookingService.Quantity >= 1`, delete-lock predicates, and `Administrator` (8 nav items) vs `Staff` (6 nav items) visibility.
+- **End-to-End Demo & Reset Verification (`#65`)**: Full user scenario rehearsal (`Login → Room Matrix → Booking → Check-in → Add Services → Check-out & .txt Export → Revenue Report`) on a clean Windows machine (`1280×720`), backed by 1-click re-seeding via `Database/HotelDB.sql` in SSMS.
 
 ## Out of Scope
 
@@ -84,44 +80,39 @@ Phát triển ứng dụng WPF Quản lý Khách sạn chuẩn kiến trúc MVVM
 - Payment gateway integrations (VNPay, MoMo, Stripe) — manual cash (`Tiền mặt`) and bank transfer (`Chuyển khoản`) recording only.
 - Keycard hardware, thermal printer drivers, PDF rendering libraries, or dark-mode theme switching.
 
-## Sub-Issues / Task Graph
+## Sub-Issues & Goal-Oriented Milestones (Single Source of Truth on GitHub)
 
-The backlog comprises 12 tasks (`TASK-01`..`TASK-12`, Issues `#58`–`#65` and `#78`–`#81`) tracked as sub-issues of `#77` with native GitHub blocking edges:
+All 14 vertical-slice tickets (`#58`–`#65`, `#78`–`#83`) are tracked directly as GitHub sub-issues of `#77` with native `blocked_by` dependencies across **4 Goal-Oriented Demoable Milestones** (no arbitrary fixed calendar deadlines — each milestone closes when its demoable increment is complete):
 
-- `TASK-01` (`#58`): Blocked by `None` (frontier root).
-- `TASK-02` (`#59`): Blocked by `#58` (`TASK-01`).
-- `TASK-03` (`#60`), `TASK-04` (`#61`), `TASK-05` (`#78`), `TASK-06` (`#79`): Blocked by `#59` (`TASK-02`).
-- `TASK-07` (`#62`): Blocked by `#61` (`TASK-04`) and `#78` (`TASK-05`).
-- `TASK-09` (`#81`): Blocked by `#61` (`TASK-04`).
-- `TASK-08` (`#80`): Blocked by `#62` (`TASK-07`) and `#79` (`TASK-06`).
-- `TASK-10` (`#63`): Blocked by `#80` (`TASK-08`).
-- `TASK-11` (`#64`): Blocked by `#63` (`TASK-10`).
-- `TASK-12` (`#65`): Blocked by `#81` (`TASK-09`), `#63` (`TASK-10`), and `#64` (`TASK-11`).
+### Mốc 1: Khung Nền Tảng & Đăng Nhập Phân Quyền (Walking Skeleton)
+- `#58` — Khởi tạo Solution WPF .NET 10, Test Project & Khung Điều Hướng Shell *(Blocked by: None)*
+- `#59` — Thiết kế CSDL SQL Server 8 bảng, Seed Data chuẩn, 8 Models & DataProvider *(Blocked by: `#58`)*
+- `#60` — Đăng nhập xác thực SQL (Login MVVM) & Phiên phân quyền Administrator / Staff *(Blocked by: `#59`)*
 
-## Delivery Plan (`18/11/2026` → `30/12/2026` — 6 Weeks)
+### Mốc 2: Danh Mục Cơ Bản & Sơ Đồ Phòng Trực Quan
+- `#82` — Quản lý danh mục Loại phòng (RoomType CRUD — Admin) *(Blocked by: `#59`)*
+- `#61` — Quản lý danh mục Phòng & Bộ lọc kép (Room CRUD) *(Blocked by: `#82`)*
+- `#78` — Quản lý danh mục Khách hàng & Tìm kiếm thời gian thực (Customer CRUD) *(Blocked by: `#59`)*
+- `#79` — Quản lý danh mục Dịch vụ khách sạn (Service CRUD) *(Blocked by: `#59`)*
+- `#81` — Sơ đồ phòng trực quan với XAML DataTrigger (Room Matrix) *(Blocked by: `#61`)*
 
-### Milestones & Schedule (Critical-Path Compressed)
+### Mốc 3: Chu Trình Lưu Trú & Thanh Toán Hóa Đơn
+- `#62` — Đặt phòng mới, Danh sách Booking & Thuật toán chống trùng lịch *(Blocked by: `#61`, `#78`)*
+- `#80` — Vận hành nhận phòng (Check-in) & Khởi tạo trả phòng (Check-out) *(Blocked by: `#62`)*
+- `#83` — Gọi dịch vụ phòng khi lưu trú (BookingServices & AddServiceDialog) *(Blocked by: `#80`, `#79`)*
+- `#63` — Thanh toán Hóa đơn nguyên tử & Xem trước / Xuất biên lai (.txt) *(Blocked by: `#80`, `#83`)*
 
-- **Sprint 0 — Foundation Unlock (`18/11 – 23/11`, 6 days, inside M1)**:
-  - Member A completes `TASK-01` (`20/11`, including 8 navigation placeholders & test project) and `TASK-02` (`23/11`, `HotelDB.sql` + `DataProvider` + all 8 `Models/`) so the entire team is unblocked by end of Week 1.
-  - Member B & C review `DESIGN.md` UI contracts and prepare unit test cases.
-- **Milestone 1 (`18/11 – 04/12/2026`) — Application Skeleton, Database & Basic Catalogues**:
-  - `TASK-01` (`#58`), `TASK-02` (`#59`), `TASK-03` (`#60`), `TASK-04` (`#61`, prioritized by `29/11` to unlock `TASK-09` early), `TASK-05` (`#78`), `TASK-06` (`#79`).
-- **Milestone 2 (`05/12 – 18/12/2026`) — Core Business Logic, Room Matrix & Invoices**:
-  - `TASK-09` (`#81`, starts early `30/11 – 08/12` right after `TASK-04`), `TASK-07` (`#62`, `05/12 – 10/12`), `TASK-08` (`#80`, `11/12 – 15/12`), `TASK-10` (`#63`, `15/12 – 19/12`).
-- **Milestone 3 (`19/12 – 30/12/2026`) — Reporting, Feature Freeze & Demo Finalisation**:
-  - `TASK-11` (`#64`, `20/12 – 24/12` — **Feature Freeze on `24/12/2026`**).
-  - `TASK-12` (`#65`, `25/12 – 30/12` — 6-day buffer for clean-machine E2E QA, 1-click SQL reset check, slide deck, and 2 rehearsals on `28/12` & `29/12`).
+### Mốc 4: Báo Cáo Doanh Thu & Kiểm Thử Tổng Duyệt
+- `#64` — Báo cáo KPI, Công suất phòng & Biểu đồ doanh thu ngày (LiveCharts2) *(Blocked by: `#63`)*
+- `#65` — Kiểm thử tích hợp E2E, Soạn Slide & Tổng duyệt Demo *(`ready-for-human`, Blocked by: `#60`, `#81`, `#63`, `#64`)*
 
-### Team Allocation (4 tasks each)
-
-- **Member A (@phantatdung233) — platform, auth and room management**: `TASK-01` (`#58`), `TASK-02` (`#59`), `TASK-03` (`#60`), `TASK-04` (`#61`), plus PR integration review on `develop` during M2–M3.
-- **Member B (@xuanduong29) — customer, service and stay workflow**: `TASK-05` (`#78`), `TASK-06` (`#79`), `TASK-07` (`#62`), `TASK-08` (`#80`).
-- **Member C (@ngocthuyen1) — visual room matrix, billing, reporting and demo**: `TASK-09` (`#81`), `TASK-10` (`#63`), `TASK-11` (`#64`), `TASK-12` (`#65`).
+### Team Allocation
+- **Member A (@phantatdung233) — Platform, Auth & Room Infrastructure (5 issues)**: `#58`, `#59`, `#60`, `#82`, `#61` (+ integration PR review).
+- **Member B (@xuanduong29) — Customer, Service & Stay Lifecycle (5 issues)**: `#78`, `#79`, `#62`, `#80`, `#83`.
+- **Member C (@ngocthuyen1) — Visual Room Matrix, Billing, Analytics & Demo (4 issues)**: `#81`, `#63`, `#64`, `#65`.
 
 ### Git Conventions
-
 - Protected branch: `main` (stable build used for submission and demo).
 - Integration branch: `develop` (kept fast-forwarded with `main` before cutting feature branches).
-- Feature branches: `feature/<task-name>`, cut from `develop`.
-- Merge into `develop` only after `dotnet build` + `dotnet test` pass and a teammate verifies the feature.
+- Feature branches: `feature/<slice-name>`, cut from `develop`.
+- Merge into `develop` only after both Phase 1 (`dotnet build` + `dotnet test`) and Phase 2 (`DESIGN.md` check) pass and a teammate reviews the PR.

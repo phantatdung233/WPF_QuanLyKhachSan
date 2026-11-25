@@ -1,17 +1,17 @@
 # CLAUDE.md — Project Agent Guidelines
 
-Hotel Management System (C# .NET 10 WPF MVVM + `WPF-UI` 4.3.0 + `LiveCharts2` 2.0.5 + SQL Server ADO.NET) — IT008.
+Hotel Management System (**AURA HOTEL** — C# .NET 10 WPF MVVM + `WPF-UI` 4.3.0 + `LiveCharts2` 2.0.5 + SQL Server ADO.NET) — IT008.
 
 ## Canonical Context Pointers
 
 - **Domain Glossary**: Read `GLOSSARY.md` before naming entities, statuses (`RoomStatus`, `BookingStatus`, `InvoiceStatus`), or implementing scheduling/billing formulas.
-- **System Specification**: Read `docs/specs/hotel-management-system.md` (Issue #77) for architecture, 21 user stories, and TDD testing seams.
+- **System Specification**: Read `docs/specs/hotel-management-system.md` (Issue `#77`) for architecture, 21 user stories, and automated testing seams.
 - **Design System**: Read `DESIGN.md` at repo root (Google `DESIGN.md` spec) for normative YAML tokens, mandatory `WPF-UI` primitives, spacing/radius rules, and the 4 mandatory UI states.
-- **Task Guides & Issue Tracker**: Read `docs/tasks/<TASK-ID>.md` for ticket scope and UI Contracts; manage GitHub Issues via `gh` CLI (`docs/agents/issue-tracker.md` and `docs/agents/triage-labels.md`).
+- **Issue Tracker (Single Source of Truth for Tickets)**: GitHub Issues via `gh` CLI (`docs/agents/issue-tracker.md` and `docs/agents/triage-labels.md`). Fetch the target issue (`gh issue view <number>`) before starting work.
 
 ## Hard Design & Source Rules
 
-1. **Zero Figma AI / Legacy Brief Dependency**: Never read raw designs from Figma MCP and never reference removed `design-brief` or wireframe branches/files. `DESIGN.md` + the issue's **UI Contract** (+ user-attached reference screenshot, if any) are the sole UI sources of truth.
+1. **Zero Figma AI / Legacy Brief Dependency**: Never read raw designs from Figma MCP and never reference legacy `design-brief` or wireframe files. `DESIGN.md` + the GitHub Issue's **UI Contract** (+ user-attached reference screenshot, if any) are the sole UI sources of truth.
 2. **Domain Wins Over Visuals**: Whenever a visual mockup conflicts with `GLOSSARY.md` or `docs/specs/hotel-management-system.md`, enforce `GLOSSARY.md` and flag the conflict.
 
 ## Mandatory 2-Phase Execution for Every GitHub Issue
@@ -35,6 +35,6 @@ Execute every ticket strictly in two sequential phases. Never mix initial logic 
    - Maximum **1 Primary CTA** (`Appearance="Primary"`) per view or dialog.
    - Render all **4 Mandatory States** (`Loading`, `Empty`, `Error`, `Success`).
 4. **Phase 2 Gate**:
-   - Run static anti-slop scan on `Views/` (no inline hex colors, no custom button `ControlTemplate`, grid-aligned `Margin`/`Padding`).
+   - Scan modified `Views/` for inline hex colors, custom button `ControlTemplate`s, and non-4px margins/paddings.
    - Run `dotnet build` and `dotnet test` with zero errors.
    - On Windows (or visual verification target), verify layout at `1280×800` and `1280×720` with zero clipped controls or horizontal overflow before reporting completion.

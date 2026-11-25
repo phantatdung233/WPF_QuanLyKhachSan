@@ -1,120 +1,69 @@
-# Hotel Management System — Quản Lý Khách Sạn
+# Hotel Management System — Quản Lý Khách Sạn (AURA HOTEL)
 
 [![.NET 10](https://img.shields.io/badge/.NET-10.0-512BD4)](https://dotnet.microsoft.com)
 [![MVVM Toolkit](https://img.shields.io/badge/MVVM-CommunityToolkit-68217A)](https://learn.microsoft.com/dotnet/communitytoolkit/mvvm)
 [![WPF-UI](https://img.shields.io/badge/UI%20Shell-WPF--UI-5B5BD6)](https://wpfui.lepo.co)
 [![LiveCharts2](https://img.shields.io/badge/Charts-LiveCharts2-2EA043)](https://livecharts.dev)
-
 [![WPF](https://img.shields.io/badge/Platform-WPF-0078D4)](https://learn.microsoft.com/dotnet/desktop/wpf)
 [![SQL Server](https://img.shields.io/badge/DB-SQL%20Server-CC2927)](https://www.microsoft.com/sql-server)
 
-Đồ án môn IT008 (Lập trình trực quan): ứng dụng desktop quản lý khách sạn —
-quản lý danh mục phòng/khách hàng/dịch vụ, đặt phòng chống trùng lịch,
-check-in/check-out, hóa đơn thanh toán và báo cáo doanh thu.
+Đồ án môn IT008 (Lập trình trực quan): ứng dụng desktop quản lý khách sạn **AURA HOTEL** — quản lý danh mục phòng/khách hàng/dịch vụ, đặt phòng chống trùng lịch, check-in/check-out, hóa đơn thanh toán xuất `.txt` và báo cáo doanh thu.
 
-## Mục lục
-
-- [Tính năng](#tính-năng)
-- [Công nghệ](#công-nghệ)
-- [Yêu cầu môi trường](#yêu-cầu-môi-trường)
-- [Cài đặt và chạy](#cài-đặt-và-chạy)
-- [Tài khoản demo](#tài-khoản-demo)
-- [Cấu trúc dự án](#cấu-trúc-dự-án)
-- [Quy tắc nghiệp vụ](#quy-tắc-nghiệp-vụ)
-- [Tài liệu](#tài-liệu)
-- [Thành viên](#thành-viên)
-
-## Tính năng
+## Tính năng cốt lõi
 
 | Nhóm | Nội dung |
 | ---- | -------- |
-| Danh mục | Quản lý loại phòng, phòng, khách hàng, dịch vụ (CRUD + tìm kiếm) |
-| Đặt phòng | Tạo phiếu đặt phòng, kiểm tra trùng lịch tự động |
-| Lưu trú | Check-in, gọi dịch vụ phòng, check-out |
-| Thanh toán | Tính tiền phòng + dịch vụ, xuất hóa đơn ra file `.txt` |
-| Trực quan | Sơ đồ phòng đổi màu theo trạng thái (DataTrigger) |
-| Báo cáo | KPI doanh thu, công suất phòng, danh sách hóa đơn theo khoảng ngày |
+| Danh mục | Quản lý loại phòng, phòng, khách hàng, dịch vụ (CRUD + tìm kiếm + khóa xóa an toàn) |
+| Đặt phòng | Tạo phiếu đặt phòng, kiểm tra trùng lịch tự động (*Overlap Conflict Rule*) |
+| Lưu trú | Check-in nhận phòng, gọi dịch vụ phòng (*snapshot UnitPrice*), khởi tạo check-out |
+| Thanh toán | Tính tiền phòng tối thiểu 1 đêm + dịch vụ, thanh toán nguyên tử, xuất biên lai `.txt` UTF-8 |
+| Trực quan | Sơ đồ phòng đổi màu chỉ báo theo 4 trạng thái bằng XAML `DataTrigger` |
+| Báo cáo | KPI doanh thu, công suất phòng, biểu đồ doanh thu ngày (`LiveCharts2`) |
 
-Luồng nghiệp vụ khép kín: Đăng nhập → Sơ đồ phòng → Đặt phòng →
-Check-in → Thêm dịch vụ → Check-out / Hóa đơn → Báo cáo doanh thu.
+Luồng nghiệp vụ khép kín: `Đăng nhập → Sơ đồ phòng → Đặt phòng → Check-in → Thêm dịch vụ → Check-out / Hóa đơn (.txt) → Báo cáo doanh thu`.
 
 ## Công nghệ
 
 | Lớp | Lựa chọn |
 | --- | -------- |
-| UI | WPF trên .NET 10 (`net10.0-windows`), giao diện Fluent qua `WPF-UI` 4.3.0 (`NavigationView`) |
+| UI | WPF trên .NET 10 (`net10.0-windows`), giao diện Fluent qua `WPF-UI` 4.3.0 (`FluentWindow`, `NavigationView`) |
 | Kiến trúc | MVVM với `CommunityToolkit.Mvvm` 8.4.2 (`ObservableObject`, `[ObservableProperty]`, `[RelayCommand]`) |
 | Biểu đồ | `LiveChartsCore.SkiaSharpView.WPF` 2.0.5 (báo cáo doanh thu theo ngày) |
-| Cơ sở dữ liệu | SQL Server / SQL Server Express, script `Database/HotelDB.sql` (8 bảng) |
-| Truy cập dữ liệu | ADO.NET thuần qua `DataProvider.cs` + các lớp DAO, tham số hóa chống SQL Injection |
+| Cơ sở dữ liệu | SQL Server / SQL Server Express, script 1-click `Database/HotelDB.sql` (8 bảng) |
+| Truy cập dữ liệu | ADO.NET thuần qua `DataProvider.cs` + các lớp DAO tham số hóa chống SQL Injection |
+| Kiểm thử | `xUnit` (`tests/HotelManagement.Tests`) kiểm thử tự động các seam nghiệp vụ thuần |
 
 ## Yêu cầu môi trường
 
-- Visual Studio 2026 (workload .NET Desktop Development, .NET 10 SDK)
-  - Không dùng Visual Studio 2022: VS 2022 không hỗ trợ target `net10.0`.
-  - SDK sẽ được ghim qua `global.json` (`10.0.100`, `rollForward: latestFeature`) khi tạo solution ở TASK-01.
+- Visual Studio 2026 (workload .NET Desktop Development, .NET 10 SDK; ghim qua `global.json` ở Issue `#58`)
 - SQL Server Express (hoặc LocalDB) + SQL Server Management Studio (SSMS)
 
 ## Cài đặt và chạy
 
-1. Clone repository:
-   `git clone https://github.com/phantatdung233/WPF_QuanLyKhachSan.git`
-2. Mở `Database/HotelDB.sql` trong SSMS và Execute để tạo database
-   `HotelManagementDb` cùng dữ liệu mẫu (2 users, 4 loại phòng, 12 phòng,
-   5 khách hàng, 5 dịch vụ).
-3. Cấu hình chuỗi kết nối trong `DataProvider.cs` khớp tên SQL Server trên máy
-   (ví dụ `.\SQLEXPRESS`). *(`DataProvider.cs` được tạo ở TASK-02 và giải
-   thích trong `docs/tasks/TASK-02.md`.)*
-4. Mở solution trong Visual Studio, nhấn F5 (hoặc chạy `dotnet build` / `dotnet test` từ CLI). *(Solution `HotelManagement.slnx` và project test `HotelManagement.Tests` được tạo ở TASK-01 — xem `docs/tasks/TASK-01.md`.)*
-
-> Hai bước 3–4 áp dụng **sau khi** đã hoàn thành TASK-01 và TASK-02. Repository
-> hiện chỉ chứa tài liệu (spec + 12 task guide), chưa có mã nguồn.
-
-Để reset dữ liệu trước buổi demo, chỉ cần chạy lại `HotelDB.sql` trong SSMS.
+1. Clone repository: `git clone https://github.com/phantatdung233/WPF_QuanLyKhachSan.git`
+2. Mở `Database/HotelDB.sql` trong SSMS và Execute để tạo database `HotelManagementDb` cùng dữ liệu mẫu chuẩn (tạo ở Issue `#59`).
+3. Cấu hình chuỗi kết nối qua biến môi trường `HOTEL_DB_CONNECTION` (mặc định fallback về `.\SQLEXPRESS`).
+4. Chạy `dotnet build`, `dotnet test` hoặc nhấn `F5` trong Visual Studio (khởi tạo ở Issue `#58`).
 
 ## Tài khoản demo
 
 | Tài khoản | Mật khẩu | Quyền |
 | --------- | -------- | ----- |
-| `admin` | `123456` | Quản trị: đầy đủ menu, quản lý loại phòng, báo cáo doanh thu |
-| `staff` | `123456` | Lễ tân: nghiệp vụ hàng ngày, menu quản trị bị ẩn |
+| `admin` | `123456` | Quản trị (`Administrator`): đầy đủ 8 mục điều hướng, quản lý loại phòng, báo cáo doanh thu |
+| `staff` | `123456` | Lễ tân (`Staff`): 6 mục nghiệp vụ hàng ngày, ẩn Loại phòng và Báo cáo |
 
-## Cấu trúc dự án
+## Nguồn sự thật duy nhất (Single Sources of Truth)
 
-```text
-Database/    Script tạo CSDL và dữ liệu mẫu (HotelDB.sql)
-Models/      Thực thể (User, Room, Customer, Booking, Service, Invoice, ...)
-DAO/         DataProvider.cs và các lớp truy vấn (UserDAO, RoomDAO, ...)
-ViewModels/  ViewModelBase + các ViewModel kế thừa ObservableObject
-Views/       LoginWindow, MainWindow và các UserControl chức năng
-Resources/   Colors.xaml, Styles.xaml dùng chung
-docs/        Spec, hướng dẫn từng task, tài liệu agent
-```
+- **Thuật ngữ & Công thức nghiệp vụ**: [`GLOSSARY.md`](./GLOSSARY.md)
+- **Đặc tả hệ thống & Đồ thị 4 Milestones**: [`docs/specs/hotel-management-system.md`](./docs/specs/hotel-management-system.md) ([SPEC #77](https://github.com/phantatdung233/WPF_QuanLyKhachSan/issues/77))
+- **Design System & Tokens (chuẩn Google `DESIGN.md`)**: [`DESIGN.md`](./DESIGN.md)
+- **Quy trình Agent 2 Pha**: [`CLAUDE.md`](./CLAUDE.md), [`AGENTS.md`](./AGENTS.md), [`.cursorrules`](./.cursorrules)
+- **Backlog thực thi (14 Vertical-Slice Issues theo 4 Milestones)**: Quản lý trực tiếp trên [GitHub Issues](https://github.com/phantatdung233/WPF_QuanLyKhachSan/issues) (`#58`–`#65`, `#78`–`#83`)
 
-## Quy tắc nghiệp vụ
+## Phân công thành viên
 
-Định nghĩa chuẩn của từng nghiệp vụ (công thức chống trùng lịch, cách tính tiền
-phòng, trạng thái phòng) nằm **duy nhất** trong [`GLOSSARY.md`](./GLOSSARY.md)
-— xem các mục *Overlap Conflict Rule*, *Room Charge Policy*, *RoomStatus*.
-
-- **Trạng thái phòng:** `Trống` (xanh lá), `Đang ở` (đỏ), `Đã đặt` (cam),
-  `Bảo trì` (xám). Xem định nghĩa chuẩn trong `GLOSSARY.md`.
-
-## Tài liệu
-
-- Backlog, Single Source of Truth: `docs/tasks/TASK-01.md` … `TASK-12.md`
-- Đặc tả hệ thống: `docs/specs/hotel-management-system.md` (SPEC #77)
-- Hệ thống thiết kế & Design Tokens (chuẩn Google `DESIGN.md`): `DESIGN.md`
-- Luật thực thi 2 Pha cho Agent: `CLAUDE.md`, `AGENTS.md`, `.cursorrules`
-- Hướng dẫn chi tiết từng task: `docs/tasks/TASK-01.md` … `TASK-12.md`
-- Thuật ngữ chuẩn: `GLOSSARY.md`
-- GitHub Issues: [#58](https://github.com/phantatdung233/WPF_QuanLyKhachSan/issues/58)–[#65](https://github.com/phantatdung233/WPF_QuanLyKhachSan/issues/65),
-  [#78](https://github.com/phantatdung233/WPF_QuanLyKhachSan/issues/78)–[#81](https://github.com/phantatdung233/WPF_QuanLyKhachSan/issues/81)
-
-## Thành viên
-
-| Thành viên | Phụ trách |
-| ---------- | --------- |
-| Member A (@phantatdung233) | Khung MVVM, CSDL, đăng nhập, quản lý phòng (TASK-01–04) |
-| Member B (@xuanduong29) | Khách hàng, dịch vụ, đặt phòng, check-in/out (TASK-05–08) |
-| Member C (@ngocthuyen1) | Sơ đồ phòng, hóa đơn, báo cáo, slide demo (TASK-09–12) |
+| Thành viên | Phụ trách | Issues |
+| ---------- | --------- | ------ |
+| Member A (@phantatdung233) | Khung MVVM, CSDL, đăng nhập, loại phòng & phòng | `#58`, `#59`, `#60`, `#82`, `#61` |
+| Member B (@xuanduong29) | Khách hàng, dịch vụ, đặt phòng, check-in/out & gọi dịch vụ | `#78`, `#79`, `#62`, `#80`, `#83` |
+| Member C (@ngocthuyen1) | Sơ đồ phòng `DataTrigger`, hóa đơn `.txt`, báo cáo & tổng duyệt | `#81`, `#63`, `#64`, `#65` |

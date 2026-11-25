@@ -4,8 +4,8 @@
 1. Sources of Truth:
    - Domain rules & formulas: `GLOSSARY.md` and `docs/specs/hotel-management-system.md` (SPEC #77).
    - Design tokens, primitives & anti-slop rules: `DESIGN.md` (Google DESIGN.md format at repo root).
-   - Ticket scope & UI Contract: `docs/tasks/<TASK-ID>.md`.
-   - NEVER use raw Figma MCP designs or removed `design-brief` / wireframe files.
+   - Ticket scope, UI Contract & acceptance criteria: GitHub Issues via `gh issue view <number>`.
+   - NEVER use raw Figma MCP designs or legacy `design-brief` / wireframe files.
 
 2. Mandatory 2-Phase Issue Execution:
    - Phase 1 (Logic & State First): Build Models, parameterized ADO.NET DAOs, pure TDD Services, and ViewModels (exposing Loading, Empty, Error, Success states). Run `dotnet build` and `dotnet test` until 100% green BEFORE styling XAML.
