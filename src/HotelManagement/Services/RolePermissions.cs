@@ -43,6 +43,24 @@ public static class RolePermissions
     public static bool IsStaff(string? role) =>
         string.Equals(role?.Trim(), Staff, StringComparison.OrdinalIgnoreCase);
 
+    public static bool IsSupportedRole(string? role) =>
+        IsAdministrator(role) || IsStaff(role);
+
+    public static string NormalizeRole(string? role)
+    {
+        if (IsAdministrator(role))
+        {
+            return Administrator;
+        }
+
+        if (IsStaff(role))
+        {
+            return Staff;
+        }
+
+        throw new ArgumentException("Vai trò người dùng không hợp lệ.", nameof(role));
+    }
+
     public static string GetRoleDisplay(string? role)
     {
         if (IsAdministrator(role))

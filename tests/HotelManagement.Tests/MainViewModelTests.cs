@@ -1,8 +1,10 @@
+using HotelManagement.Models;
 using HotelManagement.Services;
 using HotelManagement.ViewModels;
 
 namespace HotelManagement.Tests;
 
+[Collection("UserSession")]
 public class MainViewModelTests
 {
     [Fact]
@@ -81,15 +83,26 @@ public class MainViewModelTests
     }
 
     [Fact]
-    public void LogoutCommand_MarksSessionEndedAndRaisesLogoutRequested()
+    public void LogoutCommand_MarksSessionEndedClearsUserSessionAndRaisesLogoutRequested()
     {
         var eventCount = 0;
-        var viewModel = new MainViewModel("Trần Thị Bình", RolePermissions.Staff);
+        var staffUser = new User
+        {
+            UserId = 2,
+            Username = "staff",
+            Password = "123456",
+            FullName = "Lê Thu Ngân",
+            Role = RolePermissions.Staff
+        };
+        UserSession.Start(staffUser);
+
+        var viewModel = new MainViewModel(staffUser);
         viewModel.LogoutRequested += () => eventCount++;
 
         viewModel.LogoutCommand.Execute(null);
 
         Assert.False(viewModel.IsSessionActive);
+        Assert.Null(UserSession.CurrentUser);
         Assert.Equal(1, eventCount);
     }
 

@@ -1,4 +1,6 @@
 using System.Windows;
+using HotelManagement.Models;
+using HotelManagement.Services;
 using HotelManagement.ViewModels;
 using HotelManagement.Views;
 
@@ -6,49 +8,57 @@ namespace HotelManagement;
 
 public partial class App : Application
 {
+    private readonly LoginViewModel _loginViewModel = new();
+
     protected override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
 
         ShutdownMode = ShutdownMode.OnExplicitShutdown;
-        ShowRolePreviewWindow();
+        _loginViewModel.Reset();
+        ShowLoginWindow();
     }
 
-    private void ShowRolePreviewWindow()
+    private void ShowLoginWindow()
     {
         var shellLaunched = false;
-        var previewViewModel = new RolePreviewViewModel();
-        var previewWindow = new RolePreviewWindow(previewViewModel);
+        var loginWindow = new LoginWindow(_loginViewModel);
 
-        previewViewModel.SessionSelected += session =>
+        void OnLoginSucceeded(User authenticatedUser)
         {
+            ShowMainWindow(authenticatedUser);
             shellLaunched = true;
-            ShowMainWindow(session);
-            previewWindow.Close();
-        };
+            loginWindow.Close();
+        }
 
-        previewWindow.Closed += (_, _) =>
+        _loginViewModel.LoginSucceeded += OnLoginSucceeded;
+
+        loginWindow.Closed += (_, _) =>
         {
+            _loginViewModel.LoginSucceeded -= OnLoginSucceeded;
+
             if (!shellLaunched)
             {
+                _loginViewModel.Cancel();
                 Shutdown();
             }
         };
 
-        MainWindow = previewWindow;
-        previewWindow.Show();
+        MainWindow = loginWindow;
+        loginWindow.Show();
     }
 
-    private void ShowMainWindow(PreviewSession session)
+    private void ShowMainWindow(User authenticatedUser)
     {
         var loggingOut = false;
-        var mainViewModel = new MainViewModel(session.FullName, session.Role);
+        var mainViewModel = new MainViewModel(authenticatedUser);
         var mainWindow = new MainWindow(mainViewModel);
 
         mainViewModel.LogoutRequested += () =>
         {
             loggingOut = true;
-            ShowRolePreviewWindow();
+            _loginViewModel.Reset();
+            ShowLoginWindow();
             mainWindow.Close();
         };
 
@@ -56,6 +66,7 @@ public partial class App : Application
         {
             if (!loggingOut)
             {
+                UserSession.Clear();
                 Shutdown();
             }
         };
