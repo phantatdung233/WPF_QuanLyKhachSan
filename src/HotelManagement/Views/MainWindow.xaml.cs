@@ -43,7 +43,7 @@ public partial class MainWindow : FluentWindow
                 Tag = descriptor.Key,
                 Height = 40,
                 Margin = new Thickness(0, 0, 0, 4),
-                Icon = new SymbolIcon { Symbol = ResolveSymbol(descriptor.Key) }
+                Icon = new SymbolIcon { Symbol = NavigationSymbolConverter.Resolve(descriptor.Key) }
             };
 
             var targetKey = descriptor.Key;
@@ -76,17 +76,4 @@ public partial class MainWindow : FluentWindow
         _viewModel.PropertyChanged -= OnViewModelPropertyChanged;
         Closed -= OnWindowClosed;
     }
-
-    private static SymbolRegular ResolveSymbol(NavigationKey key) => key switch
-    {
-        NavigationKey.RoomMap => SymbolRegular.GridDots24,
-        NavigationKey.Booking => SymbolRegular.Calendar24,
-        NavigationKey.Room => SymbolRegular.Door24,
-        NavigationKey.RoomType => SymbolRegular.DoorTag24,
-        NavigationKey.Customer => SymbolRegular.PeopleCommunity24,
-        NavigationKey.Service => SymbolRegular.DrinkCoffee24,
-        NavigationKey.Invoice => SymbolRegular.ReceiptMoney24,
-        NavigationKey.Report => SymbolRegular.DataBarVertical24,
-        _ => SymbolRegular.GridDots24
-    };
 }

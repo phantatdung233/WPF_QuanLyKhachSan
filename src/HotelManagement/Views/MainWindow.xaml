@@ -8,136 +8,150 @@
                  MinWidth="1280"
                  MinHeight="720"
                  WindowStartupLocation="CenterScreen"
-                 WindowBackdropType="None"
+                 WindowBackdropType="Mica"
+                 WindowCornerPreference="Default"
                  ExtendsContentIntoTitleBar="True"
                  Background="{StaticResource AppSurfaceBrush}"
                  Foreground="{StaticResource TextPrimaryBrush}">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="48" />
+            <RowDefinition Height="44" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
         <ui:TitleBar Grid.Row="0"
-                     Height="48"
-                     Title="AURA HOTEL — Hệ thống quản lý khách sạn" />
+                     Height="44"
+                     Padding="12,0,0,0"
+                     Title="AURA HOTEL — Hệ thống quản lý khách sạn"
+                     CloseWindowByDoubleClickOnIcon="True" />
 
-        <Grid Grid.Row="1">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="240" />
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
+        <!-- Unified Full-Window NavigationView (Layer 0 Rail + Layer 1 Workspace Sheet) -->
+        <ui:NavigationView x:Name="RootNavigationView"
+                           Grid.Row="1"
+                           PaneDisplayMode="Left"
+                           OpenPaneLength="248"
+                           IsPaneOpen="True"
+                           IsPaneToggleVisible="False"
+                           IsBackButtonVisible="Collapsed"
+                           IsTopSeparatorVisible="False"
+                           IsFooterSeparatorVisible="False"
+                           FrameMargin="0"
+                           Transition="None">
 
-            <!-- Left 240px Navigation Pane (DESIGN.md) -->
-            <ui:NavigationView x:Name="RootNavigationView"
-                               Grid.Column="0"
-                               Width="240"
-                               PaneDisplayMode="Left"
-                               OpenPaneLength="240"
-                               IsPaneOpen="True"
-                               IsPaneToggleVisible="False"
-                               IsBackButtonVisible="Collapsed"
-                               Transition="None"
-                               Margin="0,0,0,16">
-                <ui:NavigationView.PaneHeader>
-                    <StackPanel Orientation="Horizontal" Margin="12,8,12,16">
+            <ui:NavigationView.PaneHeader>
+                <StackPanel Orientation="Horizontal" Margin="8,8,8,16">
+                    <Border Width="36"
+                            Height="36"
+                            CornerRadius="{StaticResource CornerRadiusMd}"
+                            Background="{StaticResource AccentTintBrush}"
+                            BorderBrush="{StaticResource CardStrokeBrush}"
+                            BorderThickness="1"
+                            VerticalAlignment="Center">
                         <ui:SymbolIcon Symbol="Building24"
-                                       FontSize="24"
+                                       FontSize="20"
                                        Foreground="{StaticResource AccentBrush}"
-                                       VerticalAlignment="Center"
-                                       Margin="0,0,12,0" />
-                        <StackPanel VerticalAlignment="Center">
-                            <TextBlock Text="AURA HOTEL"
-                                       Style="{StaticResource BodyStrongTextStyle}" />
-                            <TextBlock Text="Quản lý lưu trú"
-                                       Style="{StaticResource CaptionTextStyle}" />
-                        </StackPanel>
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center" />
+                    </Border>
+                    <StackPanel VerticalAlignment="Center" Margin="12,0,0,0">
+                        <TextBlock Text="AURA HOTEL"
+                                   Style="{StaticResource BodyStrongTextStyle}" />
+                        <TextBlock Text="Quản lý lưu trú"
+                                   Style="{StaticResource CaptionTextStyle}" />
                     </StackPanel>
-                </ui:NavigationView.PaneHeader>
-            </ui:NavigationView>
+                </StackPanel>
+            </ui:NavigationView.PaneHeader>
 
-            <!-- Right Content Header + Main Workspace Card -->
-            <Grid Grid.Column="1">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="*" />
-                </Grid.RowDefinitions>
+            <!-- Bottom Pinned User Session Card & Logout (DESIGN.md) -->
+            <ui:NavigationView.PaneFooter>
+                <Border Background="{StaticResource CardSurfaceBrush}"
+                        BorderBrush="{StaticResource CardStrokeBrush}"
+                        BorderThickness="1"
+                        CornerRadius="{StaticResource CornerRadiusMd}"
+                        Padding="12"
+                        Margin="4,8,4,12">
+                    <StackPanel>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
 
-                <!-- Single Page Title + Account Menu (DESIGN.md) -->
-                <Grid Grid.Row="0" Margin="24,16,24,16">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
-
-                    <TextBlock Grid.Column="0"
-                               Text="{Binding PageTitle}"
-                               Style="{StaticResource PageTitleTextStyle}"
-                               VerticalAlignment="Center" />
-
-                    <StackPanel Grid.Column="1"
-                                Orientation="Horizontal"
-                                VerticalAlignment="Center">
-                        <Border Background="{StaticResource CardSurfaceBrush}"
-                                BorderBrush="{StaticResource CardStrokeBrush}"
-                                BorderThickness="1"
-                                CornerRadius="{StaticResource CornerRadiusSm}"
-                                Padding="12,4"
-                                Margin="0,0,12,0">
-                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border Grid.Column="0"
+                                    Width="32"
+                                    Height="32"
+                                    CornerRadius="{StaticResource CornerRadiusSm}"
+                                    Background="{StaticResource AccentTintBrush}"
+                                    VerticalAlignment="Center">
                                 <ui:SymbolIcon Symbol="PersonAccounts24"
                                                FontSize="16"
                                                Foreground="{StaticResource AccentBrush}"
-                                               VerticalAlignment="Center"
-                                               Margin="0,0,8,0" />
-                                <TextBlock Text="{Binding FullName}"
-                                           Style="{StaticResource BodyStrongTextStyle}"
-                                           VerticalAlignment="Center"
-                                           Margin="0,0,8,0" />
-                                <Border Background="{StaticResource SubtleSurfaceBrush}"
-                                        BorderBrush="{StaticResource CardStrokeBrush}"
-                                        BorderThickness="1"
-                                        CornerRadius="{StaticResource CornerRadiusSm}"
-                                        Padding="8,4"
-                                        VerticalAlignment="Center">
-                                    <TextBlock Text="{Binding RoleDisplay}"
-                                               Style="{StaticResource CaptionTextStyle}"
-                                               Foreground="{StaticResource TextPrimaryBrush}" />
-                                </Border>
-                            </StackPanel>
-                        </Border>
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center" />
+                            </Border>
+
+                            <TextBlock Grid.Column="1"
+                                       Text="{Binding FullName}"
+                                       Style="{StaticResource BodyStrongTextStyle}"
+                                       VerticalAlignment="Center"
+                                       Margin="8,0,8,0"
+                                       TextTrimming="CharacterEllipsis" />
+
+                            <Border Grid.Column="2"
+                                    Background="{StaticResource SubtleSurfaceBrush}"
+                                    BorderBrush="{StaticResource CardStrokeBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="{StaticResource CornerRadiusSm}"
+                                    Padding="8,4"
+                                    VerticalAlignment="Center">
+                                <TextBlock Text="{Binding RoleDisplay}"
+                                           Style="{StaticResource CaptionStrongTextStyle}" />
+                            </Border>
+                        </Grid>
 
                         <ui:Button Appearance="Secondary"
                                    Command="{Binding LogoutCommand}"
                                    Icon="{ui:SymbolIcon SignOut24}"
                                    Content="Đăng xuất"
-                                   Height="32"
-                                   Padding="12,4" />
+                                   HorizontalAlignment="Stretch"
+                                   MinHeight="36"
+                                   Padding="12,8"
+                                   Margin="0,12,0,0" />
                     </StackPanel>
-                </Grid>
-
-                <!-- Workspace Container (24px outer right/bottom gutter, 24px inner padding) -->
-                <Border Grid.Row="1"
-                        Style="{StaticResource CardSurfaceBorderStyle}"
-                        Margin="24,0,24,24">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="*" />
-                        </Grid.RowDefinitions>
-
-                        <ui:InfoBar Grid.Row="0"
-                                    Style="{StaticResource StatusInfoBarStyle}"
-                                    IsOpen="{Binding HasError, Mode=OneWay}"
-                                    Severity="Error"
-                                    Message="{Binding ErrorMessage}"
-                                    Visibility="{Binding HasError, Converter={StaticResource BooleanToVisibilityConverter}}" />
-
-                        <ContentControl Grid.Row="1"
-                                        Content="{Binding CurrentView}" />
-                    </Grid>
                 </Border>
-            </Grid>
-        </Grid>
+            </ui:NavigationView.PaneFooter>
+
+            <!-- Workspace Sheet Content (Layer 1 WorkspaceSurfaceBrush, no outer card flattening) -->
+            <ui:NavigationView.ContentOverlay>
+                <Grid Margin="32,24,32,24">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <!-- Single Page Title + Contextual Operational Subtitle -->
+                    <StackPanel Grid.Row="0" Margin="0,0,0,20">
+                        <TextBlock Text="{Binding PageTitle}"
+                                   Style="{StaticResource PageTitleTextStyle}" />
+                        <TextBlock Text="{Binding PageSubtitle}"
+                                   Style="{StaticResource CaptionTextStyle}"
+                                   Margin="0,4,0,0" />
+                    </StackPanel>
+
+                    <ui:InfoBar Grid.Row="1"
+                                Style="{StaticResource StatusInfoBarStyle}"
+                                IsOpen="{Binding HasError, Mode=OneWay}"
+                                Severity="Error"
+                                Message="{Binding ErrorMessage}"
+                                Visibility="{Binding HasError, Converter={StaticResource BooleanToVisibilityConverter}}" />
+
+                    <ContentControl Grid.Row="2"
+                                    Content="{Binding CurrentView}" />
+                </Grid>
+            </ui:NavigationView.ContentOverlay>
+
+        </ui:NavigationView>
     </Grid>
 </ui:FluentWindow>

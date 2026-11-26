@@ -1,9 +1,14 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using HotelManagement.Services;
 
 namespace HotelManagement.ViewModels;
 
 public abstract partial class ViewModelBase : ObservableObject
 {
+    public virtual NavigationKey ModuleKey => NavigationKey.RoomMap;
+
+    public virtual string ModuleSubtitle => string.Empty;
+
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsNotLoading))]
     [NotifyPropertyChangedFor(nameof(IsEmptyStateVisible))]

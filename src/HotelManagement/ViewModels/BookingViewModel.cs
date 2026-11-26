@@ -1,7 +1,13 @@
+using HotelManagement.Services;
+
 namespace HotelManagement.ViewModels;
 
 public partial class BookingViewModel : ViewModelBase
 {
+    public override NavigationKey ModuleKey => NavigationKey.Booking;
+
+    public override string ModuleSubtitle => "Quản lý đặt phòng chống trùng lịch và vận hành nhận — trả phòng.";
+
     public BookingViewModel()
     {
         IsEmpty = true;

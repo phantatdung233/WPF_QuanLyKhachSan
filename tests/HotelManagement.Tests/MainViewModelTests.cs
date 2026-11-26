@@ -40,7 +40,9 @@ public class MainViewModelTests
             viewModel.NavigateCommand.Execute(key);
 
             Assert.IsType(expectedType, viewModel.CurrentView);
+            Assert.Equal(key, viewModel.CurrentView.ModuleKey);
             Assert.Equal(expectedTitle, viewModel.PageTitle);
+            Assert.False(string.IsNullOrWhiteSpace(viewModel.PageSubtitle));
             Assert.Equal(key, viewModel.SelectedNavigationItem?.Key);
             Assert.False(viewModel.HasError);
         }

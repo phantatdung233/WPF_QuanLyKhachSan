@@ -1,7 +1,13 @@
+using HotelManagement.Services;
+
 namespace HotelManagement.ViewModels;
 
 public partial class RoomTypeViewModel : ViewModelBase
 {
+    public override NavigationKey ModuleKey => NavigationKey.RoomType;
+
+    public override string ModuleSubtitle => "Thiết lập hạng phòng, sức chứa tiêu chuẩn và đơn giá cơ bản theo đêm.";
+
     public RoomTypeViewModel()
     {
         IsEmpty = true;

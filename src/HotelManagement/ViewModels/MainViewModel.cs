@@ -36,6 +36,9 @@ public partial class MainViewModel : ViewModelBase
     private string _pageTitle = "Sơ đồ phòng";
 
     [ObservableProperty]
+    private string _pageSubtitle = string.Empty;
+
+    [ObservableProperty]
     private ViewModelBase _currentView = null!;
 
     [ObservableProperty]
@@ -90,6 +93,7 @@ public partial class MainViewModel : ViewModelBase
 
         CurrentView = viewModel;
         PageTitle = descriptor.Title;
+        PageSubtitle = viewModel.ModuleSubtitle;
 
         _isUpdatingSelection = true;
         SelectedNavigationItem = descriptor;
