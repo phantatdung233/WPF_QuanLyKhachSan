@@ -58,7 +58,7 @@ public class RoomTypeViewModelTests
     }
 
     [Fact]
-    public async Task EmptyState_DistinguishesEmptyCatalogFromUnmatchedSearchAndClearsFilter()
+    public async Task EmptyState_DistinguishesEmptyCatalogFromUnmatchedSearchEvenAfterPriorBlockedDeleteError()
     {
         var backend = new FakeRoomTypeBackend();
         var viewModel = backend.CreateViewModel();
@@ -75,11 +75,13 @@ public class RoomTypeViewModelTests
             new RoomType { RoomTypeId = 4, TypeName = "VIP", PricePerDay = 1200000m, RoomCount = 2 });
         await viewModel.LoadRoomTypesCommand.ExecuteAsync(null);
 
-        Assert.False(viewModel.IsEmpty);
-        Assert.Equal(2, viewModel.FilteredRoomTypes.Count);
+        // Trigger a blocked-delete error first, then verify unmatched search clears stale error and shows search empty state
+        await viewModel.DeleteRoomTypeCommand.ExecuteAsync(viewModel.FilteredRoomTypes[0]);
+        Assert.True(viewModel.HasError);
 
         viewModel.SearchText = "Presidential";
 
+        Assert.False(viewModel.HasError);
         Assert.True(viewModel.IsEmpty);
         Assert.True(viewModel.IsEmptyStateVisible);
         Assert.True(viewModel.HasActiveSearch);
@@ -114,21 +116,24 @@ public class RoomTypeViewModelTests
     }
 
     [Fact]
-    public async Task LoadRoomTypesCommand_WhenDatabaseThrows_SetsErrorMessageWithoutShowingEmptyState()
+    public async Task LoadRoomTypesCommand_ClearsPriorSuccessBannerAndSetsErrorMessageWithoutEmptyOverlapWhenDatabaseThrows()
     {
-        var backend = new FakeRoomTypeBackend
-        {
-            OnGetAllAsync = static () => throw new InvalidOperationException("SQL connection failed")
-        };
+        var backend = new FakeRoomTypeBackend(
+            new RoomType { RoomTypeId = 5, TypeName = "Penthouse", PricePerDay = 2000000m, RoomCount = 0 });
         var viewModel = backend.CreateViewModel();
+        await viewModel.LoadRoomTypesCommand.ExecuteAsync(null);
 
+        await viewModel.DeleteRoomTypeCommand.ExecuteAsync(viewModel.FilteredRoomTypes.Single());
+        Assert.True(viewModel.HasSuccessMessage);
+
+        backend.OnGetAllAsync = static () => throw new InvalidOperationException("SQL connection failed");
         await viewModel.LoadRoomTypesCommand.ExecuteAsync(null);
 
         Assert.False(viewModel.IsLoading);
+        Assert.False(viewModel.HasSuccessMessage);
         Assert.True(viewModel.HasError);
         Assert.False(viewModel.IsEmpty);
         Assert.False(viewModel.IsEmptyStateVisible);
-        Assert.True(viewModel.IsErrorRetryVisible);
     }
 
     [Theory]
@@ -137,9 +142,10 @@ public class RoomTypeViewModelTests
     [InlineData("   vip   ", "900000", true, false)]
     [InlineData("Suite", "", false, true)]
     [InlineData("Suite", "0", false, true)]
+    [InlineData("Suite", "0.4", false, true)]
     [InlineData("Suite", "-200000", false, true)]
     [InlineData("Suite", "abc", false, true)]
-    public async Task SaveRoomTypeCommand_OnCreate_ShowsInlineErrorsAndSkipsDaoForInvalidOrDuplicateInput(
+    public async Task SaveCommand_OnCreate_ShowsInlineErrorsAndSkipsDaoForInvalidOrDuplicateInput(
         string typeName,
         string priceInput,
         bool expectedNameError,
@@ -151,15 +157,15 @@ public class RoomTypeViewModelTests
         await viewModel.LoadRoomTypesCommand.ExecuteAsync(null);
 
         viewModel.OpenCreateDialogCommand.Execute(null);
-        viewModel.DialogTypeName = typeName;
-        viewModel.DialogPriceInput = priceInput;
+        viewModel.Dialog.TypeName = typeName;
+        viewModel.Dialog.PriceInput = priceInput;
 
-        await viewModel.SaveRoomTypeCommand.ExecuteAsync(null);
+        await viewModel.Dialog.SaveCommand.ExecuteAsync(null);
 
         Assert.Equal(0, backend.InsertCalls);
-        Assert.True(viewModel.IsDialogOpen);
-        Assert.Equal(expectedNameError, viewModel.HasTypeNameError);
-        Assert.Equal(expectedPriceError, viewModel.HasPricePerDayError);
+        Assert.True(viewModel.Dialog.IsOpen);
+        Assert.Equal(expectedNameError, viewModel.Dialog.HasTypeNameError);
+        Assert.Equal(expectedPriceError, viewModel.Dialog.HasPricePerDayError);
     }
 
     [Fact]
@@ -170,17 +176,17 @@ public class RoomTypeViewModelTests
         await viewModel.LoadRoomTypesCommand.ExecuteAsync(null);
 
         viewModel.OpenCreateDialogCommand.Execute(null);
-        await viewModel.SaveRoomTypeCommand.ExecuteAsync(null);
+        await viewModel.Dialog.SaveCommand.ExecuteAsync(null);
 
-        Assert.True(viewModel.HasTypeNameError);
-        Assert.True(viewModel.HasPricePerDayError);
+        Assert.True(viewModel.Dialog.HasTypeNameError);
+        Assert.True(viewModel.Dialog.HasPricePerDayError);
 
-        viewModel.DialogTypeName = "Deluxe";
-        Assert.False(viewModel.HasTypeNameError);
-        Assert.True(viewModel.HasPricePerDayError);
+        viewModel.Dialog.TypeName = "Deluxe";
+        Assert.False(viewModel.Dialog.HasTypeNameError);
+        Assert.True(viewModel.Dialog.HasPricePerDayError);
 
-        viewModel.DialogPriceInput = "850.000";
-        Assert.False(viewModel.HasPricePerDayError);
+        viewModel.Dialog.PriceInput = "850.000";
+        Assert.False(viewModel.Dialog.HasPricePerDayError);
     }
 
     [Fact]
@@ -192,22 +198,22 @@ public class RoomTypeViewModelTests
         var dialogOpenedCount = 0;
         var dialogClosedCount = 0;
         viewModel.DialogRequested += () => dialogOpenedCount++;
-        viewModel.DialogCloseRequested += () => dialogClosedCount++;
+        viewModel.Dialog.CloseRequested += () => dialogClosedCount++;
 
         await viewModel.LoadRoomTypesCommand.ExecuteAsync(null);
 
         // Create new RoomType
         viewModel.OpenCreateDialogCommand.Execute(null);
-        Assert.True(viewModel.IsDialogOpen);
-        Assert.False(viewModel.IsEditMode);
+        Assert.True(viewModel.Dialog.IsOpen);
+        Assert.False(viewModel.Dialog.IsEditMode);
         Assert.Equal(1, dialogOpenedCount);
 
-        viewModel.DialogTypeName = "  Deluxe  ";
-        viewModel.DialogPriceInput = "850.000";
-        await viewModel.SaveRoomTypeCommand.ExecuteAsync(null);
+        viewModel.Dialog.TypeName = "  Deluxe  ";
+        viewModel.Dialog.PriceInput = "850.000";
+        await viewModel.Dialog.SaveCommand.ExecuteAsync(null);
 
         Assert.Equal(1, backend.InsertCalls);
-        Assert.False(viewModel.IsDialogOpen);
+        Assert.False(viewModel.Dialog.IsOpen);
         Assert.Equal(1, dialogClosedCount);
         Assert.True(viewModel.HasSuccessMessage);
         Assert.Equal(2, viewModel.FilteredRoomTypes.Count);
@@ -217,16 +223,16 @@ public class RoomTypeViewModelTests
 
         // Edit existing RoomType (keeping same case-adjusted name + new price)
         viewModel.OpenEditDialogCommand.Execute(createdRow);
-        Assert.True(viewModel.IsDialogOpen);
-        Assert.True(viewModel.IsEditMode);
-        Assert.Equal(createdRow.RoomTypeId, viewModel.EditingRoomTypeId);
+        Assert.True(viewModel.Dialog.IsOpen);
+        Assert.True(viewModel.Dialog.IsEditMode);
+        Assert.Equal(createdRow.RoomTypeId, viewModel.Dialog.EditingRoomTypeId);
 
-        viewModel.DialogTypeName = "Deluxe";
-        viewModel.DialogPriceInput = "920000";
-        await viewModel.SaveRoomTypeCommand.ExecuteAsync(null);
+        viewModel.Dialog.TypeName = "Deluxe";
+        viewModel.Dialog.PriceInput = "920000";
+        await viewModel.Dialog.SaveCommand.ExecuteAsync(null);
 
         Assert.Equal(1, backend.UpdateCalls);
-        Assert.False(viewModel.IsDialogOpen);
+        Assert.False(viewModel.Dialog.IsOpen);
         Assert.Equal(2, dialogClosedCount);
         Assert.Equal(
             "920.000 đ",
@@ -268,20 +274,20 @@ public class RoomTypeViewModelTests
 
         var vipRow = viewModel.FilteredRoomTypes.Single(item => item.RoomTypeId == 4);
         viewModel.OpenEditDialogCommand.Execute(vipRow);
-        viewModel.DialogTypeName = "Đơn";
+        viewModel.Dialog.TypeName = "Đơn";
 
-        await viewModel.SaveRoomTypeCommand.ExecuteAsync(null);
+        await viewModel.Dialog.SaveCommand.ExecuteAsync(null);
         Assert.Equal(0, backend.UpdateCalls);
-        Assert.True(viewModel.HasTypeNameError);
-        Assert.True(viewModel.IsDialogOpen);
+        Assert.True(viewModel.Dialog.HasTypeNameError);
+        Assert.True(viewModel.Dialog.IsOpen);
 
         backend.OnUpdateAsync = static _ => throw new InvalidOperationException("DB write failed");
-        viewModel.DialogTypeName = "VIP Thượng Hạng";
-        await viewModel.SaveRoomTypeCommand.ExecuteAsync(null);
+        viewModel.Dialog.TypeName = "VIP Thượng Hạng";
+        await viewModel.Dialog.SaveCommand.ExecuteAsync(null);
 
-        Assert.True(viewModel.HasDialogError);
-        Assert.True(viewModel.IsDialogOpen);
-        Assert.False(viewModel.IsSaving);
+        Assert.True(viewModel.Dialog.HasError);
+        Assert.True(viewModel.Dialog.IsOpen);
+        Assert.False(viewModel.Dialog.IsSaving);
     }
 
     [Fact]

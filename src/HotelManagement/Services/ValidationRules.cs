@@ -5,7 +5,7 @@ namespace HotelManagement.Services;
 public static class ValidationRules
 {
     public const int MaxRoomTypeNameLength = 100;
-    public const decimal MaxRoomTypePricePerDay = 9_999_999_999_999_999.99m;
+    public const decimal MaxRoomTypePricePerDay = 9_999_999_999_999_999m;
 
     public static string? ValidateRoomTypeName(
         string? typeName,
@@ -45,9 +45,19 @@ public static class ValidationRules
             return "Đơn giá/đêm không hợp lệ.";
         }
 
+        return ValidateRoomTypePricePerDay(pricePerDay);
+    }
+
+    public static string? ValidateRoomTypePricePerDay(decimal pricePerDay)
+    {
         if (pricePerDay <= 0m)
         {
             return "Đơn giá/đêm phải lớn hơn 0.";
+        }
+
+        if (decimal.Truncate(pricePerDay) != pricePerDay)
+        {
+            return "Đơn giá/đêm phải là số nguyên VNĐ.";
         }
 
         if (pricePerDay > MaxRoomTypePricePerDay)

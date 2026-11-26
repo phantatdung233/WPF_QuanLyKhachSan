@@ -1,7 +1,6 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Globalization;
-using System.Text;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using HotelManagement.DAO;
@@ -21,16 +20,15 @@ public partial class RoomTypeViewModel : ViewModelBase
     private readonly Func<int, Task<bool>> _deleteAsync;
     private readonly string _fallbackRole;
     private List<RoomType> _allRoomTypes = [];
-    private bool _suppressSearchSideEffects;
 
     public event Action? DialogRequested;
-
-    public event Action? DialogCloseRequested;
 
     public override NavigationKey ModuleKey => NavigationKey.RoomType;
 
     public override string ModuleSubtitle =>
         "Thiết lập danh mục loại phòng, đơn giá cơ bản theo đêm và kiểm soát phòng trực thuộc.";
+
+    public RoomTypeDialogViewModel Dialog { get; }
 
     public ObservableCollection<RoomTypeItemViewModel> FilteredRoomTypes { get; } = [];
 
@@ -41,46 +39,6 @@ public partial class RoomTypeViewModel : ViewModelBase
     [ObservableProperty]
     private string _footerSummaryText = "Chưa có loại phòng nào trong danh mục.";
 
-    [ObservableProperty]
-    private bool _isDialogOpen;
-
-    [ObservableProperty]
-    private bool _isEditMode;
-
-    [ObservableProperty]
-    private int? _editingRoomTypeId;
-
-    [ObservableProperty]
-    private string _dialogTitle = "Thêm loại phòng";
-
-    [ObservableProperty]
-    private string _dialogSaveButtonText = "Thêm loại phòng";
-
-    [ObservableProperty]
-    private string _dialogTypeName = string.Empty;
-
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(DialogPricePreview))]
-    private string _dialogPriceInput = string.Empty;
-
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(HasTypeNameError))]
-    private string? _typeNameError;
-
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(HasPricePerDayError))]
-    private string? _pricePerDayError;
-
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(HasDialogError))]
-    private string? _dialogErrorMessage;
-
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(IsNotSaving))]
-    [NotifyPropertyChangedFor(nameof(IsBusy))]
-    [NotifyPropertyChangedFor(nameof(IsNotBusy))]
-    private bool _isSaving;
-
     public bool IsAdministratorAccess =>
         RolePermissions.IsAdministrator(UserSession.CurrentUser?.Role ?? _fallbackRole);
 
@@ -88,46 +46,16 @@ public partial class RoomTypeViewModel : ViewModelBase
 
     public bool IsTableVisible => !IsLoading && FilteredRoomTypes.Count > 0;
 
-    public bool IsErrorRetryVisible => !IsLoading && HasError && FilteredRoomTypes.Count == 0;
-
-    public bool HasTypeNameError => !string.IsNullOrWhiteSpace(TypeNameError);
-
-    public bool HasPricePerDayError => !string.IsNullOrWhiteSpace(PricePerDayError);
-
-    public bool HasDialogError => !string.IsNullOrWhiteSpace(DialogErrorMessage);
-
-    public bool IsNotSaving => !IsSaving;
-
-    public bool IsBusy => IsLoading || IsSaving;
+    public bool IsBusy => IsLoading || Dialog.IsSaving;
 
     public bool IsNotBusy => !IsBusy;
 
-    public string DialogPricePreview =>
-        CurrencyFormatter.TryParseVndAmount(DialogPriceInput, out var parsed) && parsed > 0m
-            ? $"Định dạng hiển thị: {CurrencyFormatter.FormatVnd(parsed)}"
-            : "Nhập đơn giá lớn hơn 0 (ví dụ: 500000 hoặc 500.000).";
-
-    public RoomTypeViewModel()
-        : this(RolePermissions.Administrator)
-    {
-    }
-
-    public RoomTypeViewModel(string fallbackRole)
+    public RoomTypeViewModel(string fallbackRole = RolePermissions.Administrator)
         : this(
             getAllAsync: static () => Task.Run(RoomTypeDAO.Instance.GetAll),
             insertAsync: static roomType => Task.Run(() => RoomTypeDAO.Instance.Insert(roomType)),
             updateAsync: static roomType => Task.Run(() => RoomTypeDAO.Instance.Update(roomType)),
             deleteAsync: static roomTypeId => Task.Run(() => RoomTypeDAO.Instance.Delete(roomTypeId)),
-            fallbackRole: fallbackRole)
-    {
-    }
-
-    public RoomTypeViewModel(RoomTypeDAO dao, string fallbackRole = RolePermissions.Administrator)
-        : this(
-            getAllAsync: () => Task.FromResult((dao ?? throw new ArgumentNullException(nameof(dao))).GetAll()),
-            insertAsync: roomType => Task.FromResult(dao.Insert(roomType)),
-            updateAsync: roomType => Task.FromResult(dao.Update(roomType)),
-            deleteAsync: roomTypeId => Task.FromResult(dao.Delete(roomTypeId)),
             fallbackRole: fallbackRole)
     {
     }
@@ -150,6 +78,12 @@ public partial class RoomTypeViewModel : ViewModelBase
         _deleteAsync = deleteAsync;
         _fallbackRole = fallbackRole;
 
+        Dialog = new RoomTypeDialogViewModel(
+            getExistingRoomTypes: () => _allRoomTypes,
+            canMutate: () => !IsLoading && IsAdministratorAccess,
+            persistRoomTypeAsync: PersistRoomTypeAsync);
+        Dialog.PropertyChanged += OnDialogPropertyChanged;
+
         LoadingMessage = DefaultLoadingMessage;
         ApplyEmptyCopyForFullCatalog();
         IsEmpty = true;
@@ -158,36 +92,10 @@ public partial class RoomTypeViewModel : ViewModelBase
     partial void OnSearchTextChanged(string value)
     {
         ClearSearchCommand.NotifyCanExecuteChanged();
-        if (_suppressSearchSideEffects)
-        {
-            return;
-        }
-
+        ErrorMessage = null;
         SuccessMessage = null;
         ApplyFilter();
     }
-
-    partial void OnDialogTypeNameChanged(string value)
-    {
-        if (!string.IsNullOrWhiteSpace(value))
-        {
-            TypeNameError = null;
-        }
-
-        DialogErrorMessage = null;
-    }
-
-    partial void OnDialogPriceInputChanged(string value)
-    {
-        if (!string.IsNullOrWhiteSpace(value))
-        {
-            PricePerDayError = null;
-        }
-
-        DialogErrorMessage = null;
-    }
-
-    partial void OnIsSavingChanged(bool value) => NotifyCommandStates();
 
     protected override void OnPropertyChanged(PropertyChangedEventArgs e)
     {
@@ -198,12 +106,17 @@ public partial class RoomTypeViewModel : ViewModelBase
             OnPropertyChanged(nameof(IsBusy));
             OnPropertyChanged(nameof(IsNotBusy));
             OnPropertyChanged(nameof(IsTableVisible));
-            OnPropertyChanged(nameof(IsErrorRetryVisible));
             NotifyCommandStates();
         }
-        else if (e.PropertyName == nameof(ErrorMessage))
+    }
+
+    private void OnDialogPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(RoomTypeDialogViewModel.IsSaving))
         {
-            OnPropertyChanged(nameof(IsErrorRetryVisible));
+            OnPropertyChanged(nameof(IsBusy));
+            OnPropertyChanged(nameof(IsNotBusy));
+            NotifyCommandStates();
         }
     }
 
@@ -217,22 +130,16 @@ public partial class RoomTypeViewModel : ViewModelBase
     private bool CanDeleteRoomTypeRow(RoomTypeItemViewModel? item) =>
         !IsBusy && IsAdministratorAccess && item is not null && item.CanDelete;
 
-    private bool CanSaveRoomType() => !IsBusy && IsAdministratorAccess;
-
     [RelayCommand(CanExecute = nameof(CanLoadRoomTypes))]
     private async Task LoadRoomTypesAsync()
     {
-        if (IsBusy)
-        {
-            return;
-        }
-
-        if (!EnsureAdministratorAccess())
+        if (IsBusy || !EnsureAdministratorAccess())
         {
             return;
         }
 
         ErrorMessage = null;
+        SuccessMessage = null;
         LoadingMessage = DefaultLoadingMessage;
         IsLoading = true;
         try
@@ -268,14 +175,7 @@ public partial class RoomTypeViewModel : ViewModelBase
 
         ErrorMessage = null;
         SuccessMessage = null;
-        IsEditMode = false;
-        EditingRoomTypeId = null;
-        DialogTitle = "Thêm loại phòng";
-        DialogSaveButtonText = "Thêm loại phòng";
-        DialogTypeName = string.Empty;
-        DialogPriceInput = string.Empty;
-        ResetDialogErrors();
-        IsDialogOpen = true;
+        Dialog.OpenForCreate();
         DialogRequested?.Invoke();
     }
 
@@ -289,122 +189,35 @@ public partial class RoomTypeViewModel : ViewModelBase
 
         ErrorMessage = null;
         SuccessMessage = null;
-        IsEditMode = true;
-        EditingRoomTypeId = item.RoomTypeId;
-        DialogTitle = "Cập nhật loại phòng";
-        DialogSaveButtonText = "Lưu thay đổi";
-        DialogTypeName = item.TypeName;
-        DialogPriceInput = item.PricePerDay.ToString("0.##", CultureInfo.InvariantCulture);
-        ResetDialogErrors();
-        IsDialogOpen = true;
+        Dialog.OpenForEdit(item);
         DialogRequested?.Invoke();
     }
 
-    [RelayCommand(CanExecute = nameof(CanSaveRoomType))]
-    private async Task SaveRoomTypeAsync()
+    private async Task PersistRoomTypeAsync(RoomType payload, bool isEditMode)
     {
-        if (IsBusy || !EnsureAdministratorAccess())
-        {
-            return;
-        }
-
-        DialogErrorMessage = null;
         ErrorMessage = null;
         SuccessMessage = null;
 
-        TypeNameError = ValidationRules.ValidateRoomTypeName(
-            DialogTypeName,
-            _allRoomTypes,
-            IsEditMode ? EditingRoomTypeId : null);
-        PricePerDayError = ValidationRules.ValidateRoomTypePrice(DialogPriceInput, out var parsedPrice);
-
-        if (HasTypeNameError || HasPricePerDayError)
+        if (isEditMode)
         {
-            return;
-        }
-
-        var normalizedName = DialogTypeName.Trim();
-        var wasEditMode = IsEditMode;
-        var payload = new RoomType
-        {
-            RoomTypeId = EditingRoomTypeId ?? 0,
-            TypeName = normalizedName,
-            PricePerDay = parsedPrice
-        };
-
-        IsSaving = true;
-        try
-        {
-            if (wasEditMode)
+            var updated = await _updateAsync(payload);
+            if (!updated)
             {
-                var updated = await _updateAsync(payload);
-                if (!updated)
-                {
-                    _allRoomTypes = (await _getAllAsync()).ToList();
-                    ApplyFilter();
-                    DialogErrorMessage = "Loại phòng không còn tồn tại. Danh sách đã được làm mới.";
-                    return;
-                }
+                _allRoomTypes = (await _getAllAsync()).ToList();
+                ApplyFilter();
+                throw new KeyNotFoundException("Loại phòng không còn tồn tại. Danh sách đã được làm mới.");
             }
-            else
-            {
-                payload.RoomTypeId = await _insertAsync(payload);
-                if (HasActiveSearch && !MatchesSearch(payload, SearchText.Trim()))
-                {
-                    _suppressSearchSideEffects = true;
-                    SearchText = string.Empty;
-                    _suppressSearchSideEffects = false;
-                }
-            }
-
-            _allRoomTypes = (await _getAllAsync()).ToList();
-            IsDialogOpen = false;
-            ResetDialogErrors();
-            SuccessMessage = wasEditMode
-                ? $"Đã cập nhật loại phòng \"{normalizedName}\"."
-                : $"Đã thêm loại phòng \"{normalizedName}\".";
-            ApplyFilter();
         }
-        catch (SqlException ex) when (ex.Number is 2601 or 2627)
+        else
         {
-            TypeNameError = "Tên loại phòng đã tồn tại.";
-            return;
-        }
-        catch (Exception)
-        {
-            DialogErrorMessage = "Không thể lưu thông tin loại phòng. Vui lòng kiểm tra kết nối cơ sở dữ liệu và thử lại.";
-            return;
-        }
-        finally
-        {
-            IsSaving = false;
+            payload.RoomTypeId = await _insertAsync(payload);
         }
 
-        DialogCloseRequested?.Invoke();
-    }
-
-    [RelayCommand(CanExecute = nameof(IsNotSaving))]
-    private void CancelDialog()
-    {
-        if (IsSaving)
-        {
-            return;
-        }
-
-        IsDialogOpen = false;
-        ResetDialogErrors();
-        DialogCloseRequested?.Invoke();
-    }
-
-    public void CloseDialogIfOpen()
-    {
-        if (IsSaving || !IsDialogOpen)
-        {
-            return;
-        }
-
-        IsDialogOpen = false;
-        ResetDialogErrors();
+        _allRoomTypes = (await _getAllAsync()).ToList();
+        SuccessMessage = isEditMode
+            ? $"Đã cập nhật loại phòng \"{payload.TypeName}\"."
+            : $"Đã thêm loại phòng \"{payload.TypeName}\".";
+        ApplyFilter();
     }
 
     [RelayCommand(CanExecute = nameof(CanDeleteRoomTypeRow))]
@@ -474,13 +287,6 @@ public partial class RoomTypeViewModel : ViewModelBase
         return false;
     }
 
-    private void ResetDialogErrors()
-    {
-        TypeNameError = null;
-        PricePerDayError = null;
-        DialogErrorMessage = null;
-    }
-
     private void ApplyFilter()
     {
         var keyword = SearchText?.Trim() ?? string.Empty;
@@ -519,7 +325,6 @@ public partial class RoomTypeViewModel : ViewModelBase
             : $"Hiển thị {FilteredRoomTypes.Count} / {_allRoomTypes.Count} loại phòng · Tổng {totalRooms} phòng trực thuộc";
 
         OnPropertyChanged(nameof(IsTableVisible));
-        OnPropertyChanged(nameof(IsErrorRetryVisible));
         NotifyCommandStates();
     }
 
@@ -535,62 +340,12 @@ public partial class RoomTypeViewModel : ViewModelBase
         ClearSearchCommand.NotifyCanExecuteChanged();
         OpenCreateDialogCommand.NotifyCanExecuteChanged();
         OpenEditDialogCommand.NotifyCanExecuteChanged();
-        SaveRoomTypeCommand.NotifyCanExecuteChanged();
-        CancelDialogCommand.NotifyCanExecuteChanged();
         DeleteRoomTypeCommand.NotifyCanExecuteChanged();
+        Dialog.NotifyAccessChanged();
     }
 
-    private static bool MatchesSearch(RoomType roomType, string keyword)
-    {
-        if (roomType.RoomTypeId.ToString(CultureInfo.InvariantCulture)
-            .Contains(keyword, StringComparison.OrdinalIgnoreCase))
-        {
-            return true;
-        }
-
-        if (roomType.TypeName.Contains(keyword, StringComparison.OrdinalIgnoreCase))
-        {
-            return true;
-        }
-
-        return ContainsAsciiOnly(keyword)
-            && FoldVietnameseDiacritics(roomType.TypeName)
-                .Contains(FoldVietnameseDiacritics(keyword), StringComparison.OrdinalIgnoreCase);
-    }
-
-    private static bool ContainsAsciiOnly(string value)
-    {
-        foreach (var ch in value)
-        {
-            if (ch > 127)
-            {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    private static string FoldVietnameseDiacritics(string input)
-    {
-        var decomposed = input.Normalize(NormalizationForm.FormD);
-        var builder = new StringBuilder(decomposed.Length);
-
-        foreach (var ch in decomposed)
-        {
-            if (CharUnicodeInfo.GetUnicodeCategory(ch) == UnicodeCategory.NonSpacingMark)
-            {
-                continue;
-            }
-
-            builder.Append(ch switch
-            {
-                'đ' => 'd',
-                'Đ' => 'D',
-                _ => ch
-            });
-        }
-
-        return builder.ToString().Normalize(NormalizationForm.FormC);
-    }
+    private static bool MatchesSearch(RoomType roomType, string keyword) =>
+        roomType.RoomTypeId.ToString(CultureInfo.InvariantCulture)
+            .Contains(keyword, StringComparison.OrdinalIgnoreCase)
+        || roomType.TypeName.Contains(keyword, StringComparison.OrdinalIgnoreCase);
 }

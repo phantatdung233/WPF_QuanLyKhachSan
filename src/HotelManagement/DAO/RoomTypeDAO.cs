@@ -117,17 +117,18 @@ public sealed class RoomTypeDAO
     {
         ArgumentNullException.ThrowIfNull(roomType);
 
-        var normalizedName = roomType.TypeName?.Trim() ?? string.Empty;
-        if (normalizedName.Length == 0 || normalizedName.Length > ValidationRules.MaxRoomTypeNameLength)
+        var nameError = ValidationRules.ValidateRoomTypeName(roomType.TypeName, []);
+        if (nameError is not null)
         {
-            throw new ArgumentException("Tên loại phòng không hợp lệ.", nameof(roomType));
+            throw new ArgumentException(nameError, nameof(roomType));
         }
 
-        if (roomType.PricePerDay <= 0m || roomType.PricePerDay > ValidationRules.MaxRoomTypePricePerDay)
+        var priceError = ValidationRules.ValidateRoomTypePricePerDay(roomType.PricePerDay);
+        if (priceError is not null)
         {
-            throw new ArgumentOutOfRangeException(nameof(roomType), "Đơn giá/đêm phải lớn hơn 0.");
+            throw new ArgumentOutOfRangeException(nameof(roomType), priceError);
         }
 
-        return normalizedName;
+        return roomType.TypeName.Trim();
     }
 }

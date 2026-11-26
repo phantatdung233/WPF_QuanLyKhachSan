@@ -77,7 +77,7 @@ public partial class RoomTypeView : UserControl
         try
         {
             var owner = Window.GetWindow(this);
-            var dialog = new RoomTypeDialog(viewModel);
+            var dialog = new RoomTypeDialog(viewModel.Dialog);
             if (owner is not null)
             {
                 dialog.Owner = owner;

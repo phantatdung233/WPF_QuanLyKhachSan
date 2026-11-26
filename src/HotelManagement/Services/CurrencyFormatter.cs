@@ -42,9 +42,9 @@ public static partial class CurrencyFormatter
         {
             normalized = cleaned.Replace(",", string.Empty, StringComparison.Ordinal);
         }
-        else if (PlainOrTwoDecimalRegex().IsMatch(cleaned))
+        else if (WholeIntegerRegex().IsMatch(cleaned))
         {
-            normalized = cleaned.Replace(',', '.');
+            normalized = cleaned;
         }
         else
         {
@@ -53,7 +53,7 @@ public static partial class CurrencyFormatter
 
         return decimal.TryParse(
             normalized,
-            NumberStyles.AllowLeadingSign | NumberStyles.AllowDecimalPoint,
+            NumberStyles.AllowLeadingSign,
             CultureInfo.InvariantCulture,
             out amount);
     }
@@ -67,6 +67,6 @@ public static partial class CurrencyFormatter
     [GeneratedRegex(@"^[+-]?\d{1,3}(,\d{3})+$")]
     private static partial Regex CommaGroupedThousandsRegex();
 
-    [GeneratedRegex(@"^[+-]?\d+([.,]\d{1,2})?$")]
-    private static partial Regex PlainOrTwoDecimalRegex();
+    [GeneratedRegex(@"^[+-]?\d+$")]
+    private static partial Regex WholeIntegerRegex();
 }

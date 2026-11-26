@@ -24,7 +24,7 @@
                         Visibility="{Binding HasSuccessMessage, Converter={StaticResource BooleanToVisibilityConverter}}" />
         </StackPanel>
 
-        <!-- Row 1: Command & Search Toolbar Card (Layer 2 CardSurfaceBrush) -->
+        <!-- Row 1: Search & Primary CTA Toolbar Card (Layer 2 CardSurfaceBrush) -->
         <Border Grid.Row="1"
                 Style="{StaticResource ToolbarCardBorderStyle}"
                 Margin="0,0,0,12">
@@ -34,27 +34,18 @@
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
 
-                <StackPanel Grid.Column="0"
-                            Orientation="Horizontal"
-                            VerticalAlignment="Center">
-                    <ui:TextBox x:Name="SearchInput"
-                                Width="320"
-                                Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                PlaceholderText="Tìm theo mã loại hoặc tên loại phòng..."
-                                Icon="{ui:SymbolIcon Search24}"
-                                ClearButtonEnabled="True"
-                                IsEnabled="{Binding IsNotBusy}"
-                                MinHeight="36"
-                                Padding="12,8" />
-
-                    <ui:Button Appearance="Secondary"
-                               Command="{Binding LoadRoomTypesCommand}"
-                               Icon="{ui:SymbolIcon ArrowCounterclockwise24}"
-                               Content="Làm mới"
-                               MinHeight="36"
-                               Padding="12,8"
-                               Margin="8,0,0,0" />
-                </StackPanel>
+                <ui:TextBox x:Name="SearchInput"
+                            Grid.Column="0"
+                            Width="320"
+                            HorizontalAlignment="Left"
+                            VerticalAlignment="Center"
+                            Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            PlaceholderText="Tìm theo mã loại hoặc tên loại phòng..."
+                            Icon="{ui:SymbolIcon Search24}"
+                            ClearButtonEnabled="True"
+                            IsEnabled="{Binding IsNotBusy}"
+                            MinHeight="36"
+                            Padding="12,8" />
 
                 <!-- Single Primary CTA on RoomTypeView -->
                 <ui:Button Grid.Column="1"
@@ -68,24 +59,23 @@
             </Grid>
         </Border>
 
-        <!-- Row 2: Data Card Hosting 40px DataGrid or Mutually Exclusive Loading / Empty / Retry States -->
-        <Border Grid.Row="2"
-                Style="{StaticResource CardSurfaceBorderStyle}"
-                Padding="0"
-                ClipToBounds="True">
-            <Grid>
-                <!-- Success State: 40px Tabular DataGrid -->
+        <!-- Row 2: Mutually Exclusive Data Card / Loading Card / EmptyStateCard on Layer 1 Workspace Sheet -->
+        <Grid Grid.Row="2">
+            <!-- Success State: 40px Tabular DataGrid inside Layer 2 CardSurfaceBrush -->
+            <Border Style="{StaticResource CardSurfaceBorderStyle}"
+                    Padding="0"
+                    ClipToBounds="True"
+                    Visibility="{Binding IsTableVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
                 <DataGrid x:Name="RoomTypesDataGrid"
                           ItemsSource="{Binding FilteredRoomTypes}"
                           Style="{StaticResource StandardDataGridStyle}"
-                          BorderThickness="0"
-                          Visibility="{Binding IsTableVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
+                          BorderThickness="0">
                     <DataGrid.Columns>
                         <DataGridTemplateColumn Header="Mã loại" Width="100">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <TextBlock Text="{Binding RoomTypeId}"
-                                               Style="{StaticResource BodyStrongTextStyle}"
+                                               Style="{StaticResource BodyTextStyle}"
                                                VerticalAlignment="Center" />
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
@@ -95,7 +85,7 @@
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <TextBlock Text="{Binding TypeName}"
-                                               Style="{StaticResource BodyStrongTextStyle}"
+                                               Style="{StaticResource BodyTextStyle}"
                                                VerticalAlignment="Center"
                                                TextTrimming="CharacterEllipsis" />
                                 </DataTemplate>
@@ -118,21 +108,14 @@
                         <DataGridTemplateColumn Header="Số phòng" Width="140">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
-                                    <Border Background="{StaticResource SubtleSurfaceBrush}"
-                                            BorderBrush="{StaticResource CardStrokeBrush}"
-                                            BorderThickness="1"
-                                            CornerRadius="{StaticResource CornerRadiusSm}"
-                                            Padding="8,4"
-                                            HorizontalAlignment="Left"
-                                            VerticalAlignment="Center">
-                                        <TextBlock Text="{Binding RoomCount}"
-                                                   Style="{StaticResource CaptionStrongTextStyle}" />
-                                    </Border>
+                                    <TextBlock Text="{Binding RoomCount}"
+                                               Style="{StaticResource BodyTextStyle}"
+                                               VerticalAlignment="Center" />
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
 
-                        <DataGridTemplateColumn Header="Thao tác" Width="216">
+                        <DataGridTemplateColumn Header="Thao tác" Width="208">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <StackPanel Orientation="Horizontal"
@@ -162,91 +145,63 @@
                         </DataGridTemplateColumn>
                     </DataGrid.Columns>
                 </DataGrid>
+            </Border>
 
-                <!-- Loading State -->
-                <Border Padding="32,24"
-                        HorizontalAlignment="Center"
-                        VerticalAlignment="Center"
-                        Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}">
-                    <StackPanel HorizontalAlignment="Center">
-                        <ui:ProgressRing Style="{StaticResource LoadingProgressRingStyle}" />
-                        <TextBlock Text="{Binding LoadingMessage}"
-                                   Style="{StaticResource CaptionTextStyle}"
-                                   Margin="0,12,0,0"
-                                   HorizontalAlignment="Center" />
-                    </StackPanel>
-                </Border>
+            <!-- Loading State: Centered Layer 2 Card on Layer 1 Workspace Sheet -->
+            <Border Style="{StaticResource CompactCardBorderStyle}"
+                    Padding="32,24"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <StackPanel HorizontalAlignment="Center">
+                    <ui:ProgressRing Style="{StaticResource LoadingProgressRingStyle}" />
+                    <TextBlock Text="{Binding LoadingMessage}"
+                               Style="{StaticResource CaptionTextStyle}"
+                               Margin="0,12,0,0"
+                               HorizontalAlignment="Center" />
+                </StackPanel>
+            </Border>
 
-                <!-- Empty State (Empty Catalog vs No Search Results + Clear Search) -->
-                <Border Style="{StaticResource EmptyStateCardBorderStyle}"
-                        BorderThickness="0"
-                        HorizontalAlignment="Center"
-                        VerticalAlignment="Center"
-                        Visibility="{Binding IsEmptyStateVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
-                    <StackPanel HorizontalAlignment="Center">
-                        <Border Width="48"
-                                Height="48"
-                                CornerRadius="{StaticResource CornerRadiusMd}"
-                                Background="{StaticResource AccentTintBrush}"
-                                HorizontalAlignment="Center">
-                            <ui:SymbolIcon Symbol="Tag24"
-                                           FontSize="24"
-                                           Foreground="{StaticResource AccentBrush}"
-                                           HorizontalAlignment="Center"
-                                           VerticalAlignment="Center" />
-                        </Border>
-                        <TextBlock Text="{Binding EmptyStateTitle}"
-                                   Style="{StaticResource SectionTitleTextStyle}"
-                                   Margin="0,16,0,0"
-                                   TextAlignment="Center"
-                                   TextWrapping="Wrap" />
-                        <TextBlock Text="{Binding EmptyStateSubtitle}"
-                                   Style="{StaticResource BodyTextStyle}"
-                                   Foreground="{StaticResource TextSecondaryBrush}"
-                                   Margin="0,8,0,0"
-                                   TextAlignment="Center"
-                                   TextWrapping="Wrap" />
-                        <ui:Button Appearance="Secondary"
-                                   Command="{Binding ClearSearchCommand}"
-                                   Icon="{ui:SymbolIcon ArrowCounterclockwise24}"
-                                   Content="Xóa tìm kiếm"
-                                   MinHeight="36"
-                                   Padding="16,8"
-                                   Margin="0,16,0,0"
-                                   HorizontalAlignment="Center"
-                                   Visibility="{Binding HasActiveSearch, Converter={StaticResource BooleanToVisibilityConverter}}" />
-                    </StackPanel>
-                </Border>
-
-                <!-- Error Retry State when Catalog Fails Initial Load -->
-                <Border Style="{StaticResource EmptyStateCardBorderStyle}"
-                        BorderThickness="0"
-                        HorizontalAlignment="Center"
-                        VerticalAlignment="Center"
-                        Visibility="{Binding IsErrorRetryVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
-                    <StackPanel HorizontalAlignment="Center">
-                        <TextBlock Text="Không thể tải danh mục loại phòng"
-                                   Style="{StaticResource SectionTitleTextStyle}"
-                                   TextAlignment="Center"
-                                   TextWrapping="Wrap" />
-                        <TextBlock Text="Vui lòng kiểm tra dịch vụ SQL Server hoặc chuỗi kết nối rồi thử tải lại."
-                                   Style="{StaticResource BodyTextStyle}"
-                                   Foreground="{StaticResource TextSecondaryBrush}"
-                                   Margin="0,8,0,0"
-                                   TextAlignment="Center"
-                                   TextWrapping="Wrap" />
-                        <ui:Button Appearance="Secondary"
-                                   Command="{Binding LoadRoomTypesCommand}"
-                                   Icon="{ui:SymbolIcon ArrowCounterclockwise24}"
-                                   Content="Thử tải lại"
-                                   MinHeight="36"
-                                   Padding="16,8"
-                                   Margin="0,16,0,0"
-                                   HorizontalAlignment="Center" />
-                    </StackPanel>
-                </Border>
-            </Grid>
-        </Border>
+            <!-- Empty State: Centered EmptyStateCard (CardSurfaceBrush + 1px border) on Layer 1 Workspace Sheet -->
+            <Border Style="{StaticResource EmptyStateCardBorderStyle}"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Visibility="{Binding IsEmptyStateVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <StackPanel HorizontalAlignment="Center">
+                    <Border Width="48"
+                            Height="48"
+                            CornerRadius="{StaticResource CornerRadiusMd}"
+                            Background="{StaticResource AccentTintBrush}"
+                            HorizontalAlignment="Center">
+                        <ui:SymbolIcon Symbol="Tag24"
+                                       FontSize="24"
+                                       Foreground="{StaticResource AccentBrush}"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center" />
+                    </Border>
+                    <TextBlock Text="{Binding EmptyStateTitle}"
+                               Style="{StaticResource SectionTitleTextStyle}"
+                               Margin="0,16,0,0"
+                               TextAlignment="Center"
+                               TextWrapping="Wrap" />
+                    <TextBlock Text="{Binding EmptyStateSubtitle}"
+                               Style="{StaticResource BodyTextStyle}"
+                               Foreground="{StaticResource TextSecondaryBrush}"
+                               Margin="0,8,0,0"
+                               TextAlignment="Center"
+                               TextWrapping="Wrap" />
+                    <ui:Button Appearance="Secondary"
+                               Command="{Binding ClearSearchCommand}"
+                               Icon="{ui:SymbolIcon ArrowCounterclockwise24}"
+                               Content="Xóa tìm kiếm"
+                               MinHeight="36"
+                               Padding="16,8"
+                               Margin="0,16,0,0"
+                               HorizontalAlignment="Center"
+                               Visibility="{Binding HasActiveSearch, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                </StackPanel>
+            </Border>
+        </Grid>
 
         <!-- Row 3: Footer Summary & Safe-Delete Lock Hint -->
         <Grid Grid.Row="3" Margin="0,12,0,0">

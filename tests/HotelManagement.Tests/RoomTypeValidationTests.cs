@@ -99,9 +99,12 @@ public class RoomTypeValidationTests
     [InlineData("   ")]
     [InlineData("abc")]
     [InlineData("0")]
+    [InlineData("0.4")]
+    [InlineData("0,25")]
+    [InlineData("500,00")]
     [InlineData("-1")]
     [InlineData("-500.000")]
-    public void ValidateRoomTypePrice_RejectsBlankInvalidZeroAndNegativePrices(string? rawPrice)
+    public void ValidateRoomTypePrice_RejectsBlankInvalidFractionalZeroAndNegativePrices(string? rawPrice)
     {
         var error = ValidationRules.ValidateRoomTypePrice(rawPrice, out _);
 

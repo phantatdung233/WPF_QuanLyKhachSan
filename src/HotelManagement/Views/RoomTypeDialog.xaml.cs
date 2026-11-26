@@ -7,10 +7,10 @@ namespace HotelManagement.Views;
 
 public partial class RoomTypeDialog : FluentWindow
 {
-    private readonly RoomTypeViewModel _viewModel;
+    private readonly RoomTypeDialogViewModel _viewModel;
     private bool _isClosingFromViewModel;
 
-    public RoomTypeDialog(RoomTypeViewModel viewModel)
+    public RoomTypeDialog(RoomTypeDialogViewModel viewModel)
     {
         ArgumentNullException.ThrowIfNull(viewModel);
         _viewModel = viewModel;
@@ -18,7 +18,7 @@ public partial class RoomTypeDialog : FluentWindow
         InitializeComponent();
         DataContext = _viewModel;
 
-        _viewModel.DialogCloseRequested += OnDialogCloseRequested;
+        _viewModel.CloseRequested += OnDialogCloseRequested;
         Loaded += OnLoaded;
         Closing += OnClosing;
         Closed += OnClosed;
@@ -40,11 +40,11 @@ public partial class RoomTypeDialog : FluentWindow
 
     private void OnClosed(object? sender, EventArgs e)
     {
-        _viewModel.DialogCloseRequested -= OnDialogCloseRequested;
+        _viewModel.CloseRequested -= OnDialogCloseRequested;
         Loaded -= OnLoaded;
         Closing -= OnClosing;
         Closed -= OnClosed;
-        _viewModel.CloseDialogIfOpen();
+        _viewModel.CloseIfOpen();
     }
 
     private void OnDialogCloseRequested()
