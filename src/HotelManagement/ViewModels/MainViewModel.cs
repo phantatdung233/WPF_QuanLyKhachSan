@@ -7,17 +7,7 @@ namespace HotelManagement.ViewModels;
 
 public partial class MainViewModel : ViewModelBase
 {
-    private readonly Dictionary<NavigationKey, Func<ViewModelBase>> _viewFactories = new()
-    {
-        [NavigationKey.RoomMap] = static () => new RoomMapViewModel(),
-        [NavigationKey.Booking] = static () => new BookingViewModel(),
-        [NavigationKey.Room] = static () => new RoomViewModel(),
-        [NavigationKey.RoomType] = static () => new RoomTypeViewModel(),
-        [NavigationKey.Customer] = static () => new CustomerViewModel(),
-        [NavigationKey.Service] = static () => new ServiceViewModel(),
-        [NavigationKey.Invoice] = static () => new InvoiceViewModel(),
-        [NavigationKey.Report] = static () => new ReportViewModel()
-    };
+    private readonly Dictionary<NavigationKey, Func<ViewModelBase>> _viewFactories;
 
     private readonly Dictionary<NavigationKey, ViewModelBase> _viewCache = [];
     private bool _isUpdatingSelection;
@@ -61,6 +51,17 @@ public partial class MainViewModel : ViewModelBase
     {
         Role = RolePermissions.NormalizeRole(role);
         RoleDisplay = RolePermissions.GetRoleDisplay(Role);
+        _viewFactories = new Dictionary<NavigationKey, Func<ViewModelBase>>
+        {
+            [NavigationKey.RoomMap] = static () => new RoomMapViewModel(),
+            [NavigationKey.Booking] = static () => new BookingViewModel(),
+            [NavigationKey.Room] = static () => new RoomViewModel(),
+            [NavigationKey.RoomType] = () => new RoomTypeViewModel(Role),
+            [NavigationKey.Customer] = static () => new CustomerViewModel(),
+            [NavigationKey.Service] = static () => new ServiceViewModel(),
+            [NavigationKey.Invoice] = static () => new InvoiceViewModel(),
+            [NavigationKey.Report] = static () => new ReportViewModel()
+        };
         _fullName = string.IsNullOrWhiteSpace(fullName)
             ? (Role == RolePermissions.Administrator ? "Quản trị viên" : "Lễ tân trực ca")
             : fullName.Trim();
