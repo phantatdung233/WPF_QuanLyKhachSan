@@ -51,7 +51,7 @@ public partial class MainViewModel : ViewModelBase
     public MainViewModel(User user)
         : this(
             (user ?? throw new ArgumentNullException(nameof(user))).FullName,
-            ValidateSupportedRole(user.Role))
+            user.Role)
     {
     }
 
@@ -59,7 +59,7 @@ public partial class MainViewModel : ViewModelBase
         string fullName = "Quản trị viên",
         string role = RolePermissions.Administrator)
     {
-        Role = ValidateSupportedRole(role);
+        Role = RolePermissions.NormalizeRole(role);
         RoleDisplay = RolePermissions.GetRoleDisplay(Role);
         _fullName = string.IsNullOrWhiteSpace(fullName)
             ? (Role == RolePermissions.Administrator ? "Quản trị viên" : "Lễ tân trực ca")
@@ -67,21 +67,6 @@ public partial class MainViewModel : ViewModelBase
 
         NavigationItems = RolePermissions.GetAllowedNavigationItems(Role);
         Navigate(NavigationKey.RoomMap);
-    }
-
-    private static string ValidateSupportedRole(string? role)
-    {
-        if (RolePermissions.IsAdministrator(role))
-        {
-            return RolePermissions.Administrator;
-        }
-
-        if (RolePermissions.IsStaff(role))
-        {
-            return RolePermissions.Staff;
-        }
-
-        throw new ArgumentException("Vai trò người dùng không hợp lệ.", nameof(role));
     }
 
     partial void OnSelectedNavigationItemChanged(NavigationItemDescriptor? value)

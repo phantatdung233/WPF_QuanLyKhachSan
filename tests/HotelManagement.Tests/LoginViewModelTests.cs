@@ -39,6 +39,8 @@ public class LoginViewModelTests
         Assert.Equal(expectedUsernameError, viewModel.HasUsernameError);
         Assert.Equal(expectedPasswordError, viewModel.HasPasswordError);
         Assert.False(viewModel.HasError);
+        Assert.False(viewModel.IsEmpty);
+        Assert.False(viewModel.IsEmptyStateVisible);
         Assert.Null(UserSession.CurrentUser);
     }
 
@@ -183,9 +185,9 @@ public class LoginViewModelTests
 
         Assert.NotNull(UserSession.CurrentUser);
         Assert.Equal(fullName, UserSession.CurrentUser.FullName);
-        Assert.Equal(expectedRoleDisplay, UserSession.RoleDisplay);
-        Assert.Equal(expectsRestrictedModules, UserSession.IsAdministrator);
-        Assert.Equal(!expectsRestrictedModules, UserSession.IsStaff);
+        Assert.Equal(expectedRoleDisplay, RolePermissions.GetRoleDisplay(UserSession.CurrentUser.Role));
+        Assert.Equal(expectsRestrictedModules, RolePermissions.IsAdministrator(UserSession.CurrentUser.Role));
+        Assert.Equal(!expectsRestrictedModules, RolePermissions.IsStaff(UserSession.CurrentUser.Role));
 
         Assert.NotNull(launchedMainViewModel);
         Assert.IsType<RoomMapViewModel>(launchedMainViewModel.CurrentView);
@@ -206,13 +208,42 @@ public class LoginViewModelTests
         launchedMainViewModel.LogoutCommand.Execute(null);
 
         Assert.Null(UserSession.CurrentUser);
-        Assert.False(UserSession.IsAuthenticated);
         Assert.False(launchedMainViewModel.IsSessionActive);
-        Assert.False(loginViewModel.IsAuthenticated);
         Assert.Equal(string.Empty, loginViewModel.Username);
         Assert.Equal(string.Empty, loginViewModel.Password);
         Assert.True(loginViewModel.IsEmpty);
         Assert.True(passwordClearedEvents >= 2);
+    }
+
+    [Fact]
+    public async Task Cancel_WhileAuthenticationIsInFlight_PreventsSessionStartAndLoginSucceeded()
+    {
+        var completionSource = new TaskCompletionSource<User?>();
+        var succeeded = false;
+        var viewModel = new LoginViewModel((_, _) => completionSource.Task)
+        {
+            Username = "admin",
+            Password = "123456"
+        };
+        viewModel.LoginSucceeded += _ => succeeded = true;
+
+        var inFlightTask = viewModel.LoginCommand.ExecuteAsync(null);
+        Assert.True(viewModel.IsBusy);
+
+        viewModel.Cancel();
+        completionSource.SetResult(new User
+        {
+            UserId = 1,
+            Username = "admin",
+            Password = "123456",
+            FullName = "Trần Minh Quân",
+            Role = RolePermissions.Administrator
+        });
+        await inFlightTask;
+
+        Assert.False(succeeded);
+        Assert.False(viewModel.IsBusy);
+        Assert.Null(UserSession.CurrentUser);
     }
 
     [Fact]

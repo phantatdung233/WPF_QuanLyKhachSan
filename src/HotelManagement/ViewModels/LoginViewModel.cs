@@ -10,6 +10,7 @@ namespace HotelManagement.ViewModels;
 public partial class LoginViewModel : ViewModelBase
 {
     private readonly Func<string, string, Task<User?>> _authenticateAsync;
+    private bool _isCancelled;
 
     public event Action<User>? LoginSucceeded;
 
@@ -29,15 +30,9 @@ public partial class LoginViewModel : ViewModelBase
     [NotifyPropertyChangedFor(nameof(HasPasswordError))]
     private string? _passwordError;
 
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(IsAuthenticated))]
-    private User? _authenticatedUser;
-
     public bool HasUsernameError => !string.IsNullOrWhiteSpace(UsernameError);
 
     public bool HasPasswordError => !string.IsNullOrWhiteSpace(PasswordError);
-
-    public bool IsAuthenticated => AuthenticatedUser is not null;
 
     public bool IsBusy => IsLoading;
 
@@ -75,6 +70,7 @@ public partial class LoginViewModel : ViewModelBase
         }
 
         ErrorMessage = null;
+        SuccessMessage = null;
         RefreshEmptyState();
     }
 
@@ -90,13 +86,9 @@ public partial class LoginViewModel : ViewModelBase
         }
 
         ErrorMessage = null;
+        SuccessMessage = null;
         RefreshEmptyState();
     }
-
-    private void RefreshEmptyState() =>
-        IsEmpty = AuthenticatedUser is null
-            && string.IsNullOrWhiteSpace(Username)
-            && string.IsNullOrEmpty(Password);
 
     protected override void OnPropertyChanged(PropertyChangedEventArgs e)
     {
@@ -112,23 +104,22 @@ public partial class LoginViewModel : ViewModelBase
 
     private bool CanLogin() => !IsBusy;
 
+    public void Cancel()
+    {
+        _isCancelled = true;
+        UserSession.Clear();
+    }
+
     public void Reset()
     {
-        var wasPasswordAlreadyEmpty = string.IsNullOrEmpty(Password);
+        _isCancelled = false;
         UserSession.Clear();
-        AuthenticatedUser = null;
         Username = string.Empty;
-        Password = string.Empty;
+        ClearPasswordInput();
         UsernameError = null;
         PasswordError = null;
         ErrorMessage = null;
         SuccessMessage = null;
-
-        if (wasPasswordAlreadyEmpty)
-        {
-            PasswordClearRequested?.Invoke();
-        }
-
         RefreshEmptyState();
     }
 
@@ -140,6 +131,7 @@ public partial class LoginViewModel : ViewModelBase
             return;
         }
 
+        _isCancelled = false;
         ErrorMessage = null;
         SuccessMessage = null;
 
@@ -153,52 +145,75 @@ public partial class LoginViewModel : ViewModelBase
 
         if (HasUsernameError || HasPasswordError)
         {
+            RefreshEmptyState();
             return;
         }
 
+        User? authenticatedUser;
         IsLoading = true;
         try
         {
-            var user = await _authenticateAsync(trimmedUsername, Password);
-            if (user is null)
-            {
-                UserSession.Clear();
-                AuthenticatedUser = null;
-                ErrorMessage = "Tên đăng nhập hoặc mật khẩu không chính xác.";
-                return;
-            }
-
-            if (!RolePermissions.IsAdministrator(user.Role) && !RolePermissions.IsStaff(user.Role))
-            {
-                UserSession.Clear();
-                AuthenticatedUser = null;
-                ErrorMessage = "Vai trò người dùng không hợp lệ trong hệ thống.";
-                return;
-            }
-
-            var wasPasswordAlreadyEmpty = string.IsNullOrEmpty(Password);
-            Username = trimmedUsername;
-            AuthenticatedUser = user;
-            Password = string.Empty;
-            if (wasPasswordAlreadyEmpty)
-            {
-                PasswordClearRequested?.Invoke();
-            }
-
-            UserSession.Start(user);
-            SuccessMessage = $"Xin chào {user.FullName}.";
-            RefreshEmptyState();
-            LoginSucceeded?.Invoke(user);
+            authenticatedUser = await _authenticateAsync(trimmedUsername, Password);
         }
         catch (Exception)
         {
-            UserSession.Clear();
-            AuthenticatedUser = null;
-            ErrorMessage = "Không thể kết nối cơ sở dữ liệu. Vui lòng kiểm tra cấu hình SQL Server và thử lại.";
+            FailAuthentication("Không thể kết nối cơ sở dữ liệu. Vui lòng kiểm tra cấu hình SQL Server và thử lại.");
+            return;
         }
         finally
         {
             IsLoading = false;
         }
+
+        if (_isCancelled)
+        {
+            UserSession.Clear();
+            return;
+        }
+
+        if (authenticatedUser is null)
+        {
+            FailAuthentication("Tên đăng nhập hoặc mật khẩu không chính xác.");
+            return;
+        }
+
+        if (!RolePermissions.IsSupportedRole(authenticatedUser.Role))
+        {
+            FailAuthentication("Vai trò người dùng không hợp lệ trong hệ thống.");
+            return;
+        }
+
+        Username = trimmedUsername;
+        ClearPasswordInput();
+        UserSession.Start(authenticatedUser);
+        SuccessMessage = $"Xin chào {authenticatedUser.FullName}.";
+        RefreshEmptyState();
+        LoginSucceeded?.Invoke(authenticatedUser);
     }
+
+    private void ClearPasswordInput()
+    {
+        var wasPasswordAlreadyEmpty = string.IsNullOrEmpty(Password);
+        Password = string.Empty;
+        if (wasPasswordAlreadyEmpty)
+        {
+            PasswordClearRequested?.Invoke();
+        }
+    }
+
+    private void FailAuthentication(string message)
+    {
+        UserSession.Clear();
+        ErrorMessage = message;
+        RefreshEmptyState();
+    }
+
+    private void RefreshEmptyState() =>
+        IsEmpty = UserSession.CurrentUser is null
+            && string.IsNullOrWhiteSpace(Username)
+            && string.IsNullOrEmpty(Password)
+            && !HasUsernameError
+            && !HasPasswordError
+            && !HasError
+            && !HasSuccessMessage;
 }

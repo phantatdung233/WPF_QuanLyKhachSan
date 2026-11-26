@@ -8,45 +8,38 @@ namespace HotelManagement;
 
 public partial class App : Application
 {
+    private readonly LoginViewModel _loginViewModel = new();
+
     protected override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
 
         ShutdownMode = ShutdownMode.OnExplicitShutdown;
-        UserSession.Clear();
+        _loginViewModel.Reset();
         ShowLoginWindow();
     }
 
     private void ShowLoginWindow()
     {
         var shellLaunched = false;
-        var loginClosed = false;
-        var loginViewModel = new LoginViewModel();
-        var loginWindow = new LoginWindow(loginViewModel);
+        var loginWindow = new LoginWindow(_loginViewModel);
 
         void OnLoginSucceeded(User authenticatedUser)
         {
-            if (loginClosed)
-            {
-                UserSession.Clear();
-                return;
-            }
-
-            shellLaunched = true;
             ShowMainWindow(authenticatedUser);
+            shellLaunched = true;
             loginWindow.Close();
         }
 
-        loginViewModel.LoginSucceeded += OnLoginSucceeded;
+        _loginViewModel.LoginSucceeded += OnLoginSucceeded;
 
         loginWindow.Closed += (_, _) =>
         {
-            loginClosed = true;
-            loginViewModel.LoginSucceeded -= OnLoginSucceeded;
+            _loginViewModel.LoginSucceeded -= OnLoginSucceeded;
 
             if (!shellLaunched)
             {
-                UserSession.Clear();
+                _loginViewModel.Cancel();
                 Shutdown();
             }
         };
@@ -64,7 +57,7 @@ public partial class App : Application
         mainViewModel.LogoutRequested += () =>
         {
             loggingOut = true;
-            UserSession.Clear();
+            _loginViewModel.Reset();
             ShowLoginWindow();
             mainWindow.Close();
         };

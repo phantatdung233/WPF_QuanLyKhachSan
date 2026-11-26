@@ -63,6 +63,12 @@
                             Message="{Binding ErrorMessage}"
                             Visibility="{Binding HasError, Converter={StaticResource BooleanToVisibilityConverter}}" />
 
+                <ui:InfoBar Style="{StaticResource StatusInfoBarStyle}"
+                            IsOpen="{Binding HasSuccessMessage, Mode=OneWay}"
+                            Severity="Success"
+                            Message="{Binding SuccessMessage}"
+                            Visibility="{Binding HasSuccessMessage, Converter={StaticResource BooleanToVisibilityConverter}}" />
+
                 <StackPanel>
                     <TextBlock Text="Tên đăng nhập"
                                Style="{StaticResource BodyStrongTextStyle}"
