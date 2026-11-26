@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using HotelManagement.Models;
 using HotelManagement.Services;
 
 namespace HotelManagement.ViewModels;
@@ -47,13 +48,18 @@ public partial class MainViewModel : ViewModelBase
     [ObservableProperty]
     private bool _isSessionActive = true;
 
+    public MainViewModel(User user)
+        : this(
+            (user ?? throw new ArgumentNullException(nameof(user))).FullName,
+            ValidateSupportedRole(user.Role))
+    {
+    }
+
     public MainViewModel(
         string fullName = "Quản trị viên",
         string role = RolePermissions.Administrator)
     {
-        Role = RolePermissions.IsAdministrator(role)
-            ? RolePermissions.Administrator
-            : RolePermissions.Staff;
+        Role = ValidateSupportedRole(role);
         RoleDisplay = RolePermissions.GetRoleDisplay(Role);
         _fullName = string.IsNullOrWhiteSpace(fullName)
             ? (Role == RolePermissions.Administrator ? "Quản trị viên" : "Lễ tân trực ca")
@@ -61,6 +67,21 @@ public partial class MainViewModel : ViewModelBase
 
         NavigationItems = RolePermissions.GetAllowedNavigationItems(Role);
         Navigate(NavigationKey.RoomMap);
+    }
+
+    private static string ValidateSupportedRole(string? role)
+    {
+        if (RolePermissions.IsAdministrator(role))
+        {
+            return RolePermissions.Administrator;
+        }
+
+        if (RolePermissions.IsStaff(role))
+        {
+            return RolePermissions.Staff;
+        }
+
+        throw new ArgumentException("Vai trò người dùng không hợp lệ.", nameof(role));
     }
 
     partial void OnSelectedNavigationItemChanged(NavigationItemDescriptor? value)
@@ -109,6 +130,7 @@ public partial class MainViewModel : ViewModelBase
         }
 
         IsSessionActive = false;
+        UserSession.Clear();
         LogoutRequested?.Invoke();
     }
 }
