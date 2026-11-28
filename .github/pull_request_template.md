@@ -23,7 +23,7 @@
 
 - [ ] **Pha 1 hoàn tất**: `Models` / `DAO` / `Services` (TDD seam) / `ViewModel` chạy `dotnet build` & `dotnet test` xanh 100%, đã bao phủ đủ **4 trạng thái UI** (`Loading`, `Empty`, `Error`, `Success`).
 - [ ] **Pha 2 tuân thủ `DESIGN.md`**: Chỉ dùng primitives của `WPF-UI` / `LiveCharts2` + `{StaticResource}` tokens; **0** hex màu hardcode ngoài `Colors.xaml`, **0** `ControlTemplate` viết đè Button/Input cơ bản, spacing theo lưới `4px/8px`, tối đa **1 Primary CTA** mỗi màn/dialog.
-- [ ] Nếu có thay đổi CSDL: đã cập nhật `Database/HotelDB.sql` và chạy thử thành công trên SQL Server cục bộ.
+- [ ] Nếu có thay đổi CSDL: đã cập nhật `Database/AuraHotelDb.sql` và chạy thử thành công trên SQL Server cục bộ.
 - [ ] Đáp ứng đầy đủ **Acceptance Criteria** & **UI Contract** trong GitHub Issue tương ứng (và tôn trọng ranh giới **Out of Scope**).
 - [ ] Không có commit thừa, file rác hoặc thông tin nhạy cảm.
 

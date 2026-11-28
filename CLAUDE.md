@@ -22,7 +22,7 @@ Execute every ticket strictly in two sequential phases. Never mix initial logic 
 
 1. Implement or update `Models/`, `DAO/` (parameterized ADO.NET), `Services/` (pure TDD seams), and `ViewModels/` (`CommunityToolkit.Mvvm`).
 2. Model all **4 Mandatory States** in the ViewModel (`IsLoading`, `IsEmpty`, `ErrorMessage` / inline validation, and populated `Success` state) plus safe delete/action lock predicates.
-3. Write unit tests in `tests/HotelManagement.Tests` covering domain invariants, validation, and ViewModel state transitions.
+3. Write unit tests in `tests/AuraHotel.Tests` covering domain invariants, validation, and ViewModel state transitions.
 4. **Phase 1 Gate**: Run `dotnet build` and `dotnet test` — 100% green before writing or styling complex XAML.
 
 ### Phase 2 — UI Assembly & Verification
