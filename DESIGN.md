@@ -242,7 +242,7 @@ Visual hierarchy relies on **Windows 11 three-tier tonal surface layering** (`Mi
 
 ## Colors
 
-All XAML `Color` and `SolidColorBrush` definitions live exclusively in `src/HotelManagement/Resources/Colors.xaml` (aliasing `WPF-UI` theme keys after `<ui:ThemesDictionary Theme="Light" />`) and are consumed via `{StaticResource}`. Inline hex literals in Views or ViewModels are forbidden.
+All XAML `Color` and `SolidColorBrush` definitions live exclusively in `src/AuraHotel/Resources/Colors.xaml` (aliasing `WPF-UI` theme keys after `<ui:ThemesDictionary Theme="Light" />`) and are consumed via `{StaticResource}`. Inline hex literals in Views or ViewModels are forbidden.
 
 - **Three-Tier Surface Layering (`#F3F3F3` → `#F9F9F9` → `#FFFFFF`):**
   - **Layer 0 — Window & Rail Base (`AppSurfaceBrush` `{colors.surface}` `#F3F3F3` + `Mica`):** Anchors `ui:FluentWindow` (`WindowBackdropType="Mica"` with `#F3F3F3` fallback), `ui:TitleBar`, and the left `NavigationView` rail.

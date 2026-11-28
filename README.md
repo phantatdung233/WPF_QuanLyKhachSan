@@ -50,9 +50,9 @@
 | **Design System** | Chuẩn Google [`DESIGN.md`](./DESIGN.md) | Hệ token YAML chuẩn hóa màu sắc (`#005FB8`), thang chữ Segoe UI Variable, lưới `4px/8px` & 4 trạng thái UI |
 | **Kiến trúc MVVM** | `CommunityToolkit.Mvvm` `8.4.2` | `ObservableObject`, `[ObservableProperty]`, `[RelayCommand]` tách biệt hoàn toàn View và Logic |
 | **Biểu đồ** | `LiveChartsCore.SkiaSharpView.WPF` `2.0.5` | Biểu đồ đường doanh thu theo ngày (`CartesianChart`) tại phân hệ Báo cáo |
-| **Cơ sở dữ liệu** | Microsoft SQL Server (Express / LocalDB) | 8 bảng quan hệ chuẩn khóa ngoại & ràng buộc `CHECK`, khởi tạo 1-click qua `Database/HotelDB.sql` |
+| **Cơ sở dữ liệu** | Microsoft SQL Server (Express / LocalDB) | 8 bảng quan hệ chuẩn khóa ngoại & ràng buộc `CHECK`, khởi tạo 1-click qua `Database/AuraHotelDb.sql` |
 | **Truy cập dữ liệu** | ADO.NET thuần (`Microsoft.Data.SqlClient`) | `DataProvider` dùng chung + các lớp `DAO` truy vấn tham số hóa (`@param`) chống SQL Injection |
-| **Kiểm thử tự động** | `xUnit` (`tests/HotelManagement.Tests`) | Unit test kiểm chứng công thức nghiệp vụ, phân quyền, kiểm tra dữ liệu và trạng thái ViewModel |
+| **Kiểm thử tự động** | `xUnit` (`tests/AuraHotel.Tests`) | Unit test kiểm chứng công thức nghiệp vụ, phân quyền, kiểm tra dữ liệu và trạng thái ViewModel |
 
 ---
 
@@ -61,19 +61,20 @@
 Dự án tổ chức theo kiến trúc **MVVM phân tầng** kết hợp bộ tài liệu *Single Source of Truth* ở thư mục gốc (được khởi tạo hoàn chỉnh qua Mốc 1 `#58`–`#59`):
 
 ```text
-WPF_QuanLyKhachSan/
+AuraHotel/
 ├── DESIGN.md                            # Design System & Tokens chuẩn Google DESIGN.md
 ├── GLOSSARY.md                          # Từ điển thuật ngữ, trạng thái & công thức nghiệp vụ bất biến
 ├── CLAUDE.md                            # Quy tắc thực thi 2 Pha bắt buộc cho AI Agent & Developer
 ├── AGENTS.md                            # Chỉ mục ngữ cảnh dự án & liên kết công cụ
+├── AuraHotel.slnx                       # Solution .NET 10 quản lý dự án ứng dụng & kiểm thử
 ├── Database/
-│   └── HotelDB.sql                      # Script 1-click tạo CSDL 8 bảng & nạp dữ liệu mẫu chuẩn (#59)
+│   └── AuraHotelDb.sql                  # Script 1-click tạo CSDL 8 bảng & nạp dữ liệu mẫu chuẩn (#59)
 ├── docs/
 │   ├── agents/                          # Cấu hình Issue Tracker (gh CLI), Triage Labels & Domain Docs
 │   └── specs/
 │       └── hotel-management-system.md   # Đặc tả hệ thống chi tiết (đồng bộ với SPEC #77)
 ├── src/
-│   └── HotelManagement/                 # Ứng dụng chính WPF (.NET 10, EnableWindowsTargeting=true)
+│   └── AuraHotel/                       # Ứng dụng chính WPF (.NET 10, EnableWindowsTargeting=true)
 │       ├── Models/                      # 8 lớp thực thể ánh xạ bảng CSDL
 │       ├── DAO/                         # Tầng truy cập dữ liệu ADO.NET tham số hóa + DataProvider
 │       ├── Services/                    # Các seam nghiệp vụ thuần phục vụ TDD (BookingRules, InvoiceCalculator...)
@@ -81,7 +82,7 @@ WPF_QuanLyKhachSan/
 │       ├── Views/                       # Cửa sổ & màn hình XAML lắp ghép từ WPF-UI primitives
 │       └── Resources/                   # Colors.xaml & Styles.xaml ánh xạ 1-1 từ DESIGN.md
 └── tests/
-    └── HotelManagement.Tests/           # Dự án kiểm thử tự động xUnit
+    └── AuraHotel.Tests/                 # Dự án kiểm thử tự động xUnit
 ```
 
 ---
@@ -98,34 +99,34 @@ WPF_QuanLyKhachSan/
 
 1. **Clone kho mã nguồn**:
    ```bash
-   git clone https://github.com/phantatdung233/WPF_QuanLyKhachSan.git
-   cd WPF_QuanLyKhachSan
+   git clone https://github.com/phantatdung233/AuraHotel.git
+   cd AuraHotel
    ```
 
 2. **Khởi tạo cơ sở dữ liệu** *(từ Issue `#59`)*:
-   - Mở file `Database/HotelDB.sql` bằng SSMS và nhấn **Execute (`F5`)** để tạo mới CSDL `HotelManagementDb` cùng bộ dữ liệu mẫu định sẵn.
+   - Mở file `Database/AuraHotelDb.sql` bằng SSMS và nhấn **Execute (`F5`)** để tạo mới CSDL `AuraHotelDb` cùng bộ dữ liệu mẫu định sẵn.
 
 3. **Cấu hình chuỗi kết nối** *(tùy chọn — mặc định tự động kết nối `.\SQLEXPRESS`)*:
    - **PowerShell (Windows)**:
      ```powershell
-     $env:HOTEL_DB_CONNECTION="Server=.\SQLEXPRESS;Database=HotelManagementDb;Trusted_Connection=True;TrustServerCertificate=True;"
+     $env:AURA_HOTEL_DB_CONNECTION="Server=.\SQLEXPRESS;Database=AuraHotelDb;Trusted_Connection=True;TrustServerCertificate=True;"
      ```
    - **zsh / bash (macOS / Linux kết nối SQL Server Docker)**:
      ```bash
-     export HOTEL_DB_CONNECTION="Server=localhost,1433;Database=HotelManagementDb;User Id=sa;Password=<YourPassword>;TrustServerCertificate=True;"
+     export AURA_HOTEL_DB_CONNECTION="Server=localhost,1433;Database=AuraHotelDb;User Id=sa;Password=<YourPassword>;TrustServerCertificate=True;"
      ```
 
 4. **Biên dịch và khởi chạy ứng dụng**:
    ```bash
    dotnet build
-   dotnet run --project src/HotelManagement
+   dotnet run --project src/AuraHotel
    ```
 
 ---
 
 ## Tài khoản Demo
 
-Dữ liệu mẫu trong `Database/HotelDB.sql` cung cấp sẵn 2 tài khoản để kiểm chứng phân quyền:
+Dữ liệu mẫu trong `Database/AuraHotelDb.sql` cung cấp sẵn 2 tài khoản để kiểm chứng phân quyền:
 
 | Tài khoản | Mật khẩu | Vai trò (`Users.Role`) | Phạm vi truy cập |
 | --- | --- | --- | --- |
@@ -156,10 +157,10 @@ npx -y -p @google/design.md designmd lint DESIGN.md
 ### Nguồn sự thật duy nhất (*Single Sources of Truth*)
 
 - **Thuật ngữ & Công thức nghiệp vụ**: [`GLOSSARY.md`](./GLOSSARY.md)
-- **Đặc tả hệ thống & User Stories**: [`docs/specs/hotel-management-system.md`](./docs/specs/hotel-management-system.md) ([SPEC `#77`](https://github.com/phantatdung233/WPF_QuanLyKhachSan/issues/77))
+- **Đặc tả hệ thống & User Stories**: [`docs/specs/hotel-management-system.md`](./docs/specs/hotel-management-system.md) ([SPEC `#77`](https://github.com/phantatdung233/AuraHotel/issues/77))
 - **Hệ thống thiết kế & Chống AI Slop**: [`DESIGN.md`](./DESIGN.md)
 - **Quy tắc thực thi Agent & Developer**: [`CLAUDE.md`](./CLAUDE.md), [`AGENTS.md`](./AGENTS.md), [`.cursorrules`](./.cursorrules)
-- **Backlog thực thi**: [GitHub Issues](https://github.com/phantatdung233/WPF_QuanLyKhachSan/issues) (`gh issue view <number>`)
+- **Backlog thực thi**: [GitHub Issues](https://github.com/phantatdung233/AuraHotel/issues) (`gh issue view <number>`)
 
 ### Quy tắc thực thi 2 Pha bắt buộc
 

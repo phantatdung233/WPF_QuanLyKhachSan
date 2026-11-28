@@ -1,6 +1,6 @@
 # Specification: Hotel Management System (WPF .NET 10 MVVM)
 
-**Issue Tracker Reference**: [Issue #77](https://github.com/phantatdung233/WPF_QuanLyKhachSan/issues/77)  
+**Issue Tracker Reference**: [Issue #77](https://github.com/phantatdung233/AuraHotel/issues/77)  
 **Design System Reference**: [`DESIGN.md`](../../DESIGN.md)  
 **Agent Workflow Reference**: [`CLAUDE.md`](../../CLAUDE.md), [`AGENTS.md`](../../AGENTS.md)  
 **Status**: `ready-for-agent`
@@ -45,18 +45,18 @@ Phát triển ứng dụng WPF Quản lý Khách sạn chuẩn kiến trúc MVVM
 18. As a Hotel Staff member, I want to click any room card on the Room Matrix to view details or double-click to initiate booking, check-in, or check-out.
 19. As a Hotel Staff member, I want to preview and export the itemized invoice to a clean UTF-8 text file (`.txt`) upon checkout.
 20. As a Hotel Administrator, I want to view revenue KPI metrics, occupancy progress bars, a revenue-by-day line chart, and an itemized paid invoice table over custom date ranges.
-21. As a Student / Presenter, I want a single-click SQL script (`Database/HotelDB.sql`) to seed deterministic demo data (users, room types, rooms, customers, services, bookings), so that demonstrations can be reset reliably in SSMS.
+21. As a Student / Presenter, I want a single-click SQL script (`Database/AuraHotelDb.sql`) to seed deterministic demo data (users, room types, rooms, customers, services, bookings), so that demonstrations can be reset reliably in SSMS.
 
 ## Implementation Decisions
 
 - **Architectural Pattern & 2-Phase Execution**: MVVM with `CommunityToolkit.Mvvm` 8.4.2 (`ObservableObject`, `[ObservableProperty]`, `[RelayCommand]`), executed strictly in two phases per [`CLAUDE.md`](../../CLAUDE.md) (Phase 1: Logic, DAO, TDD Seams & 4-state ViewModels passing `dotnet test`; Phase 2: XAML assembly from `DESIGN.md`). View navigation is managed via `CurrentView` in `MainViewModel` hosting Views inside a central `ContentControl` mapped by `DataTemplate`s in `App.xaml`.
-- **Solution & Cross-Platform Buildability**: Solution `HotelManagement.slnx` hosts `src/HotelManagement/HotelManagement.csproj` (`net10.0-windows`, `<UseWPF>true</UseWPF>`, `<EnableWindowsTargeting>true</EnableWindowsTargeting>`) and `tests/HotelManagement.Tests/HotelManagement.Tests.csproj` (`xUnit`), pinned via `global.json` (`10.0.100`, `rollForward: latestFeature`).
+- **Solution & Cross-Platform Buildability**: Solution `AuraHotel.slnx` hosts `src/AuraHotel/AuraHotel.csproj` (`net10.0-windows`, `<UseWPF>true</UseWPF>`, `<EnableWindowsTargeting>true</EnableWindowsTargeting>`) and `tests/AuraHotel.Tests/AuraHotel.Tests.csproj` (`xUnit`), pinned via `global.json` (`10.0.100`, `rollForward: latestFeature`).
 - **UI Framework & Design System**: `WPF-UI` 4.3.0 on `net10.0-windows`, governed by [`DESIGN.md`](../../DESIGN.md) at repo root (Google `DESIGN.md` format: light neutral surfaces `AppSurfaceBrush` / `CardSurfaceBrush`, Windows accent `#005FB8`, Segoe UI Variable typography, 4px control radius / 8px container radius, minimum window `1280×720`, mandatory 4 UI states `Loading` / `Empty` / `Error` / `Success`).
   - **Admin Sidebar (8 items)**: `Sơ đồ phòng`, `Đặt phòng`, `Phòng`, `Loại phòng`, `Khách hàng`, `Dịch vụ`, `Hóa đơn`, `Báo cáo`.
   - **Staff Sidebar (6 items)**: hides `Loại phòng` and `Báo cáo`.
 - **Charting**: `LiveChartsCore.SkiaSharpView.WPF` 2.0.5, used exclusively by the reporting module (`#64`) for a revenue-by-day `CartesianChart` (`LineSeries`).
-- **Database & Persistence**: Microsoft SQL Server (SSMS / SQL Server Express / LocalDB). Schema and deterministic seed data live in `Database/HotelDB.sql` with 8 core tables: `Users`, `RoomTypes`, `Rooms`, `Customers`, `Bookings`, `Services`, `BookingServices`, `Invoices`.
-- **Data Access Layer**: Pure ADO.NET (`Microsoft.Data.SqlClient`) via shared `DataProvider.cs` (`HOTEL_DB_CONNECTION` env var with fallback to `.\SQLEXPRESS`) and parameterized DAOs (`UserDAO`, `RoomTypeDAO`, `RoomDAO`, `CustomerDAO`, `ServiceDAO`, `BookingDAO`, `BookingServiceDAO`, `InvoiceDAO`). All 8 entity classes in `Models/` are created up front in `#59` alongside the schema to prevent cross-branch model drift.
+- **Database & Persistence**: Microsoft SQL Server (SSMS / SQL Server Express / LocalDB). Schema and deterministic seed data live in `Database/AuraHotelDb.sql` (`AuraHotelDb`) with 8 core tables: `Users`, `RoomTypes`, `Rooms`, `Customers`, `Bookings`, `Services`, `BookingServices`, `Invoices`.
+- **Data Access Layer**: Pure ADO.NET (`Microsoft.Data.SqlClient`) via shared `DataProvider.cs` (`AURA_HOTEL_DB_CONNECTION` env var, legacy fallback `HOTEL_DB_CONNECTION`, with fallback to `.\SQLEXPRESS`) and parameterized DAOs (`UserDAO`, `RoomTypeDAO`, `RoomDAO`, `CustomerDAO`, `ServiceDAO`, `BookingDAO`, `BookingServiceDAO`, `InvoiceDAO`). All 8 entity classes in `Models/` are created up front in `#59` alongside the schema to prevent cross-branch model drift.
 - **Domain Status & Role Representations (`GLOSSARY.md`)**:
   - `Users.Role`: `'Administrator'` (`Quản trị`) and `'Staff'` (`Lễ tân`).
   - `Rooms.Status` (`RoomStatus`): `Trống`, `Đang ở`, `Đã đặt`, `Bảo trì`.
@@ -67,11 +67,11 @@ Phát triển ứng dụng WPF Quản lý Khách sạn chuẩn kiến trúc MVVM
 ## Testing Decisions
 
 - **What Makes a Good Test**: Automated tests verify observable domain behavior and invariants through public interfaces, never private helpers or live SQL Server state. Manual E2E tests verify XAML layout, SQL Server persistence, and projector readiness.
-- **Pre-Agreed Automated Testing Seams (`tests/HotelManagement.Tests` via `xUnit`, run with `dotnet test`)**:
+- **Pre-Agreed Automated Testing Seams (`tests/AuraHotel.Tests` via `xUnit`, run with `dotnet test`)**:
   1. **Scheduling & Booking Seam (`BookingRules`)**: verifies the *Overlap Conflict Rule* (partial overlap, full containment, identical dates, adjacent same-day check-out/check-in allowed, `Đã hủy`/`Hoàn thành` bookings ignored), state transition guards, and date range validation (`CheckOutDate.Date > CheckInDate.Date`).
   2. **Billing, Receipt & Reporting Seam (`InvoiceCalculator` / `ReportAggregator`)**: verifies *Room Charge Policy* (same-day check-in/out billed as 1 night minimum, multi-night × `PricePerDay` + service lines = `1.070.000 đ` canonical case), *Settlement Invariant* state transitions, UTF-8 `.txt` receipt output formatting, and KPI / daily revenue grouping (including empty date ranges returning `0 đ`).
   3. **Input Validation & Role Seam (`ValidationRules` / `RolePermissions`)**: verifies CCCD (9 or 12 digits), Phone (`0` + 9 digits), `PricePerDay > 0`, `Service.Price >= 0`, `BookingService.Quantity >= 1`, delete-lock predicates, and `Administrator` (8 nav items) vs `Staff` (6 nav items) visibility.
-- **End-to-End Demo & Reset Verification (`#65`)**: Full user scenario rehearsal (`Login → Room Matrix → Booking → Check-in → Add Services → Check-out & .txt Export → Revenue Report`) on a clean Windows machine (`1280×720`), backed by 1-click re-seeding via `Database/HotelDB.sql` in SSMS.
+- **End-to-End Demo & Reset Verification (`#65`)**: Full user scenario rehearsal (`Login → Room Matrix → Booking → Check-in → Add Services → Check-out & .txt Export → Revenue Report`) on a clean Windows machine (`1280×720`), backed by 1-click re-seeding via `Database/AuraHotelDb.sql` in SSMS.
 
 ## Out of Scope
 
